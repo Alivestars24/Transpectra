@@ -1,0 +1,81 @@
+.track-delivery-container {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+  }
+  
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .map-section {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .map-image {
+    width: 100%;
+    height: auto;
+    max-width: 600px;
+  }
+  
+  .live-location-text {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #555;
+  }
+  
+  .tracking-checklist {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .checkpoint {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .checkpoint-status {
+    width: 40px;
+    height: 40px;
+    background-color: #4caf50; /* Green for done steps */
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-right: 15px;
+  }
+  
+  .checkpoint-status.in-progress {
+    background-color: #f39c12; /* Orange for in-progress steps */
+  }
+  
+  .checkpoint-details h4 {
+    margin: 0 0 5px;
+    font-size: 16px;
+  }
+  
+  .checkpoint-details p {
+    margin: 0;
+    font-size: 14px;
+    color: #555;
+  }
+  
+  .checkpoint-details small {
+    color: #999;
+    font-size: 12px;
+  }
+  
+  .vertical-line {
+    width: 2px;
+    height: 40px;
+    background-color: #ddd;
+    margin-left: 20px;
+  }
+  
