@@ -5,9 +5,9 @@ function Home() {
   return (
     <div className="h-screen bg-blue-5 relative overflow-x-hidden">
        <div className="w-10/12 mx-auto flex flex-row items-center justify-center">
-       <div className="text-center text-richblue-500">
-         <h1 className="text-4xl md:text-5xl font-bold mb-4">Gateway to Smarter Deliveries</h1>
-         <p className="text-lg md:text-[18px] mb-8">Connecting the dots of Supply Chain logistics, our approach ensures that every delivery is executed with unparalleled accuracy and consistency.</p>
+       <div className="text-richblue-500 font-inter">
+         <h1 className="text-xl md:text-3xl font-bold mb-4">Streamlining Your Supply Chain from End to End</h1>
+         <p className="text-md md:text-[15px] opacity-70 mb-8">Transpectra offers a seamless solution for managing your supply chain, from manufacturers to warehouses. With real-time tracking, smart inventory management, and optimized delivery routes, we ensure smooth and efficient operations. Streamline your logistics and stay in control every step of the way.</p>
          <div className="space-x-4">
            <Link to="/login">
            <button className="bg-blu text-white font-semibold py-2 px-8 rounded-lg hover:bg-blue-400 transition duration-300">Login</button>

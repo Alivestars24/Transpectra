@@ -26,8 +26,8 @@ function ManagerInsights() {
                 <div className="bg-blu w-full  p-4 border border-lblue shadow-md rounded-lg shadow-dblue ">
                     <div className="flex flex-row items-start justify-items-end gap-x-3">
                         <div className="flex flex-col justify-center gap-y-1">
-                        <p className="text-white font-medium opacity-80 text-lg">On-Time Deliveries</p>
-                        <h3 className="text-white font-semibold text-xl">95%</h3>
+                        <p className="text-white font-medium opacity-80 text-lg">Warehouse Utilization</p>
+                        <h3 className="text-white font-semibold text-xl">85%</h3>
                         </div>  
                         <div>
                             <TbTruckDelivery className="text-richblue-600 w-[40px] h-[40px]"/>

@@ -53,7 +53,7 @@ const Orders = () => {
       <div className="mb-4">
         <input
           type="text"
-          placeholder="Search by order number or supplier"
+          placeholder="Search by order number or manufacturer"
           className="w-full px-4 py-2 border border-gray-300 rounded-lg"
         />
       </div>
@@ -83,7 +83,7 @@ const Orders = () => {
               {/* Order Information */}
               <div className="ml-4 flex flex-col justify-center gap-y-2 pl-6">
                 <p className="text-lg font-semibold">{order.orderNumber}</p>
-                <p className="text-blue-800">Supplier: {order.supplier}</p>
+                <p className="text-blue-800">Manufacturer: {order.supplier}</p>
                 <p className="text-blue-800">Delivery Date: {order.deliveryDate}</p>
                 <p className={`text-md ${order.status === 'In Transit' ? 'text-blue-900' : 'text-green-500'}`}>
                   Status : {order.status}
@@ -94,7 +94,7 @@ const Orders = () => {
             {/* Right-hand side: Track Delivery Button */}
             <div className='flex flex-col gap-y-1 w-64 pr-20 justify-between'>
               
-              <p className="text-md text-richblue-600 ">Payment Status: {order.paymentStatus}</p>
+            
               <button
                 className="px-4 py-2 bg-blu text-white font-semibold rounded-lg mt-2"
                 onClick={() => handleTrackDelivery(order.id)}

@@ -146,9 +146,9 @@ function FulfillOrder() {
                         <tbody>
                             {orderDetails.map((item, index) => (
                                 <tr key={index} className="text-gray-700 text-sm">
-                                    <td className="py-2 px-2 border-b">{item.name}</td>
-                                    <td className="py-2 px-2 border-b">{item.providedQuantity}</td>
-                                    <td className="py-2 px-2 border-b">{item.unitCost}</td>
+                                    <td className="py-2 px-2 text-center border-b">{item.name}</td>
+                                    <td className="py-2 px-2 text-center border-b">{item.providedQuantity}</td>
+                                    <td className="py-2 px-2 text-center border-b">{item.unitCost}</td>
                                 </tr>
                             ))}
                         </tbody>

@@ -160,7 +160,7 @@ function InventoryLineChart() {
         <select
           value={selectedCategory}
           onChange={handleCategoryChange}
-          className="border border-blue-600 p-2 rounded-lg text-sm text-blue-700"
+          className="border border-blue-600 py-2 px-4 rounded-lg text-sm text-blue-700"
         >
           <option value="Electronics">Electronics</option>
           <option value="FMCG">FMCG</option>

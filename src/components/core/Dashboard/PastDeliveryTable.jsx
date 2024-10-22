@@ -62,7 +62,7 @@ const PastDeliveryTable = () => {
           <tr className="bg-blue-600 text-white">
             <th className="py-2 px-4 border-b border-gray-200">Delivery ID</th>
             <th className="py-2 px-4 border-b border-gray-200">Date</th>
-            <th className="py-2 px-4 border-b border-gray-200">Supplier</th>
+            <th className="py-2 px-4 border-b border-gray-200">Manufacturer</th>
             <th className="py-2 px-4 border-b border-gray-200">Destination</th>
             <th className="py-2 px-4 border-b border-gray-200">Items</th>
             <th className="py-2 px-4 border-b border-gray-200">Status</th>

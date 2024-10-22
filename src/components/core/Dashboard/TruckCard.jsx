@@ -20,7 +20,7 @@ const TruckCard = ({ truck, truckType }) => {
               </h3>
               <p className="text-md text-richblue-600">Model: {truck.truckModel}</p>
               <p className="text-md text-gray-600 text-richblue-600">Driver: {truck.driverName}</p>
-              <p className="text-md text-gray-600 text-richblue-600">Supplier: {truck.supplierName}</p>
+              <p className="text-md text-gray-600 text-richblue-600">Manufacturer: {truck.supplierName}</p>
               <p className="text-md text-gray-600 text-richblue-600">Arrival: {truck.arrivalTime}</p>
             </div>
             <div className='flex flex-col gap-y-2 justify-between'>

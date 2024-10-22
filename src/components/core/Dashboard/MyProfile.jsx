@@ -14,22 +14,22 @@ export default function MyProfile() {
   console.log("this is user fetch from the apis",user);
 
   // const isStore= user?.accountType === ACCOUNT_TYPE.SUPPLIER ? true : false
-  const isStore=true
+  const isStore=false
   return (
     <>
       <h1 className="mb-3 text-3xl font-medium text-black">
-      {isStore ? "Supplier" : "Warehouse"}
+      {isStore ? "Manufacturer" : "Warehouse"}
       </h1>
       <div className="flex items-center justify-between rounded-md border-[1px] border-richblue-500 bg-llblue py-3 px-8">
         <div className="flex items-center gap-x-4">
           <img
             src={ima}
-            alt={"Image of Walmart store"}
+            alt={"Image of Warehouse"}
             className="aspect-square w-[82px] rounded-full object-cover"
           />
           <div className="space-y-1">
             <p className="text-2xl font-semibold text-ddblue">
-            {isStore ? "Kumar & Sons Wholesale Distributors" : "Bharat Logistics Hub"}
+            {isStore ? "Kumar & Sons Pvt Ltd" : "Bharat Logistics Hub"}
             </p>
             <p className="text-sm text-richblue-800">
             {isStore ? "C-2/17, New Industrial Area,Phase-II, Bhiwandi, Thane,Maharashtra-421302, India" : "Plot No. 45, Sector 21,Industrial Estate, Manesar,Gurgaon, Haryana- 122051, India"}

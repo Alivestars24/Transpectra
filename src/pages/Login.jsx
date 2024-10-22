@@ -4,7 +4,7 @@ import Template from "../components/core/Template"
 function Login() {
   return (
     <Template
-      title="Enter Your details here"
+      title="Enter your details here"
       image={loginImg}
       formType="login"
     />

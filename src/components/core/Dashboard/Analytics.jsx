@@ -1,4 +1,3 @@
-import AdminInsights from "./AdminInsights"
 import ManagerInsights from "./ManagerInsights"
 
 function Analytics() {

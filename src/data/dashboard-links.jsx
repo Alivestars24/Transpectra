@@ -37,7 +37,7 @@ export const sidebarLinks = [
   },
   {
     id: 6,
-    name: "Deliveries",
+    name: "Requests",
     path: "/dashboard/deliveries",
     type: ACCOUNT_TYPE.DISTRIBUTION_CENTER_MANAGER,
     icon: "VscChecklist",

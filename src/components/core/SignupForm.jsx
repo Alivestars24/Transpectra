@@ -72,7 +72,7 @@ function SignupForm() {
             checked={accountType === "DC_managers"}
             onChange={() => setAccountType(ACCOUNT_TYPE.DISTRIBUTION_CENTER_MANAGER)}
           />
-          Admin
+          Manufacturer
         </label>
         <label className="text-[0.875rem] leading-[1.075rem] text-richblue-700">
           <input
