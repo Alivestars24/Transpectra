@@ -1,10 +1,11 @@
-import loginImg from "../assets/Images/Singup.jpeg"
+import loginImg from "../assets/Images/lo.jpeg"
 import Template from "../components/core/Template"
 
 function Login() {
   return (
     <Template
-      title="Enter your details here"
+      title="Welcome Back to Transpectra"
+      description="Enter the details below to Continue "
       image={loginImg}
       formType="login"
     />

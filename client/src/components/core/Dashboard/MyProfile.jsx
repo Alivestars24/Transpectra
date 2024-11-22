@@ -3,8 +3,6 @@ import { useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom"
 import ima from "../../../assets/Images/image1.png"
 import { ACCOUNT_TYPE } from "../../../utils/constants"
-
-import { formattedDate } from "../../../utils/dateFormatter"
 import IconBtn from "../../Common/IconBtn"
 
 export default function MyProfile() {
@@ -13,8 +11,7 @@ export default function MyProfile() {
 
   console.log("this is user fetch from the apis",user);
 
-  // const isStore= user?.accountType === ACCOUNT_TYPE.SUPPLIER ? true : false
-  const isStore=false
+  const isStore= user?.accountType === ACCOUNT_TYPE.SUPPLIER ? true : false
   return (
     <>
       <h1 className="mb-3 text-3xl font-medium text-black">
@@ -84,19 +81,13 @@ export default function MyProfile() {
             <div>
               <p className="mb-1 text-sm text-ddblue">First Name</p>
               <p className="text-md font-medium text-richblue-900">
-                  {/* { `${user?.firstName}`}*/}Ajay
+                  { `${user?.firstName}`}
               </p>
             </div>
             <div>
               <p className="mb-1 text-sm text-ddblue">Email</p>
               <p className="text-md font-medium text-richblue-900">
-                {/* {user?.email} */}ajaymassey.work@gmail.com
-              </p>
-            </div>
-            <div>
-              <p className="mb-1 text-sm text-ddblue">Gender</p>
-              <p className="text-md font-medium text-richblue-900">
-                {user?.additionalDetails?.gender || "Male"}
+                {user?.email}
               </p>
             </div>
           </div>
@@ -108,19 +99,12 @@ export default function MyProfile() {
               </p>
             </div>
             <div>
-              <p className="mb-1 text-sm text-ddblue">Employee Id</p>
+              <p className="mb-1 text-sm text-ddblue">Contact Number</p>
               <p className="text-md font-medium text-richblue-900">
-                {user?._id || "45678930tuyfdsfg"}
+                {user?.contactNumber || "9876543210"}
               </p>
             </div>
-            <div>
-              <p className="mb-1 text-sm text-ddblue">Date Of Birth</p>
-              <p className="text-sm font-medium text-richblue-900">
-                {
-                  user?.additionalDetails.dateOfBirth || "Add the  Date of Birth"
-                }
-              </p>
-            </div>
+            
           </div>
         </div>
       </div>

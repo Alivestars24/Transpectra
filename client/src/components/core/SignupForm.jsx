@@ -10,7 +10,7 @@ import { ACCOUNT_TYPE } from "../../utils/constants"
 function SignupForm() {
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const [accountType, setAccountType] = useState(ACCOUNT_TYPE.DISTRIBUTION_CENTER_MANAGER)
+  const [accountType, setAccountType] = useState(ACCOUNT_TYPE.WAREHOUSE_MANAGER)
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -57,7 +57,7 @@ function SignupForm() {
       confirmPassword: "",
       contactNumber: "",
     })
-    setAccountType(ACCOUNT_TYPE.DISTRIBUTION_CENTER_MANAGER)
+    setAccountType(ACCOUNT_TYPE.WAREHOUSE_MANAGER)
   }
 
   return (
@@ -68,9 +68,9 @@ function SignupForm() {
           <input
             type="radio"
             name="accountType"
-            value="Admin"
-            checked={accountType === "DC_managers"}
-            onChange={() => setAccountType(ACCOUNT_TYPE.DISTRIBUTION_CENTER_MANAGER)}
+            value="Supplier"
+            checked={accountType === ACCOUNT_TYPE.SUPPLIER}
+            onChange={() => setAccountType(ACCOUNT_TYPE.SUPPLIER)}
           />
           Manufacturer
         </label>
@@ -78,11 +78,11 @@ function SignupForm() {
           <input
             type="radio"
             name="accountType"
-            value="Manager"
-            checked={accountType === ACCOUNT_TYPE.STORE_MANAGER}
-            onChange={() => setAccountType(ACCOUNT_TYPE.STORE_MANAGER)}
+            value="Warehouse_Manager"
+            checked={accountType === ACCOUNT_TYPE.WAREHOUSE_MANAGER}
+            onChange={() => setAccountType(ACCOUNT_TYPE.WAREHOUSE_MANAGER)}
           />
-          Manager
+          Warehouse Manager
         </label>
       </div>
 

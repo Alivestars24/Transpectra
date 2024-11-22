@@ -1,10 +1,10 @@
-import signupImg from "../assets/Images/signup1.png"
+import signupImg from "../assets/Images/lo2.jpeg"
 import Template from "../components/core/Template"
 
 function Signup() {
   return (
     <Template
-      title="Create Your Account"
+      title="Welcome to Transpectra"
       image={signupImg}
       formType="signup"
     />

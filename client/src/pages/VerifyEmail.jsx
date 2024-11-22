@@ -72,7 +72,7 @@ function VerifyEmail() {
                   style={{
                     boxShadow: "inset 0px -1px 0px rgba(255, 255, 255, 0.18)",
                   }}
-                  className="w-[38px] lg:w-[45px] border-0 bg-blue-25 rounded-[0.5rem] text-richblue-600 aspect-square text-center focus:border-0 focus:outline-2 focus:outline-blue-100"
+                  className="w-[38px] lg:w-[45px] border-0 bg-llblue rounded-[0.5rem] text-richblue-600 aspect-square text-center focus:border-0 focus:outline-2 focus:outline-blue-100"
                 />
               )}
               containerStyle={{
