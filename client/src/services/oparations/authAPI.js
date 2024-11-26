@@ -5,6 +5,7 @@ import { setUser } from "../../slices/profileSlice"
 import { apiConnector } from "../apiConnector"
 import { endpoints } from "../api"
 import Cookies from 'js-cookie';
+import { fetchWarehouseDetails } from "./warehouseAPI"
 
 
 const {
@@ -190,7 +191,9 @@ export function login(email, password, navigate) {
 
             Cookies.set('token', response.data.token, { expires: 7 });
             Cookies.set('storeToken', response.data.storeToken, { expires: 7 });
-
+            const userID=response.data.user._id
+            dispatch(fetchWarehouseDetails(userID))
+            
             navigate("/dashboard/my-profile")
         } catch (error) {
             console.log("LOGIN API ERROR............", error)

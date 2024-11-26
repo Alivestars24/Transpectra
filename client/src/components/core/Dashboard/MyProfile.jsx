@@ -11,16 +11,15 @@ export default function MyProfile() {
   const dispatch=useDispatch();
   const { user } = useSelector((state) => state.profile)
   const navigate = useNavigate()
-
   const { warehouse } = useSelector((state) => state.warehouse); // Access warehouse data
 
-  useEffect(() => {
-    if (user?._id) {
-      console.log("Fetching warehouse details for manager ID:", user._id);
-      dispatch(fetchWarehouseDetails(user._id));
-    }
-  }, [user?._id, dispatch]);
-
+  // useEffect(() => {
+  //   if (user?._id) {
+  //     console.log("Fetching warehouse details for manager ID:", user._id);
+  //     dispatch(fetchWarehouseDetails(user._id));
+  //   }
+  // }, []);
+ 
   // Log the fetched warehouse details
   useEffect(() => {
     if (warehouse) {
