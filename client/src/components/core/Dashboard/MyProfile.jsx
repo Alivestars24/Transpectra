@@ -1,14 +1,39 @@
 import { RiEditBoxLine } from "react-icons/ri"
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux";
+import { fetchWarehouseDetails } from "../../../services/oparations/warehouseAPI";
 import { useNavigate } from "react-router-dom"
 import ima from "../../../assets/Images/image1.png"
 import { ACCOUNT_TYPE } from "../../../utils/constants"
 import IconBtn from "../../Common/IconBtn"
+import { useEffect } from "react";
 
 export default function MyProfile() {
+  const dispatch=useDispatch();
   const { user } = useSelector((state) => state.profile)
   const navigate = useNavigate()
 
+  const { warehouse } = useSelector((state) => state.warehouse); // Access warehouse data
+
+  useEffect(() => {
+    if (user?._id) {
+      console.log("Fetching warehouse details for manager ID:", user._id);
+      dispatch(fetchWarehouseDetails(user._id));
+    }
+  }, [user?._id, dispatch]);
+
+  // Log the fetched warehouse details
+  useEffect(() => {
+    if (warehouse) {
+      console.log("Warehouse Details:");
+      console.log("Name:", warehouse.warehouseName);
+      console.log("Address:", warehouse.warehouseAddress);
+      console.log("Area:", warehouse.warehouseArea);
+      console.log("Description:", warehouse.warehouseDescription);
+      console.log("Manager ID:", warehouse.managerId);
+      console.log("Inventory:", warehouse.inventory);
+      console.log("Yards:", warehouse.yards);
+    }
+  }, [warehouse]);
   console.log("this is user fetch from the apis",user);
 
   const isStore= user?.accountType === ACCOUNT_TYPE.SUPPLIER ? true : false
@@ -20,18 +45,18 @@ export default function MyProfile() {
       <div className="flex items-center justify-between rounded-md border-[1px] border-richblue-500 bg-llblue py-3 px-8">
         <div className="flex items-center gap-x-4">
           <img
-            src={ima}
+            src={warehouse.warehouseImage} 
             alt={"Image of Warehouse"}
             className="aspect-square w-[82px] rounded-full object-cover"
           />
           <div className="space-y-1">
             <p className="text-2xl font-semibold text-ddblue">
-            {isStore ? "Kumar & Sons Pvt Ltd" : "Bharat Logistics Hub"}
+            {warehouse.warehouseName}
             </p>
             <p className="text-sm text-richblue-800">
-            {isStore ? "C-2/17, New Industrial Area,Phase-II, Bhiwandi, Thane,Maharashtra-421302, India" : "Plot No. 45, Sector 21,Industrial Estate, Manesar,Gurgaon, Haryana- 122051, India"}
+            {warehouse.warehouseAddress}
             </p>
-            <p className="text-sm text-richblue-800">{isStore ? "20,000 sq.ft" : "150,000 sq.ft"}</p>
+            <p className="text-sm text-richblue-800">{warehouse.warehouseArea}</p>
           </div>
         </div>
         <IconBtn
@@ -58,14 +83,13 @@ export default function MyProfile() {
         <p
           className=" text-sm font-medium text-richblue-800 "
         >
-          {isStore ? "Kumar & Sons, based in Bhiwandi, Maharashtra, operates a 20,000 sq. ft. facility, efficiently handling bulk orders of FMCG, electronics, and pharmaceuticals. We prioritize timely delivery and optimized logistics to serve businesses across Western India.":
-          " At Bharat Logistics Hub, we manage 150,000 sq. ft. of prime warehouse space in Manesar, Gurgaon. Our facility is equipped with cutting-edge inventory management and real-time tracking systems, ensuring smooth operations and fast, reliable distribution across North India."}
+          {warehouse.warehouseDescription}
         </p>
       </div>
       <div className="my-4 flex flex-col gap-y-2 rounded-md border-[1px] border-richblue-500 bg-llblue p-3 px-8">
         <div className="flex w-full items-center justify-between">
           <p className="text-xl font-semibold text-richblue-900">
-            {isStore?"Manager Details":"Warehouse Manager Details"}
+            {isStore?"Company Manager Details":"Warehouse Manager Details"}
           </p>
           <IconBtn
             text="Edit"
@@ -101,7 +125,7 @@ export default function MyProfile() {
             <div>
               <p className="mb-1 text-sm text-ddblue">Contact Number</p>
               <p className="text-md font-medium text-richblue-900">
-                {user?.contactNumber || "9876543210"}
+                {user?.additionalDetails.contactNumber || "89"}
               </p>
             </div>
             

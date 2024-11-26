@@ -84,6 +84,16 @@ function SignupForm() {
           />
           Warehouse Manager
         </label>
+        <label className="text-[0.875rem] leading-[1.075rem] text-richblue-700">
+          <input
+            type="radio"
+            name="accountType"
+            value="yard_manager"
+            checked={accountType === ACCOUNT_TYPE.YARD_MANAGER}
+            onChange={() => setAccountType(ACCOUNT_TYPE.YARD_MANAGER)}
+          />
+          Yard Manager
+        </label>
       </div>
 
       {/* Form */}

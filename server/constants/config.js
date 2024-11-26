@@ -19,7 +19,11 @@ const CONFIG = {
         route: '/api/v1/route',
         distribution_center: '/api/v1/distribution-center',
         store: '/api/v1/store',
-        driver: '/api/v1/driver'
+        driver: '/api/v1/driver',
+        warehouse: '/api/v1/warehouse',
+        manufacturingUnit: '/api/v1/manufacturingUnit',
+        yard: '/api/v1/yard',
+        
     },
     KEYS: {
         CLOUDINARY: {

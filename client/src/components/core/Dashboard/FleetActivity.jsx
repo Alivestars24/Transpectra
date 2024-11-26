@@ -1,11 +1,5 @@
 import React, { useState } from 'react';
 import TruckCard from './TruckCard';
-import img1 from '../../../assets/Images/tr1.jpeg';
-import img2 from '../../../assets/Images/tr2.jpeg';
-import img3 from '../../../assets/Images/tr3.jpeg';
-import img4 from '../../../assets/Images/tr4.png';
-import img5 from '../../../assets/Images/tr5.jpeg';
-import img6 from '../../../assets/Images/tr6.jpeg';
 
 const FleetActivity = () => {
   const [truckType, setTruckType] = useState('Unloading'); // Default value as 'Unloading'
@@ -18,12 +12,10 @@ const FleetActivity = () => {
       driverName: 'Ajay Sharma',
       supplierName: 'Saksham Pvt',
       arrivalTime: '2024-10-16 09:00 AM',
-      departureTime: '2024-10-16 12:00 PM',
       dock: 'Dock #4',
       driverContact: '+91 9876543210',
       priority: 'High',
       status: 'Loading',
-      truckImage:img1,
       productList: [
         { id: 'C2453', name: 'Coco Cola Bottle (2L)', quantity: 200 },
         { id: 'C5678', name: 'Water Bottle (Plastic)', quantity: 180 },
@@ -35,12 +27,10 @@ const FleetActivity = () => {
       driverName: 'Vijay Ghogle',
       supplierName: 'Hera Ltd',
       arrivalTime: '2024-10-16 10:00 AM',
-      departureTime: '2024-10-16 01:00 PM',
       dock: 'Dock #2',
       driverContact: '+91 9988776655',
       priority: 'Medium',
       status: 'Unloading',
-      truckImage:img2,
       productList: [
         { id: 'C5679', name: 'Tiffin Boxes (Medium)', quantity: 85 },
         { id: 'C6790', name: 'Juice Bottles (1L)', quantity: 120 },
@@ -53,12 +43,10 @@ const FleetActivity = () => {
       driverName: 'Rajesh Kumar',
       supplierName: 'Fresh Dairy Ltd',
       arrivalTime: '2024-10-16 08:30 AM',
-      departureTime: '2024-10-16 11:30 AM',
       dock: 'Dock #3',
       driverContact: '+91 9845123476',
       priority: 'Low',
       status: 'Loading',
-      truckImage:img3,
       productList: [
         { id: 'D3456', name: 'Milk (500ml)', quantity: 500 },
         { id: 'D4567', name: 'Butter (200g)', quantity: 150 },
@@ -70,12 +58,9 @@ const FleetActivity = () => {
       driverName: 'Nikhil Patil',
       supplierName: 'Green Veg Pvt',
       arrivalTime: '2024-10-16 11:00 AM',
-      departureTime: '2024-10-16 01:00 PM',
       dock: 'Dock #5',
       driverContact: '+91 9123456789',
       priority: 'Medium',
-      status: 'Unloading',
-      truckImage:img4,
       productList: [
         { id: 'V1234', name: 'Tomatoes (25kg)', quantity: 100 },
         { id: 'V2345', name: 'Potatoes (30kg)', quantity: 80 },
@@ -87,12 +72,10 @@ const FleetActivity = () => {
       driverName: 'Suresh Deshmukh',
       supplierName: 'Spice Traders Pvt',
       arrivalTime: '2024-10-16 07:45 AM',
-      departureTime: '2024-10-16 10:15 AM',
       dock: 'Dock #1',
       driverContact: '+91 9876543321',
       priority: 'High',
       status: 'Loading',
-      truckImage:img5,
       productList: [
         { id: 'S1234', name: 'Chili Powder (10kg)', quantity: 50 },
         { id: 'S5678', name: 'Turmeric Powder (5kg)', quantity: 40 },
@@ -104,12 +87,10 @@ const FleetActivity = () => {
       driverName: 'Ganesh Rao',
       supplierName: 'Frozen Foods Ltd',
       arrivalTime: '2024-10-16 12:00 PM',
-      departureTime: '2024-10-16 03:00 PM',
       dock: 'Dock #6',
       driverContact: '+91 9567854321',
       priority: 'High',
       status: 'Unloading',
-      truckImage:img6,
       productList: [
         { id: 'F3456', name: 'Frozen Peas (1kg)', quantity: 400 },
         { id: 'F7890', name: 'Frozen Sweet Corn (1kg)', quantity: 350 },
@@ -147,7 +128,7 @@ const FleetActivity = () => {
       </div>
 
       {/* Search Input */}
-      <div className="mt-4">
+      <div className="mt-2">
         <input
           type="text"
           placeholder="Search by License Plate Number"

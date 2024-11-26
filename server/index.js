@@ -3,6 +3,8 @@ const express = require("express")
 const app = express()
 const database = require("./config/db")
 const dotenv = require("dotenv")
+const path=require("path")
+
 const { CONFIG } = require('./constants/config')
 const { auth } = require('./middleware/auth');
 
@@ -19,23 +21,30 @@ const cors = require("cors") //backend should entertain frontend's request
 
 
 const { cloudinaryConnect } = require("./config/cloudinary")
-const fileUpload = require("express-fileupload")
+//const fileUpload = require("express-fileupload")
 
 // Middlewares
 app.use(express.json());
 app.use(cookieParser());
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(
     cors({
         origin: process.env.CLIENT,
         credentials: true,
     })
 )
-app.use(
-    fileUpload({
-        useTempFiles: true,
-        tempFileDir: "/tmp/",
-    })
-)
+// app.use(
+//     fileUpload({
+//         useTempFiles: true,
+//         tempFileDir: "/uploads/",
+//         limits: { fileSize: 20 * 1024 * 1024 },
+//     })
+// )
+const fs = require("fs");
+const uploadDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 // Connecting to cloudinary
 cloudinaryConnect()
@@ -48,6 +57,9 @@ const DistributionStoreRoutes = require('./routes/DistributionCenter')
 const storeRoutes = require('./routes/Store');
 const driverRoutes = require('./routes/driver');
 const deliveriesRoutes = require('./routes/deliveries')
+const warehouseRoutes = require('./routes/warehouseRoutes')
+const ManufacturingComapanyRoutes =require('./routes/ManufacturingCompanyRoutes')
+const YardManage = require('./routes/YardManage')
 
 app.get("/", (req, res) => {
     return res.json({
@@ -64,6 +76,9 @@ app.use(CONFIG.APIS.distribution_center, auth, DistributionStoreRoutes);
 app.use(CONFIG.APIS.store, auth, storeRoutes);
 app.use(CONFIG.APIS.driver, auth, driverRoutes);
 app.use(CONFIG.APIS.delivery, auth, deliveriesRoutes)
+app.use(CONFIG.APIS.warehouse, warehouseRoutes)
+app.use(CONFIG.APIS.manufacturingUnit, ManufacturingComapanyRoutes)
+app.use(CONFIG.APIS.yard, YardManage)
 
 
 // Listening to the server

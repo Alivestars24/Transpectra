@@ -20,6 +20,11 @@ import FleetActivity from "./components/core/Dashboard/FleetActivity";
 import SupplierOrders from "./components/core/Dashboard/SupplierOrders";
 import FulfillOrder from "./components/core/Dashboard/FulfillOrder";
 import OrderDetails from "./components/core/Dashboard/OrderDetails";
+import WarehouseForm from "./pages/WarehouseForm";
+import YardForm from "./pages/YardForm";
+import IncomingFleetPage from "./components/core/Dashboard/IncomingFleetPage";
+import FleetOverviewPage from "./components/core/Dashboard/FleetOverviewPage";
+import CompanyForm from "./pages/CompanyForm";
 
 function App() {
   const navigate = useNavigate();
@@ -42,6 +47,9 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/warehouse-form" element={<WarehouseForm />} />
+        <Route path="/yard-form" element={<YardForm />} />
+        <Route path="/company-form" element={<CompanyForm/>}/>
         <Route element={<Dashboard />}>
           {/* private Routes = */}
           <Route
@@ -49,6 +57,22 @@ function App() {
             element={
               <PrivateRoute>
                 <MyProfile />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="dashboard/incomingtruck"
+            element={
+              <PrivateRoute>
+                <IncomingFleetPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="dashboard/exitingtruck"
+            element={
+              <PrivateRoute>
+                <FleetActivity />
               </PrivateRoute>
             }
           />
@@ -96,7 +120,7 @@ function App() {
             path="dashboard/fleetActivity"
             element={
               <PrivateRoute>
-                <FleetActivity/>
+                <FleetOverviewPage/>
               </PrivateRoute>
             }
           />

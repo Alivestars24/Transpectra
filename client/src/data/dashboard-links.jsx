@@ -42,4 +42,18 @@ export const sidebarLinks = [
     type: ACCOUNT_TYPE.SUPPLIER,
     icon: "VscChecklist",
   },
+  {
+    id: 7,
+    name: "Incoming Fleet",
+    path: "/dashboard/incomingtruck",
+    type: ACCOUNT_TYPE.WAREHOUSE_MANAGER,
+    icon: "VscChecklist",
+  },
+  {
+    id: 8,
+    name: "Outgoing Fleet",
+    path: "/dashboard/exitingtruck",
+    type: ACCOUNT_TYPE.WAREHOUSE_MANAGER,
+    icon: "VscChecklist",
+  },
 ]

@@ -13,6 +13,8 @@ const {
     LOGIN_API,
     RESETPASSTOKEN_API,
     RESETPASSWORD_API,
+    WAREHOUSE_DETAILS_API,
+    COMPANY_API,
 } = endpoints
 
 export function sendOtp(email, navigate) {
@@ -79,9 +81,20 @@ export function signUp(
             if (!response.data.success) {
                 throw new Error(response.data.message)
             }
-            toast.success("Signup Successful")
+            toast.success("Signup Successful");
+            // Navigate based on the accountType in the response
+            console.log(response)
+            const userId = response.data.user._id; 
 
-            navigate("/login")
+    // Navigate based on the accountType in the response and pass userId
+    if (response.data.user.accountType === "Warehouse_Manager") {
+        navigate(`/warehouse-form`, { state: { userId } });
+    } else if (response.data.user.accountType === "yard_manager") {
+        navigate(`/yard-form`, { state: { userId } });
+    } else {
+        navigate(`/company-form`, { state: { userId } });
+    }
+
         } catch (error) {
             console.log("SIGNUP API ERROR............", error)
             toast.error("Signup Failed")
@@ -90,6 +103,61 @@ export function signUp(
         dispatch(setLoading(false))
         toast.dismiss(toastId)
     }
+}
+
+export function registerWarehouse(formData, navigate) {
+    return async (dispatch) => {
+        const toastId = toast.loading("Registering Warehouse...");
+        try {
+            // Make the API call to register warehouse details
+            const response = await apiConnector("POST", WAREHOUSE_DETAILS_API, formData);
+
+            console.log("WAREHOUSE API RESPONSE............", response);
+
+            if (!response.data.success) {
+                throw new Error(response.data.message);
+            }
+
+            toast.success("Warehouse Registered Successfully!");
+            
+            // Navigate to a specific page after successful registration
+            navigate("/login"); // Replace with the appropriate route
+            
+            return response.data.warehouse; // Return the registered warehouse details if needed
+        } catch (error) {
+            console.error("WAREHOUSE API ERROR............", error);
+            toast.error("Failed to Register Warehouse");
+            throw error; // Re-throw the error for potential error handling at the call site
+        } finally {
+            toast.dismiss(toastId);
+        }
+    };
+}
+
+export function registerCompany(formData, navigate) {
+    return async (dispatch) => {
+        const toastId = toast.loading("Registering Manufacturing Unit...");
+        try {
+            // Make the API call to register warehouse details
+            const response = await apiConnector("POST", COMPANY_API, formData);
+
+            console.log("COMPANY API RESPONSE............", response);
+            if (!response.data.success) {
+                throw new Error(response.data.message);
+            }
+
+            toast.success("Company Registered Successfully!");
+            navigate("/login"); 
+            
+            return response.data; // Return the registered warehouse details if needed
+        } catch (error) {
+            console.error("COMPANY API ERROR............", error);
+            toast.error("Failed to Register company");
+            throw error; 
+        } finally {
+            toast.dismiss(toastId);
+        }
+    };
 }
 
 

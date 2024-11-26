@@ -10,6 +10,9 @@ export const endpoints = {
   LOGIN_API: BASE_URL + "/auth/login",
   RESETPASSTOKEN_API: BASE_URL + "/auth/reset-password-token",
   RESETPASSWORD_API: BASE_URL + "/auth/reset-password",
+  WAREHOUSE_DETAILS_API: BASE_URL+"/warehouse/addWarehouse",
+  COMPANY_API:BASE_URL+"/manufacturingUnit/addManufacturingCompany",
+  FETCH_WAREHOUSE_API:BASE_URL+"/warehouse",
 }
 
 // PROFILE ENDPOINTS

@@ -7,31 +7,24 @@ const TruckCard = ({ truck, truckType }) => {
   return (
     <div className="p-4 bg-white shadow-lg border rounded-lg">
       <div className="flex">
-        <img
-          src={truck.truckImage}
-          alt="Truck"
-          className="w-60 h-44 object-cover rounded-lg"
-        />
         <div className="ml-10 flex-1 pr-4">
-          <div className="flex justify-between">
-            <div className='flex flex-col gap-y-2 justify-between'>
+          <div className="flex justify-between ">
+            <div className='flex flex-col gap-y-2 justify-evenly'>
               <h3 className="text-xl font-semibold text-blue-700">
                 {truck.id}
               </h3>
               <p className="text-md text-richblue-600">Model: {truck.truckModel}</p>
               <p className="text-md text-gray-600 text-richblue-600">Driver: {truck.driverName}</p>
-              <p className="text-md text-gray-600 text-richblue-600">Manufacturer: {truck.supplierName}</p>
               <p className="text-md text-gray-600 text-richblue-600">Arrival: {truck.arrivalTime}</p>
             </div>
-            <div className='flex flex-col gap-y-2 justify-between'>
-              <p className="font-bold text-red-600">Priority: {truck.priority}</p>
-              <p className="text-md text-richblue-600">Departure: {truck.departureTime}</p>
+            <div className='flex flex-col gap-y-2 justify-between mr-12'>
               <p className="text-md text-richblue-600">Dock: {truck.dock}</p>
               <p className="text-md text-richblue-600">Contact: {truck.driverContact}</p>
+              <p className="text-md text-richblue-600">Purpose: {truck.status}</p>
               <button
                 className="px-4 py-2 bg-blu text-white font-semibold rounded-lg mt-2"
               >
-                Mark as {truckType === 'Loading' ? 'Loaded' : 'Unloaded'}
+                Mark as Departed
               </button>
             </div>
           </div>

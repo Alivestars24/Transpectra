@@ -26,7 +26,7 @@ const UserSchema = new mongoose.Schema(
         },
         accountType: {
             type: String,
-            enum: ["Supplier", "Warehouse_Manager", "Driver"],
+            enum: ["Supplier", "Warehouse_Manager", "Driver","yard_manager"],
             required: true,
         },
         active: {
@@ -41,6 +41,18 @@ const UserSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             required: true,
             ref: "Profile",
+        },
+        LinkedWarehouseID: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Warehouse",
+        },
+        LinkedManufacturingUnitID: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "ManufacturingUnit",
+        },
+        LinkedYardID: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Yard",
         },
         token: {
             type: String,
