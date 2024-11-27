@@ -1,8 +1,7 @@
 import { FiTrash2 } from "react-icons/fi"
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom"
-
-// import { deleteProfile } from "../../../../services/operations/SettingsAPI"
+import { deleteProfile } from "../../../../services/oparations/SettingsAPI"
 
 export default function DeleteAccount() {
   const { token } = useSelector((state) => state.auth)
@@ -11,7 +10,7 @@ export default function DeleteAccount() {
 
   async function handleDeleteAccount() {
     try {
-    //   dispatch(deleteProfile(token, navigate))
+    dispatch(deleteProfile(token, navigate))
     } catch (error) {
       console.log("ERROR MESSAGE - ", error.message)
     }
@@ -23,7 +22,7 @@ export default function DeleteAccount() {
         <div className="flex aspect-square h-12 w-13 items-center justify-center rounded-full bg-lblue">
           <FiTrash2 className="text-2xl text-richblue-500" />
         </div>
-        <div className="flex flex-col space-y-2">
+        <div className="flex flex-col items-start space-y-2">
           <h2 className="text-lg font-semibold text-white">
             Delete Account
           </h2>

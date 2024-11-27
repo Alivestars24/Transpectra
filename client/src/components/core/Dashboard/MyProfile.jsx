@@ -1,67 +1,75 @@
-import { RiEditBoxLine } from "react-icons/ri"
+import { RiEditBoxLine } from "react-icons/ri";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchWarehouseDetails } from "../../../services/oparations/warehouseAPI";
-import { useNavigate } from "react-router-dom"
-import ima from "../../../assets/Images/image1.png"
-import { ACCOUNT_TYPE } from "../../../utils/constants"
-import IconBtn from "../../Common/IconBtn"
+import { useNavigate } from "react-router-dom";
+import IconBtn from "../../Common/IconBtn";
 import { useEffect } from "react";
 
 export default function MyProfile() {
-  const dispatch=useDispatch();
-  const { user } = useSelector((state) => state.profile)
-  const navigate = useNavigate()
-  const { warehouse } = useSelector((state) => state.warehouse); // Access warehouse data
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.profile?.user || null); // Ensure user exists
+  const warehouse = useSelector((state) => state.warehouse?.warehouse || null); // Fetch warehouse details
+  const company = useSelector((state) => state.company?.company || null); // Fetch company details
+  const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   if (user?._id) {
-  //     console.log("Fetching warehouse details for manager ID:", user._id);
-  //     dispatch(fetchWarehouseDetails(user._id));
-  //   }
-  // }, []);
- 
-  // Log the fetched warehouse details
+  // Debugging logs
   useEffect(() => {
-    if (warehouse) {
-      console.log("Warehouse Details:");
-      console.log("Name:", warehouse.warehouseName);
-      console.log("Address:", warehouse.warehouseAddress);
-      console.log("Area:", warehouse.warehouseArea);
-      console.log("Description:", warehouse.warehouseDescription);
-      console.log("Manager ID:", warehouse.managerId);
-      console.log("Inventory:", warehouse.inventory);
-      console.log("Yards:", warehouse.yards);
-    }
-  }, [warehouse]);
-  console.log("this is user fetch from the apis",user);
+    console.log("User Data:", user);
+    console.log("Warehouse Data:", warehouse);
+    console.log("Company Data:", company);
+  }, [user, warehouse, company]);
 
-  const isStore= user?.accountType === ACCOUNT_TYPE.SUPPLIER ? true : false
+  const isStore = user?.accountType === "supplier";
+  const isWarehouseManager = user?.accountType === "Warehouse_Manager";
+
+  // Avoid rendering if essential data is missing
+  if (!user || (!warehouse && isWarehouseManager) || (!company && isStore)) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-lg font-semibold text-red-600">
+          Loading data or incorrect API responses. Please try again.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <>
       <h1 className="mb-3 text-3xl font-medium text-black">
-      {isStore ? "Manufacturer" : "Warehouse"}
+        {isStore ? "Manufacturer" : "Warehouse"}
       </h1>
       <div className="flex items-center justify-between rounded-md border-[1px] border-richblue-500 bg-llblue py-3 px-8">
         <div className="flex items-center gap-x-4">
           <img
-            src={warehouse.warehouseImage} 
-            alt={"Image of Warehouse"}
+            src={
+              isWarehouseManager
+                ? warehouse?.warehouseImage || ""
+                : company?.companyImage || ""
+            }
+            alt={"Profile"}
             className="aspect-square w-[82px] rounded-full object-cover"
           />
           <div className="space-y-1">
             <p className="text-2xl font-semibold text-ddblue">
-            {warehouse.warehouseName}
+              {isWarehouseManager
+                ? warehouse?.warehouseName || "N/A"
+                : company?.companyName || "N/A"}
             </p>
             <p className="text-sm text-richblue-800">
-            {warehouse.warehouseAddress}
+              {isWarehouseManager
+                ? warehouse?.warehouseAddress || "N/A"
+                : company?.companyAddress || "N/A"}
             </p>
-            <p className="text-sm text-richblue-800">{warehouse.warehouseArea}</p>
+            <p className="text-sm text-richblue-800">
+              {isWarehouseManager
+                ? warehouse?.warehouseArea || "N/A"
+                : company?.companyArea || "N/A"}
+            </p>
           </div>
         </div>
         <IconBtn
           text="Edit"
           onclick={() => {
-            navigate("/dashboard/settings")
+            navigate("/dashboard/settings");
           }}
         >
           <RiEditBoxLine />
@@ -69,31 +77,29 @@ export default function MyProfile() {
       </div>
       <div className="mt-4 mb-1 flex flex-col gap-y-2 rounded-md border-[1px] border-richblue-500 bg-llblue p-3 px-8">
         <div className="flex w-full items-center justify-between">
-          <p className="text-lg -4 font-semibold text-richblue-900">About</p>
+          <p className="text-lg font-semibold text-richblue-900">About</p>
           <IconBtn
             text="Edit"
             onclick={() => {
-              navigate("/dashboard/settings")
+              navigate("/dashboard/settings");
             }}
           >
             <RiEditBoxLine />
           </IconBtn>
         </div>
-        <p
-          className=" text-sm font-medium text-richblue-800 "
-        >
-          {warehouse.warehouseDescription}
+        <p className="text-sm font-medium text-richblue-800">
+          {isWarehouseManager
+            ? warehouse?.warehouseDescription || "No description available."
+            : company?.companyDescription || "No description available."}
         </p>
       </div>
       <div className="my-4 flex flex-col gap-y-2 rounded-md border-[1px] border-richblue-500 bg-llblue p-3 px-8">
         <div className="flex w-full items-center justify-between">
-          <p className="text-xl font-semibold text-richblue-900">
-            {isStore?"Company Manager Details":"Warehouse Manager Details"}
-          </p>
+          <p className="text-xl font-semibold text-richblue-900">User Details</p>
           <IconBtn
             text="Edit"
             onclick={() => {
-              navigate("/dashboard/settings")
+              navigate("/dashboard/settings");
             }}
           >
             <RiEditBoxLine />
@@ -104,33 +110,32 @@ export default function MyProfile() {
             <div>
               <p className="mb-1 text-sm text-ddblue">First Name</p>
               <p className="text-md font-medium text-richblue-900">
-                  { `${user?.firstName}`}
+                {user?.firstName || "N/A"}
               </p>
             </div>
             <div>
               <p className="mb-1 text-sm text-ddblue">Email</p>
               <p className="text-md font-medium text-richblue-900">
-                {user?.email}
+                {user?.email || "N/A"}
               </p>
             </div>
           </div>
           <div className="flex flex-col gap-y-5">
-          <div>
+            <div>
               <p className="mb-1 text-sm text-ddblue">Last Name</p>
               <p className="text-md font-medium text-richblue-900">
-                {user?.lastName || "Massay"}
+                {user?.lastName || "N/A"}
               </p>
             </div>
             <div>
               <p className="mb-1 text-sm text-ddblue">Contact Number</p>
               <p className="text-md font-medium text-richblue-900">
-                {user?.additionalDetails.contactNumber || "89"}
+                {user?.additionalDetails?.contactNumber || "N/A"}
               </p>
             </div>
-            
           </div>
         </div>
       </div>
     </>
-  )
+  );
 }

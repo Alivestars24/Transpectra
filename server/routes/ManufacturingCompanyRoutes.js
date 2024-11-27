@@ -43,4 +43,6 @@ router.post(
   manufacturingCompanyController.addManufacturingCompany
 );
 
+router.get("/:managerId", manufacturingCompanyController.getCompanyDetailsByManagerId);
+
 module.exports = router;

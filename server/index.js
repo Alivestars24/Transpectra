@@ -60,6 +60,11 @@ const deliveriesRoutes = require('./routes/deliveries')
 const warehouseRoutes = require('./routes/warehouseRoutes')
 const ManufacturingComapanyRoutes =require('./routes/ManufacturingCompanyRoutes')
 const YardManage = require('./routes/YardManage')
+const graph1route = require('./routes/graph1route')
+const fleetroute = require('./routes/fleetroute')
+const OrderedProductsRoutes = require('./routes/OrderedProductsRoutes')
+const OrderRequestRoute = require('./routes/OrderRequestRoute')
+
 
 app.get("/", (req, res) => {
     return res.json({
@@ -79,6 +84,10 @@ app.use(CONFIG.APIS.delivery, auth, deliveriesRoutes)
 app.use(CONFIG.APIS.warehouse, warehouseRoutes)
 app.use(CONFIG.APIS.manufacturingUnit, ManufacturingComapanyRoutes)
 app.use(CONFIG.APIS.yard, YardManage)
+app.use(CONFIG.APIS.graph1, graph1route)
+app.use(CONFIG.APIS.fleet, fleetroute)
+app.use(CONFIG.APIS.OrderedProducts, OrderedProductsRoutes)
+app.use(CONFIG.APIS.OrderRequest, OrderRequestRoute)
 
 
 // Listening to the server

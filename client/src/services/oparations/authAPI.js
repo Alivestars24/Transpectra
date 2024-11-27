@@ -6,7 +6,8 @@ import { apiConnector } from "../apiConnector"
 import { endpoints } from "../api"
 import Cookies from 'js-cookie';
 import { fetchWarehouseDetails } from "./warehouseAPI"
-
+import { fetchCompanyDetails } from "./CompanyAPI"
+import { fetchYardDetails } from "./YardAPI"
 
 const {
     SENDOTP_API,
@@ -16,6 +17,7 @@ const {
     RESETPASSWORD_API,
     WAREHOUSE_DETAILS_API,
     COMPANY_API,
+    YARD_DETAILS_API,
 } = endpoints
 
 export function sendOtp(email, navigate) {
@@ -161,6 +163,31 @@ export function registerCompany(formData, navigate) {
     };
 }
 
+export function registerYard(formData, navigate) {
+    return async (dispatch) => {
+        const toastId = toast.loading("Registering Yard with Warehouse...");
+        try {
+            // Make the API call to register warehouse details
+            const response = await apiConnector("POST", YARD_DETAILS_API, formData);
+
+            console.log("YARD API RESPONSE............", response);
+            if (!response.data.success) {
+                throw new Error(response.data.message);
+            }
+
+            toast.success("Yard Registered Successfully!");
+            navigate("/login"); 
+            
+            return response.data; 
+        } catch (error) {
+            console.error("yard API ERROR............", error);
+            toast.error("Failed to Register Yard");
+            throw error; 
+        } finally {
+            toast.dismiss(toastId);
+        }
+    };
+}
 
 export function login(email, password, navigate) {
     return async (dispatch) => {
@@ -191,9 +218,18 @@ export function login(email, password, navigate) {
 
             Cookies.set('token', response.data.token, { expires: 7 });
             Cookies.set('storeToken', response.data.storeToken, { expires: 7 });
-            const userID=response.data.user._id
-            dispatch(fetchWarehouseDetails(userID))
-            
+
+            console.log(response)
+            const userId = response.data.user._id; 
+
+    // Navigate based on the accountType in the response and pass userId
+    if (response.data.user.accountType === "Warehouse_Manager") {
+        await dispatch(fetchWarehouseDetails(userId));
+    } else if (response.data.user.accountType === "yard_manager") {
+        navigate(`/yard-form`, { state: { userId } });
+    } else {
+        await dispatch(fetchCompanyDetails(userId));
+    }
             navigate("/dashboard/my-profile")
         } catch (error) {
             console.log("LOGIN API ERROR............", error)

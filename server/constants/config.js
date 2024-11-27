@@ -23,7 +23,11 @@ const CONFIG = {
         warehouse: '/api/v1/warehouse',
         manufacturingUnit: '/api/v1/manufacturingUnit',
         yard: '/api/v1/yard',
-        
+        graph1: '/api/v1/graph1',
+        fleet: '/api/v1/fleet',
+        OrderedProducts: '/api/v1/OrderedProducts',
+        OrderRequest: '/api/v1/OrderRequest'
+          
     },
     KEYS: {
         CLOUDINARY: {
