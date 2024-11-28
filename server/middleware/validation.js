@@ -1,4 +1,4 @@
-const { errorFunction } = require('../utils/errorFunction');
+const { msgFunction } = require('../utils/msgFunction');
 
 module.exports = (schema) => (req, res, next) => {
 
@@ -7,7 +7,7 @@ module.exports = (schema) => (req, res, next) => {
   if (error) {
     res.status(406);
     return res.json(
-      errorFunction(true, `Error in User Data : ${error.details[0].message}`)
+      msgFunction(true, `Error in User Data : ${error.details[0].message}`)
     );
   }
   next();

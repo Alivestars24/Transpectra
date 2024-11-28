@@ -4,9 +4,9 @@ const Product = require("../models/Products");
 const { uploadImageToCloudinary } = require("../utils/imageUploader");
 const { uploadFileToCloudinary } = require("../utils/fileUploader");
 const xlsx = require("xlsx");
-const { errorFunction } = require("../utils/errorFunction");
+const { msgFunction } = require("../utils/msgFunction");
 const moment = require("moment");
-const User =require("../models/User")
+const User = require("../models/User")
 
 exports.addWarehouse = async (req, res) => {
   try {
@@ -94,9 +94,9 @@ exports.addWarehouse = async (req, res) => {
     await warehouse.save();
     const manager = await User.findById(managerId);
     if (!manager) {
-        throw new Error("Warehouse Manager not found");
+      throw new Error("Warehouse Manager not found");
     }
-    
+
     manager.LinkedWarehouseID = warehouse._id; // Assign the created warehouse ID
     await manager.save();
     console.log("done with Adding and appending")
@@ -112,7 +112,7 @@ exports.addWarehouse = async (req, res) => {
     // **Handle and log errors**
     console.error("Error while adding warehouse:", error);
     return res.status(500).json(
-      errorFunction(false, "An error occurred while adding warehouse and inventory.", error.message)
+      msgFunction(false, "An error occurred while adding warehouse and inventory.", error.message)
     );
   }
 };

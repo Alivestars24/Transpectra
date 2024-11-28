@@ -9,7 +9,7 @@ const Profile = require("../models/Profile")
 const AvailabilityStatus = require('../models/AvailabilityStatus');
 const Store = require('../models/Store');
 const DistributionCenter = require('../models/DistributionCenter')
-const { errorFunction } = require('../utils/errorFunction')
+const { msgFunction } = require('../utils/msgFunction')
 require("dotenv").config();
 const { CONFIG } = require('../constants/config')
 
@@ -43,13 +43,13 @@ exports.signup = async (req, res) => {
             !accountType
         ) {
             return res.status(403).json(
-                errorFunction(false, "All Fields are required")
+                msgFunction(false, "All Fields are required")
             )
         }
         // Check if password and confirm password match
         if (password !== confirmPassword) {
             return res.status(400).json(
-                errorFunction(false, "Password and Confirm Password do not match. Please try again.")
+                msgFunction(false, "Password and Confirm Password do not match. Please try again.")
             )
         }
 
@@ -57,7 +57,7 @@ exports.signup = async (req, res) => {
         const existingUser = await User.findOne({ email })
         if (existingUser) {
             return res.status(400).json(
-                errorFunction(false, "User already exists. Please sign in to continue."))
+                msgFunction(false, "User already exists. Please sign in to continue."))
         }
 
         // Find the most recent OTP for the email
@@ -66,11 +66,11 @@ exports.signup = async (req, res) => {
         if (response.length === 0) {
             // OTP not found for the email
             return res.status(400).json(
-                errorFunction(false, "The OTP is not valid"))
+                msgFunction(false, "The OTP is not valid"))
         } else if (otp !== response[0].otp) {
             // Invalid OTP
             return res.status(400).json(
-                errorFunction(false, "The OTP is not valid"))
+                msgFunction(false, "The OTP is not valid"))
         }
 
         // Hash the password
@@ -133,7 +133,7 @@ exports.signup = async (req, res) => {
     } catch (error) {
         console.error(error)
         return res.status(500).json(
-            errorFunction(false, "User cannot be registered. Please try again."))
+            msgFunction(false, "User cannot be registered. Please try again."))
     }
 }
 
@@ -147,7 +147,7 @@ exports.login = async (req, res) => {
         if (!email || !password || !platform) {
             // Return 400 Bad Request status code with error message
             return res.status(400).json(
-                errorFunction(false, "Please Fill up All the Required Fields")
+                msgFunction(false, "Please Fill up All the Required Fields")
             )
         }
 
@@ -183,7 +183,7 @@ exports.login = async (req, res) => {
         if (!user) {
             // Return 401 Unauthorized status code with error message
             return res.status(401).json(
-                errorFunction(false, "User is not Registered with Us Please SignUp to Continue"))
+                msgFunction(false, "User is not Registered with Us Please SignUp to Continue"))
         }
 
         // Generate JWT token and Compare Password
@@ -203,7 +203,7 @@ exports.login = async (req, res) => {
             const options = {
                 expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
                 httpOnly: true,
-                secure: false,     
+                secure: false,
                 sameSite: 'None',
             }
 
@@ -223,14 +223,14 @@ exports.login = async (req, res) => {
             console.log("User Login Success")
         } else {
             return res.status(401).json(
-                errorFunction(false, `Password is incorrect`)
+                msgFunction(false, `Password is incorrect`)
             )
         }
     } catch (error) {
         console.error(error)
         // Return 500 Internal Server Error status code with error message
         return res.status(500).json(
-            errorFunction(false, `Login Failure Please Try Again`)
+            msgFunction(false, `Login Failure Please Try Again`)
         )
     }
 }
@@ -251,7 +251,7 @@ exports.sendotp = async (req, res) => {
         if (checkUserPresent) {
             // Return 401 Unauthorized status code with error message
             return res.status(401).json(
-                errorFunction(false, `User is Already Registered`)
+                msgFunction(false, `User is Already Registered`)
             );
         }
 
@@ -292,7 +292,7 @@ exports.changePassword = async (req, res) => {
 
         if (userDetails.email === "guest@gmail.com") {
             return res.status(400).json(
-                errorFunction(false, "Please don't try to change the password for the Guest Account 🥹")
+                msgFunction(false, "Please don't try to change the password for the Guest Account 🥹")
             )
         }
 
@@ -309,7 +309,7 @@ exports.changePassword = async (req, res) => {
             return res
                 .status(401)
                 .json(
-                    errorFunction(false, "The password is incorrect")
+                    msgFunction(false, "The password is incorrect")
                 )
         }
 
