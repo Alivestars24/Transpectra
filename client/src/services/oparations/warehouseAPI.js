@@ -11,6 +11,7 @@ export function fetchWarehouseDetails(managerId) {
         // Send GET request with managerId as a query parameter
         const response = await apiConnector("GET", `${endpoints.FETCH_WAREHOUSE_API}/${managerId}`);
         console.log("FETCH_WAREHOUSE API RESPONSE............", response);
+        console.log("i am fetching the user details")
   
         // Check if the response is successful and handle data
         if (!response.data || !response.data.warehouse) {

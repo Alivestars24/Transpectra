@@ -32,12 +32,13 @@ function App() {
   const { user } = useSelector((state) => state.profile);
 
   useEffect(() => {
+    console.log("i want to token from here ")
     if (Cookies.get("token")) {
       const token = Cookies.get("token");
       console.log("this is token",token);
       dispatch(getUserDetails(token, navigate));
     }
-  }, []);
+  }, [dispatch]);
 
   return (
     <div className="flex min-h-screen w-screen flex-col bg-white font-inter overflow-y-auto hide-horizontal-scroll ">

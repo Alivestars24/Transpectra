@@ -33,11 +33,11 @@ exports.auth = async (req, res, next) => {
         try {
             // Verifying the JWT using the secret key stored in environment variables
             const decode = await jwt.verify(token, CONFIG.JWT.TOKEN);
-            const storedecode = await jwt.verify(storeToken, CONFIG.JWT.TOKEN);
+            // const storedecode = await jwt.verify(storeToken, CONFIG.JWT.TOKEN);
 
             // Storing the decoded JWT payload in the request object for further use
             req.user = decode;
-            req.store = storedecode;
+            // req.store = storedecode;
         } catch (error) {
             // If JWT verification fails, return 401 Unauthorized response
             return res
