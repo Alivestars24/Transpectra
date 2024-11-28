@@ -2,7 +2,7 @@ const User = require("../models/User")
 const mailSender = require("../utils/mailSender")
 const bcrypt = require("bcrypt")
 const crypto = require("crypto")
-const { errorFunction } = require('../utils/errorFunction');
+const { msgFunction } = require('../utils/msgFunction');
 const { CONFIG } = require('../constants/config');
 
 exports.resetPasswordToken = async (req, res) => {
@@ -11,12 +11,12 @@ exports.resetPasswordToken = async (req, res) => {
         const user = await User.findOne({ email: email })
         if (!user) {
             return res.json(
-                errorFunction(false, `This Email: ${email} is not Registered With Us Enter a Valid Email `))
+                msgFunction(false, `This Email: ${email} is not Registered With Us Enter a Valid Email `))
         }
 
         if (user.email === "guest@gmail.com") {
             return res.status(400).json(
-                errorFunction(false, "Please don't try to reset the password for the Guest Account 🥹")
+                msgFunction(false, "Please don't try to reset the password for the Guest Account 🥹")
             )
         }
 
@@ -61,24 +61,24 @@ exports.resetPassword = async (req, res) => {
 
         if (confirmPassword !== password) {
             return res.json(
-                errorFunction(false, "Password and Confirm Password Does not Match")
+                msgFunction(false, "Password and Confirm Password Does not Match")
             )
         }
         const userDetails = await User.findOne({ token: token })
         if (!userDetails) {
             return res.json(
-                errorFunction(false, "Token is Invalid"))
+                msgFunction(false, "Token is Invalid"))
         }
 
         if (userDetails.email === "guest@gmail.com") {
             return res.status(400).json(
-                errorFunction(false, "Please don't try to reset the password for the Guest Account 🥹")
+                msgFunction(false, "Please don't try to reset the password for the Guest Account 🥹")
             )
         }
 
         if (!(userDetails.resetPasswordExpires > Date.now())) {
             return res.status(403).json(
-                errorFunction(false, `Token is Expired, Please Regenerate Your Token`)
+                msgFunction(false, `Token is Expired, Please Regenerate Your Token`)
             )
         }
         const encryptedPassword = await bcrypt.hash(password, 10)

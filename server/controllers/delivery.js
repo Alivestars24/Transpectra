@@ -1,5 +1,5 @@
 const Delivery = require('../models/Delivery');
-const { errorFunction } = require('../utils/errorFunction');
+const { msgFunction } = require('../utils/msgFunction');
 const { CONFIG } = require('../constants/config')
 const mongoose = require('mongoose');
 
@@ -20,12 +20,12 @@ exports.FetchDelivery = async (req, res) => {
 
 
         if (!userId) {
-            return res.status(401).json(errorFunction(false, "You are not authenticated!"));
+            return res.status(401).json(msgFunction(false, "You are not authenticated!"));
         }
 
         if (deliveryId && !mongoose.Types.ObjectId.isValid(deliveryId)) {
             return res.status(400).json(
-                errorFunction(false, "Incorrect delivery ID. Please provide a valid ID.")
+                msgFunction(false, "Incorrect delivery ID. Please provide a valid ID.")
             );
         }
 
@@ -38,7 +38,7 @@ exports.FetchDelivery = async (req, res) => {
         else if (accountType === CONFIG.ACCOUNT_TYPE.DISTRIBUTION_CENTER || accountType === CONFIG.ACCOUNT_TYPE.STORE) {
             if (!storeId) {
                 return res.status(400).json(
-                    errorFunction(false, "Your Store is Not Found! Please log in again.")
+                    msgFunction(false, "Your Store is Not Found! Please log in again.")
                 );
             }
 
@@ -48,7 +48,7 @@ exports.FetchDelivery = async (req, res) => {
         }
         else {
             return res.status(403).json(
-                errorFunction(false, "You are not permitted to fetch deliveries!")
+                msgFunction(false, "You are not permitted to fetch deliveries!")
             );
         }
 
@@ -60,7 +60,7 @@ exports.FetchDelivery = async (req, res) => {
 
         if (!deliveries || deliveries.length === 0) {
             return res.status(404).json(
-                errorFunction(false, "No Delivery Items are found!")
+                msgFunction(false, "No Delivery Items are found!")
             );
         }
 
@@ -72,7 +72,7 @@ exports.FetchDelivery = async (req, res) => {
     } catch (error) {
         console.error("Error in FetchDelivery:", error);
         return res.status(500).json(
-            errorFunction(false, "An error occurred while fetching the delivery.", error.message)
+            msgFunction(false, "An error occurred while fetching the delivery.", error.message)
         );
     }
 };
@@ -84,20 +84,20 @@ exports.CreateDelivery = async (req, res) => {
 
         const {
 
-        } = req.body; 
- 
+        } = req.body;
+
 
 
         if (userId == null) {
-            return res.status(401).json(errorFunction(false, "You are not authenticated!"));
+            return res.status(401).json(msgFunction(false, "You are not authenticated!"));
         }
 
         if (accountType !== CONFIG.ACCOUNT_TYPE.DISTRIBUTION_CENTER) {
-            return res.status(401).json(errorFunction(false, "You are not permitted to Create deliveries!"))
+            return res.status(401).json(msgFunction(false, "You are not permitted to Create deliveries!"))
         }
 
 
-        
+
 
 
     } catch (error) {

@@ -1,7 +1,7 @@
 const Yard = require("../models/Yard");
 const Warehouse = require("../models/Warehouse");
 const User = require("../models/User");
-const { errorFunction } = require("../utils/errorFunction");
+const { msgFunction } = require("../utils/msgFunction");
 const { CONFIG } = require("../constants/config");
 
 exports.addYard = async (req, res) => {
@@ -34,8 +34,12 @@ exports.addYard = async (req, res) => {
     });
 
     if (existingYard) {
-      throw new Error(
-        "A Yard with the same Yard Manager and Warehouse already exists"
+      return res.status(201).json(
+        msgFunction(
+          true,
+          "A Yard with the same Yard Manager and Warehouse already exists",
+          existingYard
+        )
       );
     }
 
@@ -60,7 +64,7 @@ exports.addYard = async (req, res) => {
   } catch (error) {
     console.error("Error while adding yard:", error);
     return res.status(500).json(
-      errorFunction(
+      msgFunction(
         false,
         error.message
       )

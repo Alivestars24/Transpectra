@@ -1,5 +1,5 @@
 const User = require("../models/User")
-const { errorFunction } = require('../utils/errorFunction')
+const { msgFunction } = require('../utils/msgFunction')
 const _ = require('lodash');
 
 exports.profile = async (req, res) => {
@@ -10,7 +10,7 @@ exports.profile = async (req, res) => {
 
         if (!userId) {
             return res.status(401).json(
-                errorFunction(false, "You are not authenticated first Log In!")
+                msgFunction(false, "You are not authenticated first Log In!")
             )
         }
 
@@ -31,7 +31,7 @@ exports.profile = async (req, res) => {
     } catch (error) {
         console.error(error);
         return res.status(500).json(
-            errorFunction(false, "An error occurred while fetching the user Profile", error.message)
+            msgFunction(false, "An error occurred while fetching the user Profile", error.message)
         );
     }
 }

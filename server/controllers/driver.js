@@ -1,5 +1,5 @@
 const available_driver = require('../models/AvailabilityStatus')
-const { errorFunction } = require('../utils/errorFunction')
+const { msgFunction } = require('../utils/msgFunction')
 const distribution_center = require('../models/DistributionCenter');
 const delivery = require('../models/Delivery');
 const availability_status = require('../models/AvailabilityStatus');
@@ -15,7 +15,7 @@ exports.FetchDriver = async (req, res) => {
         console.log(dsId);
 
         if (!dsId) {
-            return res.json(errorFunction(false, "Distribution Center field is required"));
+            return res.json(msgFunction(false, "Distribution Center field is required"));
         }
 
         console.log(dsId)
@@ -23,19 +23,19 @@ exports.FetchDriver = async (req, res) => {
         const DC = await distribution_center.findById(dsId);
 
         if (!DC) {
-            return res.json(errorFunction(false, "Distribution Center Not found"));
+            return res.json(msgFunction(false, "Distribution Center Not found"));
         }
 
         const { status } = req.query;
 
         const statusOrder = ['assigned', 'onDelivery', 'available'];
 
-        let filter = { _id : dsId };
+        let filter = { _id: dsId };
         if (status && statusOrder.includes(status)) {
             filter.status = status;
         }
 
-        console.log("filter",filter);
+        console.log("filter", filter);
 
         const allAvailableDriver = available_driver.find(filter);
 
@@ -46,7 +46,7 @@ exports.FetchDriver = async (req, res) => {
 
     } catch (error) {
         console.log(error)
-        return res.status(500).json(errorFunction(false, JSON.stringify(error.message)))
+        return res.status(500).json(msgFunction(false, JSON.stringify(error.message)))
     }
 }
 
@@ -59,22 +59,22 @@ exports.ChooseDelivery = async (req, res) => {
         const { isAccepted } = req.body;
 
         if (!driverId) {
-            return res.json(errorFunction(false, "You are not authenticated!"));
+            return res.json(msgFunction(false, "You are not authenticated!"));
         }
 
         if (accountType !== CONFIG.ACCOUNT_TYPE.DRIVER) {
-            return res.json(errorFunction(false, "You are not permitted!"));
+            return res.json(msgFunction(false, "You are not permitted!"));
         }
 
         if (!mongoose.Types.ObjectId.isValid(deliveryId)) {
             return res.status(400).json(
-                errorFunction(false, "Incorrect delivery ID. Please provide a valid ID.")
+                msgFunction(false, "Incorrect delivery ID. Please provide a valid ID.")
             );
         }
 
         if (isAccepted == 'false') {
             return res.json(
-                errorFunction(true, "Successfully, you did not accept the delivery ride.")
+                msgFunction(true, "Successfully, you did not accept the delivery ride.")
             );
         }
 
@@ -86,7 +86,7 @@ exports.ChooseDelivery = async (req, res) => {
 
         if (!deliveryUpdateResult) {
             return res.json(
-                errorFunction(false, "This delivery was not found.")
+                msgFunction(false, "This delivery was not found.")
             );
         }
 
@@ -96,7 +96,7 @@ exports.ChooseDelivery = async (req, res) => {
 
         if (!driverAvailability) {
             return res.json(
-                errorFunction(false, "Driver availability status not found.")
+                msgFunction(false, "Driver availability status not found.")
             );
         }
 
@@ -113,13 +113,13 @@ exports.ChooseDelivery = async (req, res) => {
             });
         } else {
             return res.json(
-                errorFunction(false, "You have already been assigned a delivery. Please complete it before accepting another.")
+                msgFunction(false, "You have already been assigned a delivery. Please complete it before accepting another.")
             );
         }
     } catch (error) {
         console.error("Error in ChooseDelivery:", error);
         return res.status(500).json(
-            errorFunction(false, "An error occurred while choosing the delivery.", error.message)
+            msgFunction(false, "An error occurred while choosing the delivery.", error.message)
         );
     }
 };

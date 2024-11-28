@@ -1,7 +1,7 @@
 const ManufacturingCompany = require("../models/ManufacturingCompany");
 const { uploadImageToCloudinary } = require("../utils/imageUploader");
 const User = require("../models/User");
-const { errorFunction } = require("../utils/errorFunction");
+const { msgFunction } = require("../utils/msgFunction");
 
 exports.addManufacturingCompany = async (req, res) => {
   try {
@@ -56,7 +56,7 @@ exports.addManufacturingCompany = async (req, res) => {
     // **Handle and log errors**
     console.error("Error while adding manufacturing company:", error);
     return res.status(500).json(
-      errorFunction(false, "An error occurred while adding the manufacturing company.", error.message)
+      msgFunction(false, "An error occurred while adding the manufacturing company.", error.message)
     );
   }
 };

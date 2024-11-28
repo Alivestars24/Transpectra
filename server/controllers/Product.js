@@ -1,6 +1,6 @@
 
 const Delivery = require('../models/Delivery');
-const { errorFunction } = require('../utils/errorFunction');
+const { msgFunction } = require('../utils/msgFunction');
 const { CONFIG } = require('../constants/config')
 const mongoose = require('mongoose');
 
@@ -15,7 +15,7 @@ exports.Get_products = async (req, res) => {
 
         if (id) {
             if (!mongoose.Types.ObjectId.isValid(id)) {
-                return res.status(400).json(errorFunction(false, "Invalid product ID"));
+                return res.status(400).json(msgFunction(false, "Invalid product ID"));
             }
             query._id = id;
         }
@@ -29,7 +29,7 @@ exports.Get_products = async (req, res) => {
             : await Product.find(query);
 
         if (!products || (Array.isArray(products) && products.length === 0)) {
-            return res.status(404).json(errorFunction(false, "No products found"));
+            return res.status(404).json(msgFunction(false, "No products found"));
         }
 
         return res.status(200).json({
@@ -40,7 +40,7 @@ exports.Get_products = async (req, res) => {
     } catch {
         console.error("Error in FetchProducts:", error);
         return res.status(500).json(
-            errorFunction(false, "An error occurred while fetching the Products.", error.message)
+            msgFunction(false, "An error occurred while fetching the Products.", error.message)
         );
     }
 }
@@ -55,12 +55,12 @@ exports.Create_products = async (req, res) => {
 
 
         if (!userId) {
-            return res.status(401).json(errorFunction(false, "You are not authenticated!"));
+            return res.status(401).json(msgFunction(false, "You are not authenticated!"));
         }
 
         if (deliveryId && !mongoose.Types.ObjectId.isValid(deliveryId)) {
             return res.status(400).json(
-                errorFunction(false, "Incorrect delivery ID. Please provide a valid ID.")
+                msgFunction(false, "Incorrect delivery ID. Please provide a valid ID.")
             );
         }
 
@@ -73,7 +73,7 @@ exports.Create_products = async (req, res) => {
         else if (accountType === CONFIG.ACCOUNT_TYPE.DISTRIBUTION_CENTER || accountType === CONFIG.ACCOUNT_TYPE.STORE) {
             if (!storeId) {
                 return res.status(400).json(
-                    errorFunction(false, "Your Store is Not Found! Please log in again.")
+                    msgFunction(false, "Your Store is Not Found! Please log in again.")
                 );
             }
 
@@ -83,7 +83,7 @@ exports.Create_products = async (req, res) => {
         }
         else {
             return res.status(403).json(
-                errorFunction(false, "You are not permitted to fetch deliveries!")
+                msgFunction(false, "You are not permitted to fetch deliveries!")
             );
         }
 
@@ -95,7 +95,7 @@ exports.Create_products = async (req, res) => {
 
         if (!deliveries || deliveries.length === 0) {
             return res.status(404).json(
-                errorFunction(false, "No Delivery Items are found!")
+                msgFunction(false, "No Delivery Items are found!")
             );
         }
 
@@ -107,7 +107,7 @@ exports.Create_products = async (req, res) => {
     } catch (error) {
         console.error("Error in FetchDelivery:", error);
         return res.status(500).json(
-            errorFunction(false, "An error occurred while fetching the delivery.", error.message)
+            msgFunction(false, "An error occurred while fetching the delivery.", error.message)
         );
     }
 };

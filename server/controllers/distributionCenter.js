@@ -1,7 +1,7 @@
 const store = require('../models/Store');
 const DistributionCenter = require('../models/DistributionCenter')
 const Delivery = require('../models/Delivery');
-const { errorFunction } = require('../utils/errorFunction');
+const { msgFunction } = require('../utils/msgFunction');
 
 
 exports.AssignDelivery = async (req, res) => {
@@ -11,23 +11,23 @@ exports.AssignDelivery = async (req, res) => {
         const { deliveryId } = req.params;
 
         if (!dis_centerId) {
-            return res.json(errorFunction(false, "Distribution Center field is required"));
+            return res.json(msgFunction(false, "Distribution Center field is required"));
         }
 
         if (!deliveryId) {
-            return res.json(errorFunction(false, "This delivery is not available"));
+            return res.json(msgFunction(false, "This delivery is not available"));
         }
 
 
         const DC = await distribution_center.findOne({ dsId });
 
         if (!DC) {
-            return res.json(errorFunction(false, "Distribution Center Not found"));
+            return res.json(msgFunction(false, "Distribution Center Not found"));
         }
 
     } catch (error) {
         return res.json(
-            errorFunction(false, `Some Error in Assign Delivery`, error.message)
+            msgFunction(false, `Some Error in Assign Delivery`, error.message)
         )
     }
 
@@ -41,7 +41,7 @@ exports.Deliveries = async (req, res) => {
 
         if (!dis_centerId) {
             return res.status(400).json(
-                errorFunction(false, "You are not Authenticated!")
+                msgFunction(false, "You are not Authenticated!")
             );
         }
 
@@ -61,7 +61,7 @@ exports.Deliveries = async (req, res) => {
 
         if (deliveryId && deliveries.length === 0) {
             return res.status(404).json(
-                errorFunction(false, "Delivery not found")
+                msgFunction(false, "Delivery not found")
             );
         }
 
@@ -72,7 +72,7 @@ exports.Deliveries = async (req, res) => {
 
     } catch (error) {
         return res.status(500).json(
-            errorFunction(false, `Some Error in fetch Delivery`, error.message)
+            msgFunction(false, `Some Error in fetch Delivery`, error.message)
         )
     }
 }
@@ -84,7 +84,7 @@ exports.GetDistributionCenter = async (req, res) => {
 
         if (!dis_CenterId) {
             return res.status(400).json(
-                errorFunction(false, "You are not Authenticated")
+                msgFunction(false, "You are not Authenticated")
             );
         }
 
@@ -92,7 +92,7 @@ exports.GetDistributionCenter = async (req, res) => {
 
         if (!DisCenter) {
             return res.status(404).json(
-                errorFunction(false, "Distribution not found!")
+                msgFunction(false, "Distribution not found!")
             );
         }
 
@@ -105,7 +105,7 @@ exports.GetDistributionCenter = async (req, res) => {
     } catch (error) {
         console.error(error);
         return res.status(500).json(
-            errorFunction(false, "An error occurred while fetching Distribution Center", error.message)
+            msgFunction(false, "An error occurred while fetching Distribution Center", error.message)
         );
     }
 }
@@ -118,12 +118,12 @@ exports.UpdatedDistributionCenter = async (req, res) => {
         const storeId = req.store.id;
 
         if (!storeId) {
-            return res.status(404).json(errorFunction(false, "Store is not found!"))
+            return res.status(404).json(msgFunction(false, "Store is not found!"))
         }
 
         const { name, address, about, storageCapacity } = req.body;
 
-        
+
 
 
 

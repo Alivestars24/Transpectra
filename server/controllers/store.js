@@ -1,6 +1,6 @@
 const Store = require('../models/Store');
 const DistributionCenter = require('../models/DistributionCenter')
-const { errorFunction } = require('../utils/errorFunction');
+const { msgFunction } = require('../utils/msgFunction');
 const mongoose = require('mongoose');
 
 
@@ -12,13 +12,13 @@ exports.fetch_stores = async (req, res) => {
 
         if (!dis_centerId) {
             return res.status(400).json(
-                errorFunction(false, "You are not Authenticated")
+                msgFunction(false, "You are not Authenticated")
             );
         }
 
         if (storeId && !mongoose.Types.ObjectId.isValid(storeId)) {
             return res.status(400).json(
-                errorFunction(false, "Incorrect storeId ID. Please provide a valid ID.")
+                msgFunction(false, "Incorrect storeId ID. Please provide a valid ID.")
             );
         }
 
@@ -30,7 +30,7 @@ exports.fetch_stores = async (req, res) => {
 
         if (!distributionCenter) {
             return res.status(404).json(
-                errorFunction(false, "Distribution Center not found")
+                msgFunction(false, "Distribution Center not found")
             );
         }
 
@@ -44,7 +44,7 @@ exports.fetch_stores = async (req, res) => {
     } catch (error) {
         console.error(error);
         return res.status(500).json(
-            errorFunction(false, "An error occurred while fetching stores", error.message)
+            msgFunction(false, "An error occurred while fetching stores", error.message)
         );
     }
 }
@@ -60,7 +60,7 @@ exports.store_details = async (req, res) => {
 
         if (!StoreId) {
             return res.status(400).json(
-                errorFunction(false, "You are not Authenticated")
+                msgFunction(false, "You are not Authenticated")
             );
         }
 
@@ -68,7 +68,7 @@ exports.store_details = async (req, res) => {
 
         if (!storeCenter) {
             return res.status(404).json(
-                errorFunction(false, " Store not found!")
+                msgFunction(false, " Store not found!")
             );
         }
 
@@ -81,7 +81,7 @@ exports.store_details = async (req, res) => {
     } catch (error) {
         console.error(error);
         return res.status(500).json(
-            errorFunction(false, "An error occurred while fetching stores", error.message)
+            msgFunction(false, "An error occurred while fetching stores", error.message)
         );
     }
 }
@@ -93,7 +93,7 @@ exports.Add_store = async (req, res) => {
 
         if (!dis_centerId) {
             return res.status(400).json(
-                errorFunction(false, "You are not Authenticated")
+                msgFunction(false, "You are not Authenticated")
             );
         }
 
@@ -101,7 +101,7 @@ exports.Add_store = async (req, res) => {
 
         if (!store_id) {
             res.status(400).json(
-                errorFunction(false, "StoreId must be required")
+                msgFunction(false, "StoreId must be required")
             )
         }
 
@@ -113,7 +113,7 @@ exports.Add_store = async (req, res) => {
 
         if (!result) {
             res.status(400).json(
-                errorFunction(false, "Sorry ,Store is Unavailable to add")
+                msgFunction(false, "Sorry ,Store is Unavailable to add")
             )
         }
 
@@ -125,7 +125,7 @@ exports.Add_store = async (req, res) => {
 
         if (!updatedDistributionCenter) {
             return res.status(400).json(
-                errorFunction(false, "Failed to update distribution center")
+                msgFunction(false, "Failed to update distribution center")
             );
         }
 
@@ -139,7 +139,7 @@ exports.Add_store = async (req, res) => {
     } catch (error) {
         console.error(error);
         return res.status(500).json(
-            errorFunction(false, "An error occurred while adding the store", error.message)
+            msgFunction(false, "An error occurred while adding the store", error.message)
         );
     }
 }
@@ -170,13 +170,13 @@ exports.UpdateStore = async (req, res) => {
 
         if (!userID) {
             return res.status(400).json(
-                errorFunction(false, "You are not Authenticated")
+                msgFunction(false, "You are not Authenticated")
             );
         }
 
         if (!storeId) {
             return res.status(400).json(
-                errorFunction(false, "You are not Authenticated , pls Login Again")
+                msgFunction(false, "You are not Authenticated , pls Login Again")
             );
         }
 
@@ -196,7 +196,7 @@ exports.UpdateStore = async (req, res) => {
 
         if (!updatedStore) {
             return res.status(400).json(
-                errorFunction(false, "Failed to update Store")
+                msgFunction(false, "Failed to update Store")
             );
         }
 
@@ -210,7 +210,7 @@ exports.UpdateStore = async (req, res) => {
     } catch (error) {
         console.error(error);
         return res.status(500).json(
-            errorFunction(false, "An error occurred while updating the store", error.message)
+            msgFunction(false, "An error occurred while updating the store", error.message)
         );
     }
 }
