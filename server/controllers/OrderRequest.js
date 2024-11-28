@@ -1,61 +1,66 @@
+const ManufacturingCompany = require("../models/ManufacturingCompany");
+const Warehouse = require("../models/Warehouse");
 const Order = require("../models/OrderedProducts");
-const User = require("../models/User");
 
-
-exports.getOrderDetailsByWarehouse = async (req, res) => {
+exports.getManufacturerDetails = async (req, res) => {
   try {
-    // Extract warehouseId from request parameters
-    const { warehouseId } = req.params;
+    const { manufacturerId } = req.params; // Extract manufacturerId from request parameters
 
-    // Validate that the warehouseId is provided
-    if (!warehouseId) {
+    // Validate manufacturerId
+    if (!manufacturerId) {
       return res.status(400).json({
         success: false,
-        message: "Warehouse ID is required.",
+        message: "Manufacturer ID is required.",
       });
     }
 
-    // Find the order details for the given warehouseId
-    const order = await Order.findOne({ warehouseId }).populate("warehouseId");
-    if (!order) {
+    // Fetch the manufacturer
+    const manufacturer = await ManufacturingCompany.findById(manufacturerId)
+      .populate("linkedWarehouses") // Populate linked warehouses
+      .populate("linkedOrders"); // Populate linked orders
+
+    if (!manufacturer) {
       return res.status(404).json({
         success: false,
-        message: "No order found for the given Warehouse ID.",
+        message: "Manufacturer not found.",
       });
     }
 
-    // Find the Warehouse Manager associated with this warehouseId
-    const warehouseManager = await User.findOne({
-      LinkedWarehouseID: warehouseId,
-      accountType: "Warehouse_Manager",
-    });
+    // Fetch warehouse and corresponding orders
+    const warehouseOrderDetails = await Promise.all(
+      manufacturer.linkedWarehouses.map(async (warehouseId) => {
+        // Fetch warehouse details
+        const warehouse = await Warehouse.findById(warehouseId);
 
-    if (!warehouseManager) {
-      return res.status(404).json({
-        success: false,
-        message: "No Warehouse Manager found for the given Warehouse ID.",
-      });
-    }
+        // Fetch orders linked to this warehouse for this manufacturer
+        const orders = await Order.find({
+          manufacturerId: manufacturerId,
+          warehouseId: warehouseId,
+        });
 
-    // Prepare the response
-    const response = {
-      warehouseManagerName: `${warehouseManager.firstName} ${warehouseManager.lastName}`,
-      selectedProducts: order.selectedProducts,
-      estimatedDeliveryDate: order.estimatedDeliveryDate,
-      orderCreatedDate: order.orderCreatedDate,
-    };
+        return {
+          warehouseDetails: warehouse,
+          orders: orders,
+        };
+      })
+    );
 
-    // Return the response
+    // Return response
     return res.status(200).json({
       success: true,
-      message: "Order details fetched successfully.",
-      orderDetails: response,
+      manufacturerDetails: {
+        companyName: manufacturer.companyName,
+        companyAddress: manufacturer.companyAddress,
+        companyArea: manufacturer.companyArea,
+        companyDescription: manufacturer.companyDescription,
+        linkedWarehouses: warehouseOrderDetails,
+      },
     });
   } catch (error) {
-    console.error("Error fetching order details:", error);
+    console.error("Error fetching manufacturer details:", error);
     return res.status(500).json({
       success: false,
-      message: "An error occurred while fetching order details.",
+      message: "An error occurred while fetching manufacturer details.",
       error: error.message,
     });
   }

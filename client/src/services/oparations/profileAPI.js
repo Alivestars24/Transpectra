@@ -4,7 +4,9 @@ import { setLoading, setUser } from "../../slices/profileSlice"
 import { apiConnector } from "../apiConnector"
 import { profileEndpoints } from "../api"
 import { logout } from "./authAPI"
-
+import { fetchCompanyDetails } from "./CompanyAPI"
+import { fetchWarehouseDetails } from "./warehouseAPI"
+import { fetchYardDetails } from "./YardAPI"
 
 const {
     GET_USER_DETAILS_API
@@ -30,6 +32,15 @@ export function getUserDetails(token, navigate) {
             const userData = { ...response.data.data, image: userImage };
 
             dispatch(setUser(userData));
+            console.log(response)
+            const userId = response.data.data._id; 
+    if (response.data.data.accountType === "Warehouse_Manager") {
+        await dispatch(fetchWarehouseDetails(userId));
+    } else if (response.data.data.accountType === "Yard_managers") {
+        await dispatch(fetchYardDetails(userId));
+    } else {
+        await dispatch(fetchCompanyDetails(userId));
+    }
             toast.success("User details fetched successfully");
         } catch (error) {
             dispatch(logout(navigate))

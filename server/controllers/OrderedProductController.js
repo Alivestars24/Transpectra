@@ -10,8 +10,7 @@ exports.createOrder = async (req, res) => {
       estimatedDeliveryDate,
       warehouseId,
     } = req.body;
-
-    // Validate input fields
+    
     if (!selectedProducts || !Array.isArray(selectedProducts) || selectedProducts.length === 0) {
       return res.status(400).json({
         success: false,
@@ -51,19 +50,27 @@ exports.createOrder = async (req, res) => {
       estimatedDeliveryDate,
     });
 
-    // Link manufacturer with warehouse and vice versa
+    // Link the generated order ID with the manufacturer and warehouse
     if (!manufacturer.linkedWarehouses) manufacturer.linkedWarehouses = [];
     if (!warehouse.linkedManufacturers) warehouse.linkedManufacturers = [];
 
     if (!manufacturer.linkedWarehouses.includes(warehouseId)) {
       manufacturer.linkedWarehouses.push(warehouseId);
-      await manufacturer.save();
     }
-
     if (!warehouse.linkedManufacturers.includes(manufacturerId)) {
       warehouse.linkedManufacturers.push(manufacturerId);
-      await warehouse.save();
     }
+
+    // Add the order ID to the manufacturer and warehouse
+    if (!manufacturer.linkedOrders) manufacturer.linkedOrders = [];
+    if (!warehouse.linkedOrders) warehouse.linkedOrders = [];
+
+    manufacturer.linkedOrders.push(order._id);
+    warehouse.linkedOrders.push(order._id);
+
+    // Save the updated manufacturer and warehouse
+    await manufacturer.save();
+    await warehouse.save();
 
     // Return success response
     return res.status(201).json({

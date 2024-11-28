@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const { getOrderDetailsByWarehouse } = require("../controllers/OrderRequest");
+const { getManufacturerDetails } = require("../controllers/OrderRequest");
 
-// Route to fetch order details by warehouse ID
-router.get("/orders/:warehouseId", getOrderDetailsByWarehouse);
+// Route to fetch manufacturer details with linked warehouses and orders
+router.get("/manufacturer/:manufacturerId/details", getManufacturerDetails);
 
 module.exports = router;

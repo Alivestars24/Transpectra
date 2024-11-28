@@ -15,7 +15,13 @@ const ManufacturingCompanySchema = new mongoose.Schema(
     linkedWarehouses: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Warehouse",
+        ref: "warehouse",
+      },
+    ],
+    linkedOrders: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "OrderProducts",
       },
     ],
   },

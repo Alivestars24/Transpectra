@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from "react"
 import { FiUpload } from "react-icons/fi"
 import { useDispatch, useSelector } from "react-redux"
-import iam from "../../../../assets/Images/image1.png"
 import { updateDisplayPicture } from "../../../../services/oparations/SettingsAPI"
 import IconBtn from "../../../Common/IconBtn"
 
 export default function ChangeProfilePicture() {
   const { token } = useSelector((state) => state.auth)
   const { user } = useSelector((state) => state.profile)
+  const company = useSelector((state) => state.company?.company || null);
+  const warehouse = useSelector((state) => state.warehouse?.warehouse || null); 
   const dispatch = useDispatch()
 
   const [loading, setLoading] = useState(false)
@@ -51,7 +52,7 @@ export default function ChangeProfilePicture() {
       console.log("ERROR MESSAGE - ", error.message)
     }
   }
-
+  const isWarehouseManager = user?.accountType === "Warehouse_Manager";
   useEffect(() => {
     if (imageFile) {
       previewFile(imageFile)
@@ -62,7 +63,11 @@ export default function ChangeProfilePicture() {
       <div className="flex items-center justify-between rounded-md border-[1px] border-richblue-500 bg-llblue p-3 px-8 text-richblue-900">
         <div className="flex items-center gap-x-4">
           <img
-            src={iam || user?.image}
+            src={
+              isWarehouseManager
+                ? warehouse?.warehouseImage || ""
+                : company?.companyImage || ""
+            }
             alt={`profile-${user?.firstName}`}
             className="aspect-square w-[78px] rounded-full object-cover"
           />

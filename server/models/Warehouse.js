@@ -30,6 +30,12 @@ const WarehouseSchema = new mongoose.Schema(
         ref: "ManufacturingCompany",
       },
     ],
+    linkedOrders: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "OrderProducts",
+      },
+    ],
   },
   { timestamps: true }
 );

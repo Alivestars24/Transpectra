@@ -20,21 +20,20 @@ ChartJS.register(
   Legend
 );
 
-function InventoryBarChart() {
-  // Data for the bar chart (inventory for current and past months)
+function InventoryBarChart({ categories, currentData, pastData }) {
   const data = {
-    labels: ["Electronics", "FMCG", "Apparel", "Automotive"],
+    labels: categories,
     datasets: [
       {
         label: "Current Month",
-        data: [5000, 8000, 4000, 3500], // Example data for the current month
+        data: currentData, // Example data for the current month
         backgroundColor: "#98c3ec", // Light blue for current month
         borderColor: "#032833",
         borderWidth: 1,
       },
       {
         label: "Past Month",
-        data: [4500, 7500, 3500, 3000], // Example data for the past month
+        data: pastData, // Example data for the past month
         backgroundColor: "#1866b4", // Dark blue for past month
         borderColor: "#032833",
         borderWidth: 1,
@@ -90,7 +89,7 @@ function InventoryBarChart() {
 
   return (
     <div className="">
-      <Bar data={data} options={options} height={250} width={340} />
+      <Bar data={data} options={options} height={250} width={490} />
     </div>
   );
 }

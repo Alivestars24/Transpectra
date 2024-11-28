@@ -36,7 +36,7 @@ function App() {
   const { user } = useSelector((state) => state.profile);
 
   useEffect(() => {
-    console.log("i want to token from here ");
+    console.log("I want the token from here :");
     const token = Cookies.get("token");
     if (token) {
       console.log("This is token", token);

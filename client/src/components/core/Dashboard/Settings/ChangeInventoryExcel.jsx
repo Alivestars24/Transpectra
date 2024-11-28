@@ -3,6 +3,7 @@ import { FiUpload } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import { updateInventoryExcelSheet } from "../../../../services/oparations/SettingsAPI";
 import IconBtn from "../../../Common/IconBtn";
+import img from "../../../../assets/Images/Excelsheet.jpg"
 
 export default function ChangeInventoryExcelSheet() {
   const { token } = useSelector((state) => state.auth);
@@ -36,7 +37,12 @@ export default function ChangeInventoryExcelSheet() {
   };
 
   return (
-    <div className="flex items-center mt-6 justify-between rounded-md border-[1px] border-richblue-500 bg-llblue p-3 px-8 text-richblue-900">
+    <div className="flex items-center mt-6 gap-x-4 rounded-md border-[1px] border-richblue-500 bg-llblue p-3 px-8 text-richblue-900">
+      <img
+            src={img}
+            alt={"Image of excel"}
+            className="aspect-square w-[78px] border border-richblue-900 rounded-sm object-cover"
+          />
       <div className="space-y-2 ">
         <p className="font-semibold text-richblue-800 text-xl">Update Inventory Excel Sheet</p>
         <div className="flex gap-4">

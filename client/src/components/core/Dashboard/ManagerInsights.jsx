@@ -6,15 +6,19 @@ import InventoryLineChart from "./Charts/InventoryLineChart";
 import { RiCoinsFill } from "react-icons/ri";
 import SupplierPerfromanceChart from "./Charts/SupplierPerfromanceChart";
 import RecentDeliveriesTable from "./Tables/RecentDeliveriesTable";
+import { useSelector } from "react-redux";
 
 function ManagerInsights() {
+  const warehouseData = useSelector((state) => state.warehouse?.warehouse); 
+  const { categories, current, past } = getMonthlyInventoryData(warehouseData);
+
   return (
     <div className="flex flex-col gap-y-5 items-center">
         <div className="relative max-w-fit flex gap-x-2 ">
         <div className="flex flex-col gap-y-4">
             <div className="flex flex-row h-auto gap-x-5 justify-between items-start">
                 <div className="flex flex-col pb-6 gap-y-1 items-center justify-between border border-lblue rounded-md p-3 shadow-lg shadow-blue-25">
-                <InventoryBarChart/>
+                 <InventoryBarChart categories={categories} currentData={current} pastData={past} />
                 </div>
                 <div>
                     <RestockTable/>
@@ -79,4 +83,38 @@ function ManagerInsights() {
   )
 }
 
-export default ManagerInsights
+function getMonthlyInventoryData(warehouseData) {
+    const currentMonthData = {};
+    const pastMonthData = {};
+  
+    // Check if inventory data exists
+    if (warehouseData && warehouseData.inventory) {
+      warehouseData.inventory.forEach((item) => {
+        const { productCategory, productQuantity, month } = item;
+  
+        // Initialize categories if they don't exist
+        if (!currentMonthData[productCategory]) {
+          currentMonthData[productCategory] = 0;
+          pastMonthData[productCategory] = 0;
+        }
+  
+        // Aggregate quantities based on month
+        if (month === "November") {
+          currentMonthData[productCategory] += productQuantity;
+        } else {
+          pastMonthData[productCategory] += productQuantity;
+        }
+      });
+    }
+  
+    // Extract categories dynamically
+    const categories = Object.keys(currentMonthData);
+    return {
+      categories,
+      current: categories.map((category) => currentMonthData[category]),
+      past: categories.map((category) => pastMonthData[category]),
+    };
+  }
+
+
+export default ManagerInsights;

@@ -18,7 +18,6 @@ const RestockTable = () => {
             <th className="py-1 px-4 border-b-2 border-blue-500">Product Name</th>
             <th className="py-2 px-4 border-b-2 border-blue-500">Current Stock (Units)</th>
             <th className="py-2 px-4 border-b-2 border-blue-500">Reorder Threshold (Units)</th>
-            <th className="py-2 px-4 border-b-2 border-blue-500">Days Left to Depletion</th>
             <th className="py-2 px-4 border-b-2 border-blue-500">Supplier Response Time (Days)</th>
           </tr>
         </thead>
@@ -31,7 +30,6 @@ const RestockTable = () => {
               <td className="py-2 px-2 border-b text-center border-blue-300">{alert.productName}</td>
               <td className="py-2 px-2 border-b text-center border-blue-300">{alert.currentStock}</td>
               <td className="py-2 px-2 border-b text-center border-blue-300">{alert.reorderThreshold}</td>
-              <td className="py-2 px-2 border-b text-center border-blue-300">{alert.daysLeft}</td>
               <td className="py-2 px-2 border-b text-center border-blue-300">{alert.supplierTime}</td>
             </tr>
           ))}
