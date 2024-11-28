@@ -85,8 +85,7 @@ function Inventory() {
       <div className="flex mt-6 justify-between items-center">
         <div>
           <h1 className="text-[26px] font-bold text-blue-900">Inventory present in Warehouse</h1>
-          <h2 className="text-[16px] font-semibold opacity-70 text-blue-800">
-            Real-Time Overview of Inventory in {category} Category
+          <h2 className="text-[16px] -ml-7 font-semibold opacity-70 text-blue-800">Real-Time Overview of Inventory in {category} Category
           </h2>
         </div>
 

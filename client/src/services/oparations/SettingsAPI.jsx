@@ -10,6 +10,7 @@ const {
   UPDATE_PROFILE_API,
   CHANGE_PASSWORD_API,
   DELETE_PROFILE_API,
+  UPDATE_INVENTORY_EXCEL_API,
 } = settingsEndpoints
 
 export function updateDisplayPicture(token, formData) {
@@ -41,6 +42,29 @@ export function updateDisplayPicture(token, formData) {
     }
     toast.dismiss(toastId)
   }
+}
+
+export function updateInventoryExcelSheet(token, formData) {
+  return async (dispatch) => {
+    const toastId = toast.loading("Uploading Inventory Excel...");
+    try {
+      const response = await apiConnector("PUT", UPDATE_INVENTORY_EXCEL_API, formData, {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
+      });
+
+      if (!response.data.success) {
+        throw new Error(response.data.message);
+      }
+
+      toast.success("Inventory Excel Updated Successfully");
+    } catch (error) {
+      console.log("Error updating inventory Excel:", error);
+      toast.error("Failed to Update Inventory Excel");
+    } finally {
+      toast.dismiss(toastId);
+    }
+  };
 }
 
 export function updateProfile(token, formData) {

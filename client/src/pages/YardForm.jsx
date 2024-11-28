@@ -9,9 +9,9 @@ function YardForm() {
   console.log(userId)// Access the userId passed from the signup
   const dispatch=useDispatch();
   const navigate=useNavigate();
+  
   const [formData, setFormData] = useState({
-    warehouseName: "",
-    warehouseAddress: "",
+    warehouseCode: "",
     yardManagerId: userId || "", 
   });
 
@@ -29,16 +29,16 @@ function YardForm() {
       }
       dispatch(registerYard(data, navigate));
     } catch (error) {
-      console.error("Error registering company:", error);
+      console.error("Error registering yard:", error);
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="shadow-lg rounded-lg bg-white w-full max-w-4xl px-8 pt-1 mt-[-100px] pb-6">
+      <div className="shadow-lg rounded-lg bg-white w-full max-w-2xl px-8 pt-1 mt-[-100px] pb-6">
         <form
           onSubmit={handleOnSubmit}
-          className="flex flex-col gap-6"
+          className="flex w-full flex-col gap-6"
         >
           {/* Heading */}
           <h1 className="text-3xl font-bold text-blue-900 text-center mb-1">
@@ -46,31 +46,16 @@ function YardForm() {
           </h1>
 
           {/* Input Fields */}
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="gap-6">
             <div>
               <label className="block text-gray-700 font-semibold mb-2">
-                Warehouse Name
+                Warehouse ID 
               </label>
               <input
                 type="text"
-                name="warehouseName"
-                placeholder="Enter Warehouse Name"
-                value={formData.warehouseName}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-md p-2 focus:outline-blue-800"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-gray-700 font-semibold mb-2">
-                Warehouse Address
-              </label>
-              <input
-                type="text"
-                name="warehouseAddress"
-                placeholder="Enter Warehouse Address"
-                value={formData.warehouseAddress}
+                name="warehouseCode"
+                placeholder="Enter Warehouse Code"
+                value={formData.warehouseCode}
                 onChange={handleInputChange}
                 className="w-full border border-gray-300 rounded-md p-2 focus:outline-blue-800"
                 required

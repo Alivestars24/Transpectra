@@ -1,48 +1,71 @@
 const Order = require("../models/OrderedProducts");
 const ManufacturingCompany = require("../models/ManufacturingCompany");
+const Warehouse = require("../models/Warehouse");
 
 exports.createOrder = async (req, res) => {
   try {
     const {
       selectedProducts,
-      manufacturerName,
+      manufacturerId,
       estimatedDeliveryDate,
       warehouseId,
     } = req.body;
 
-    // Validate the input fields
+    // Validate input fields
     if (!selectedProducts || !Array.isArray(selectedProducts) || selectedProducts.length === 0) {
       return res.status(400).json({
         success: false,
         message: "Please provide selected products with their details.",
       });
     }
-    if (!manufacturerName || !estimatedDeliveryDate || !warehouseId) {
+    if (!manufacturerId || !estimatedDeliveryDate || !warehouseId) {
       return res.status(400).json({
         success: false,
-        message: "Manufacturer name, warehouse ID, and estimated delivery date are required.",
+        message: "Manufacturer ID, warehouse ID, and estimated delivery date are required.",
       });
     }
 
-    // Fetch the manufacturer ID using the manufacturer name
-    const manufacturer = await ManufacturingCompany.findOne({ companyName: manufacturerName });
+    // Validate manufacturer and warehouse
+    const manufacturer = await ManufacturingCompany.findById(manufacturerId);
     if (!manufacturer) {
       return res.status(404).json({
         success: false,
-        message: "Manufacturer not found. Please provide a valid manufacturer name.",
+        message: "Manufacturer not found. Please provide a valid manufacturer ID.",
       });
     }
 
-    // Save the order details in the database
+    const warehouse = await Warehouse.findById(warehouseId);
+    if (!warehouse) {
+      return res.status(404).json({
+        success: false,
+        message: "Warehouse not found. Please provide a valid warehouse ID.",
+      });
+    }
+
+    // Save the order details
     const order = await Order.create({
-      selectedProducts, // Includes productName, quantity, and specifications
-      manufacturerId: manufacturer._id,
-      manufacturerName,
+      selectedProducts,
+      manufacturerId,
+      manufacturerName: manufacturer.companyName, // Extract from the manufacturing company
       warehouseId,
       estimatedDeliveryDate,
     });
 
-    // Return the success response
+    // Link manufacturer with warehouse and vice versa
+    if (!manufacturer.linkedWarehouses) manufacturer.linkedWarehouses = [];
+    if (!warehouse.linkedManufacturers) warehouse.linkedManufacturers = [];
+
+    if (!manufacturer.linkedWarehouses.includes(warehouseId)) {
+      manufacturer.linkedWarehouses.push(warehouseId);
+      await manufacturer.save();
+    }
+
+    if (!warehouse.linkedManufacturers.includes(manufacturerId)) {
+      warehouse.linkedManufacturers.push(manufacturerId);
+      await warehouse.save();
+    }
+
+    // Return success response
     return res.status(201).json({
       success: true,
       message: "Order created successfully.",

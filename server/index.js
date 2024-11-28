@@ -64,6 +64,8 @@ const graph1route = require('./routes/graph1route')
 const fleetroute = require('./routes/fleetroute')
 const OrderedProductsRoutes = require('./routes/OrderedProductsRoutes')
 const OrderRequestRoute = require('./routes/OrderRequestRoute')
+const ManufacturerFetchRoute = require('./routes/ManufacturerFetchRoute')
+
 
 
 app.get("/", (req, res) => {
@@ -88,6 +90,7 @@ app.use(CONFIG.APIS.graph1, graph1route)
 app.use(CONFIG.APIS.fleet, fleetroute)
 app.use(CONFIG.APIS.OrderedProducts, OrderedProductsRoutes)
 app.use(CONFIG.APIS.OrderRequest, OrderRequestRoute)
+app.use(CONFIG.APIS.ManufacturerFetch, ManufacturerFetchRoute)
 
 
 // Listening to the server

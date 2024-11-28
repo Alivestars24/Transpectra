@@ -92,7 +92,7 @@ export function signUp(
     // Navigate based on the accountType in the response and pass userId
     if (response.data.user.accountType === "Warehouse_Manager") {
         navigate(`/warehouse-form`, { state: { userId } });
-    } else if (response.data.user.accountType === "yard_manager") {
+    } else if (response.data.user.accountType === "Yard_managers") {
         navigate(`/yard-form`, { state: { userId } });
     } else {
         navigate(`/company-form`, { state: { userId } });
@@ -225,12 +225,14 @@ export function login(email, password, navigate) {
     // Navigate based on the accountType in the response and pass userId
     if (response.data.user.accountType === "Warehouse_Manager") {
         await dispatch(fetchWarehouseDetails(userId));
-    } else if (response.data.user.accountType === "yard_manager") {
-        navigate(`/yard-form`, { state: { userId } });
+        navigate("/dashboard/my-profile")
+    } else if (response.data.user.accountType === "Yard_managers") {
+        await dispatch(fetchYardDetails(userId));
+        navigate("/dashboard/my-profile-yard")
     } else {
         await dispatch(fetchCompanyDetails(userId));
+        navigate("/dashboard/my-profile")
     }
-            navigate("/dashboard/my-profile")
         } catch (error) {
             console.log("LOGIN API ERROR............", error)
             toast.error("Login Failed")

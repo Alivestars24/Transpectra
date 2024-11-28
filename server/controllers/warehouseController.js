@@ -43,30 +43,29 @@ exports.addWarehouse = async (req, res) => {
         productCategory: item['Product Category']?.trim(),
         supplierName: item['Supplier Name']?.trim(),
         month: item['Month']?.trim(),
-        productExpiry: parseExcelDate(item['Product Expiry date']),
-        productThreshold: Number(item['Threshold']),
-        backorderRate: Number(item['Backorder rate']),
-        productType: item['Product type']?.trim(),
-        supplierReliability: Number(item['Supplier reliability']),
+        productExpiry: item['Product Expiry'] ? parseExcelDate(item['Product Expiry']) : null,
+        productThreshold: Number(item['Product Threshold']),
+        backorderRate: Number(item['Backorder Rate']),
+        productType: item['Product Type']?.trim(),
+        supplierReliability: Number(item['Supplier Reliability']),
         productCost: Number(item['Product Cost']),
-        productDiscount: Number(item['Product discount']),
+        productDiscount: Number(item['Product Discount']),
         seasonality: item['Seasonality']?.trim(),
         marketChanges: item['Market Changes']?.trim(),
-        profitGained: Number(item['Profit gained']),
+        profitGained: Number(item['Profit Gained']),
         bulkOrderRequest: item['Bulk Order Request']?.trim()
       };
-
-      // **4. Validate Mapped Data**
+      // Validate Required Fields
       const requiredFields = ['productName', 'productQuantity', 'productCategory', 'supplierName', 'month', 'productExpiry', 'productThreshold', 'productCost'];
       for (const field of requiredFields) {
         if (!mappedItem[field] && mappedItem[field] !== 0) {
           throw new Error(`Missing required field "${field}" in product at row ${index + 2}`);
         }
       }
-
+    
       return mappedItem;
     });
-
+    
     console.log("Mapped Inventory Data:", mappedData);
 
     // **5. Save warehouse details in the database**
@@ -118,14 +117,14 @@ exports.addWarehouse = async (req, res) => {
   }
 };
 
-// **Helper Function to Parse Excel Dates**
 const parseExcelDate = (excelDate) => {
   if (typeof excelDate === 'number') {
     // Excel serial date
     return moment('1899-12-30').add(excelDate, 'days').toDate();
   } else if (typeof excelDate === 'string') {
-    // Assume the date is in 'DD/MM/YYYY' format
-    const parsedDate = moment(excelDate, 'DD/MM/YYYY', true);
+    // Handle both 'DD/MM/YYYY' and 'YYYY-MM-DD' formats
+    const formats = ['DD/MM/YYYY', 'YYYY-MM-DD'];
+    const parsedDate = moment(excelDate, formats, true);
     if (!parsedDate.isValid()) {
       throw new Error(`Invalid date format: "${excelDate}"`);
     }
@@ -137,7 +136,6 @@ const parseExcelDate = (excelDate) => {
     throw new Error(`Unsupported date format: ${excelDate}`);
   }
 };
-
 
 exports.getWarehouseDetailsByManagerId = async (req, res) => {
   const { managerId } = req.params;

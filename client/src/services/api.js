@@ -15,6 +15,7 @@ export const endpoints = {
   FETCH_WAREHOUSE_API:BASE_URL+"/warehouse",
   YARD_DETAILS_API:BASE_URL+"/yard/addYard",
   FETCH_COMPANY_API:BASE_URL+"/manufacturingUnit",
+  FETCH_YARD_API:BASE_URL+"/yard",
 }
 
 // PROFILE ENDPOINTS
@@ -77,4 +78,5 @@ export const settingsEndpoints = {
   UPDATE_PROFILE_API: BASE_URL + "/profile/updateProfile",
   CHANGE_PASSWORD_API: BASE_URL + "/auth/changepassword",
   DELETE_PROFILE_API: BASE_URL + "/profile/deleteProfile",
+  UPDATE_INVENTORY_EXCEL_API:BASE_URL+"/profile/updateExcelSheet",
 }

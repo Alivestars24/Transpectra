@@ -28,6 +28,7 @@ import CompanyForm from "./pages/CompanyForm";
 import ProductSelectionPage from "./components/core/ProductSelectionPage";
 import { fetchCompanyDetails } from "./services/oparations/CompanyAPI";
 import { fetchWarehouseDetails } from "./services/oparations/warehouseAPI";
+import YardProfile from "./components/core/Dashboard/YardProfile"
 
 function App() {
   const navigate = useNavigate();
@@ -166,6 +167,14 @@ function App() {
             element={
               <PrivateRoute>
                 <ProductSelectionPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="dashboard/my-profile-yard"
+            element={
+              <PrivateRoute>
+                <YardProfile/>
               </PrivateRoute>
             }
           />

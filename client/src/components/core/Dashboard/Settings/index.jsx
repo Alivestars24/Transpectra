@@ -1,8 +1,12 @@
+import ChangeInventoryExcelSheet from "./ChangeInventoryExcel"
 import ChangeProfilePicture from "./ChangeProfilePicture"
 import DeleteAccount from "./DeleteAccount"
 import EditProfile from "./EditProfile"
+import { useDispatch, useSelector } from "react-redux";
 
 export default function Settings() {
+  const user = useSelector((state) => state.profile?.user || null);
+  const isStore = user?.accountType === "Warehouse_Manager";
   return (
     <>
       <h1 className="mb-4 text-3xl font-medium text-black">
@@ -10,6 +14,10 @@ export default function Settings() {
       </h1>
       {/* Change Profile Picture */}
       <ChangeProfilePicture />
+      {
+        isStore &&
+        <ChangeInventoryExcelSheet/>
+      }
       {/* Profile */}
       <EditProfile />
       {/* Delete Account */}

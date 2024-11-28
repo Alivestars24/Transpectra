@@ -26,7 +26,8 @@ const CONFIG = {
         graph1: '/api/v1/graph1',
         fleet: '/api/v1/fleet',
         OrderedProducts: '/api/v1/OrderedProducts',
-        OrderRequest: '/api/v1/OrderRequest'
+        OrderRequest: '/api/v1/OrderRequest',
+        ManufacturerFetch: '/api/v1/ManufacturerFetch'
           
     },
     KEYS: {

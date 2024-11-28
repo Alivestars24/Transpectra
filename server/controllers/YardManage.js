@@ -9,7 +9,6 @@ exports.addYard = async (req, res) => {
     console.log("Received request to add a yard", req.body);
 
     const { warehouseCode, yardManagerId } = req.body;
-
     // Validate input
     if (!warehouseCode || !yardManagerId) {
       throw new Error("Warehouse Code and Yard Manager ID are required");
@@ -68,3 +67,31 @@ exports.addYard = async (req, res) => {
     );
   }
 };
+
+
+// Controller to fetch warehouse details for a given yardManagerId
+exports.getWarehouseDetailsForManager = async (req, res) => {
+  try {
+    const { yardManagerId } = req.params;
+
+    // Find the yard managed by the yardManagerId
+    const yard = await Yard.findOne({ yardManagerId: yardManagerId });
+    if (!yard) {
+      return res.status(404).json({ error: "Yard not found" });
+    }
+
+    // Find the warehouse associated with the yard
+    const warehouse = await Warehouse.findById(yard.warehouseId);
+    if (!warehouse) {
+      return res.status(404).json({ error: "Warehouse not found" });
+    }
+
+    // Respond with the warehouse details
+    return res.status(200).json({ success: true, warehouse });
+  } catch (error) {
+    console.error("Error fetching warehouse details:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
