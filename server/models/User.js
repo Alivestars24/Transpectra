@@ -26,7 +26,7 @@ const UserSchema = new mongoose.Schema(
         },
         accountType: {
             type: String,
-            enum: ["Supplier", "Warehouse_Manager", "Driver","yard_manager"],
+            enum: ["Supplier", "Warehouse_Manager", "Driver", "Yard_managers"],
             required: true,
         },
         active: {

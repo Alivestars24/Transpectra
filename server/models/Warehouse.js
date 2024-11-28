@@ -1,13 +1,16 @@
 const mongoose = require("mongoose");
+const generateUniqueId = require('generate-unique-id');
 
 const WarehouseSchema = new mongoose.Schema(
   {
     warehouseName: {
       type: String,
+      trim : true,
       required: true,
     },
     warehouseAddress: {
       type: String,
+      trim : true,
       required: true,
     },
     warehouseArea: {
@@ -16,6 +19,7 @@ const WarehouseSchema = new mongoose.Schema(
     },
     warehouseDescription: {
       type: String,
+      trim : true,
     },
     warehouseImage: {
       type: String,
@@ -37,10 +41,21 @@ const WarehouseSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "yard",
       },
-    ], // New field to link associated yards
+    ],
+    uniqueCode: {
+      type: String,
+      sparse: true,
+    },
   },
   { timestamps: true }
 );
+
+WarehouseSchema.pre('save', async function (next) {
+  this.uniqueCode = generateUniqueId({
+    length: 6
+  });
+  next();
+});
 
 const Warehouse = mongoose.model("warehouse", WarehouseSchema);
 

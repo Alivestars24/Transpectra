@@ -46,9 +46,10 @@ const CONFIG = {
         TOKEN: process.env.JWT_SECRET
     },
     ACCOUNT_TYPE: {
-        STORE: "Store_managers",
-        DISTRIBUTION_CENTER: "DC_managers",
-        DRIVER: "Drivers"
+        STORE: "Warehouse_Manager",
+        DISTRIBUTION_CENTER: "Supplier",
+        DRIVER: "Driver",
+        YARD : "Yard_managers"
     },
       STORE_TYPE :{
         STORE :"Store",

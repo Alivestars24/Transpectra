@@ -2,42 +2,36 @@ const Yard = require("../models/Yard");
 const Warehouse = require("../models/Warehouse");
 const User = require("../models/User");
 const { errorFunction } = require("../utils/errorFunction");
+const { CONFIG } = require("../constants/config");
 
 exports.addYard = async (req, res) => {
   try {
     console.log("Received request to add a yard");
 
-    // Access form data parsed by Multer
-    const warehouseName = req.body.warehouseName;
-    const warehouseAddress = req.body.warehouseAddress;
-    const yardManagerId = req.body.yardManagerId;
-
-    console.log("warehouseName:", warehouseName);
-    console.log("warehouseAddress:", warehouseAddress);
-    console.log("yardManagerId:", yardManagerId);
+    const { warehouseCode, yardManagerId } = req.body;
 
     // Validate input
-    if (!warehouseName || !warehouseAddress || !yardManagerId) {
+    if (!warehouseCode) {
       throw new Error(
-        "All fields (warehouseName, warehouseAddress, yardManagerId) are required"
+        "Ware-House Code is required"
       );
+    }
+
+    const wareHouse = await Warehouse.findOne({ uniqueCode: warehouseCode });
+    if (!wareHouse) {
+      console.log(wareHouse);
+      throw new Error("Invalid wareHouse ID");
     }
 
     // Check if the Yard Manager exists and is valid
     const yardManager = await User.findById(yardManagerId);
-    if (!yardManager || yardManager.accountType !== "yard_manager") {
+    if (!yardManager || yardManager.accountType !== CONFIG.ACCOUNT_TYPE.YARD) {
       throw new Error("Invalid Yard Manager ID");
-    }
-
-    // Find the warehouse by name and address
-    const warehouse = await Warehouse.findOne({ warehouseName, warehouseAddress });
-    if (!warehouse) {
-      throw new Error("Warehouse with the given name and address does not exist");
     }
 
     // Create a new Yard entry
     const yard = await Yard.create({
-      warehouseId: warehouse._id,
+      warehouseId: wareHouse._id,
       yardManagerId: yardManagerId,
     });
 

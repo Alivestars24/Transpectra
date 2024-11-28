@@ -5,9 +5,6 @@ const yardController = require("../controllers/YardManage");
 
 const router = express.Router();
 
-// Multer setup for parsing form-data
-const storage = multer.memoryStorage(); // No file uploads, so memory storage suffices
-const upload = multer({ storage });
 
 /**
  * @route POST /addYard
@@ -15,8 +12,8 @@ const upload = multer({ storage });
  */
 router.post(
   "/addYard",
-  upload.none(), // Use `none()` since no file upload is expected
   yardController.addYard
 );
+
 
 module.exports = router;
