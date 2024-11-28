@@ -14,7 +14,7 @@ import Inventory from "./components/core/Dashboard/Inventory";
 import Cookies from "js-cookie";
 import PrivateRoute from "./components/core/auth/PrivateRoute";
 import Orders from "./components/core/Dashboard/Orders";
-import TrackDelivery from './components/core/Dashboard/TrackDelivery'
+import TrackDelivery from "./components/core/Dashboard/TrackDelivery";
 import { getUserDetails } from "./services/oparations/profileAPI";
 import FleetActivity from "./components/core/Dashboard/FleetActivity";
 import SupplierOrders from "./components/core/Dashboard/SupplierOrders";
@@ -26,6 +26,8 @@ import IncomingFleetPage from "./components/core/Dashboard/IncomingFleetPage";
 import FleetOverviewPage from "./components/core/Dashboard/FleetOverviewPage";
 import CompanyForm from "./pages/CompanyForm";
 import ProductSelectionPage from "./components/core/ProductSelectionPage";
+import { fetchCompanyDetails } from "./services/oparations/CompanyAPI";
+import { fetchWarehouseDetails } from "./services/oparations/warehouseAPI";
 
 function App() {
   const navigate = useNavigate();
@@ -33,13 +35,21 @@ function App() {
   const { user } = useSelector((state) => state.profile);
 
   useEffect(() => {
-    console.log("i want to token from here ")
-    if (Cookies.get("token")) {
-      const token = Cookies.get("token");
-      console.log("this is token",token);
+    console.log("i want to token from here ");
+    const token = Cookies.get("token");
+    if (token) {
+      console.log("This is token", token);
       dispatch(getUserDetails(token, navigate));
     }
   }, [dispatch]);
+
+  useEffect(() => {
+    if (user && user._id) {
+      console.log("User fetched, triggering dependent dispatches");
+      dispatch(fetchCompanyDetails(user._id));
+      dispatch(fetchWarehouseDetails(user._id));
+    }
+  }, [user, dispatch]);
 
   return (
     <div className="flex min-h-screen w-screen flex-col bg-white font-inter overflow-y-auto hide-horizontal-scroll ">
@@ -51,8 +61,8 @@ function App() {
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/warehouse-form" element={<WarehouseForm />} />
         <Route path="/yard-form" element={<YardForm />} />
-        <Route path="/company-form" element={<CompanyForm/>}/>
-        <Route path="/inventory-selection" element={<ProductSelectionPage/>}/>
+        <Route path="/company-form" element={<CompanyForm />} />
+        <Route path="/inventory-selection" element={<ProductSelectionPage />} />
         <Route element={<Dashboard />}>
           {/* private Routes = */}
           <Route
@@ -115,7 +125,7 @@ function App() {
             path="dashboard/track-delivery"
             element={
               <PrivateRoute>
-                <TrackDelivery/>
+                <TrackDelivery />
               </PrivateRoute>
             }
           />
@@ -123,7 +133,7 @@ function App() {
             path="dashboard/fleetActivity"
             element={
               <PrivateRoute>
-                <FleetOverviewPage/>
+                <FleetOverviewPage />
               </PrivateRoute>
             }
           />
@@ -131,7 +141,7 @@ function App() {
             path="dashboard/fulfill-order"
             element={
               <PrivateRoute>
-                <FulfillOrder/>
+                <FulfillOrder />
               </PrivateRoute>
             }
           />
@@ -139,7 +149,7 @@ function App() {
             path="dashboard/order-details"
             element={
               <PrivateRoute>
-                <OrderDetails/>
+                <OrderDetails />
               </PrivateRoute>
             }
           />
