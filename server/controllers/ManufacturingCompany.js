@@ -60,3 +60,35 @@ exports.addManufacturingCompany = async (req, res) => {
     );
   }
 };
+
+
+exports.getCompanyDetailsByManagerId = async (req, res) => {
+  const { managerId } = req.params;
+  console.log(managerId)
+  try {
+    // Step 1: Find the user by managerId
+    const user = await User.findById(managerId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    // Step 2: Extract linkedManufacturingUnitID
+    const companyId = user.LinkedManufacturingUnitID;
+    if (!companyId) {
+      return res.status(404).json({ error: "No linked Company found for this user" });
+    }
+
+    // Step 3: Fetch company details and populate fields
+    const company = await ManufacturingCompany.findById(companyId)
+
+    if (!company) {
+      return res.status(404).json({ error: "Company not found." });
+    }
+
+    // Step 4: Return the company details
+    res.status(200).json({ company });
+  } catch (error) {
+    console.error("Error fetching company details:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+};

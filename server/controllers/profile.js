@@ -2,8 +2,6 @@ const User = require("../models/User")
 const { errorFunction } = require('../utils/errorFunction')
 const _ = require('lodash');
 
-
-
 exports.profile = async (req, res) => {
     try {
         const userId = req.user.id || "";

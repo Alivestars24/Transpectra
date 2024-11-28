@@ -1,14 +1,18 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation,useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux"
+import { registerYard } from "../services/oparations/authAPI";
 
 function YardForm() {
   const location = useLocation();
-  const userId = location.state?.userId; // Access the userId passed from the signup
-
+  const userId = location.state?.userId; 
+  console.log(userId)// Access the userId passed from the signup
+  const dispatch=useDispatch();
+  const navigate=useNavigate();
   const [formData, setFormData] = useState({
     warehouseName: "",
     warehouseAddress: "",
-    userId: userId || "", // Include the userId in the initial state
+    yardManagerId: userId || "", 
   });
 
   const handleInputChange = (e) => {
@@ -18,8 +22,15 @@ function YardForm() {
 
   const handleOnSubmit = (e) => {
     e.preventDefault();
-    console.log("Yard Form Data:", formData);
-    // Add logic to send `formData` to the backend
+    try {
+      const data = new FormData();
+      for (const key in formData) {
+        data.append(key, formData[key]);
+      }
+      dispatch(registerYard(data, navigate));
+    } catch (error) {
+      console.error("Error registering company:", error);
+    }
   };
 
   return (

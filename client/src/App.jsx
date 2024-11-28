@@ -25,6 +25,7 @@ import YardForm from "./pages/YardForm";
 import IncomingFleetPage from "./components/core/Dashboard/IncomingFleetPage";
 import FleetOverviewPage from "./components/core/Dashboard/FleetOverviewPage";
 import CompanyForm from "./pages/CompanyForm";
+import ProductSelectionPage from "./components/core/ProductSelectionPage";
 
 function App() {
   const navigate = useNavigate();
@@ -51,6 +52,7 @@ function App() {
         <Route path="/warehouse-form" element={<WarehouseForm />} />
         <Route path="/yard-form" element={<YardForm />} />
         <Route path="/company-form" element={<CompanyForm/>}/>
+        <Route path="/inventory-selection" element={<ProductSelectionPage/>}/>
         <Route element={<Dashboard />}>
           {/* private Routes = */}
           <Route
@@ -146,6 +148,14 @@ function App() {
             element={
               <PrivateRoute>
                 <Inventory />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="dashboard/inventory-select"
+            element={
+              <PrivateRoute>
+                <ProductSelectionPage />
               </PrivateRoute>
             }
           />
