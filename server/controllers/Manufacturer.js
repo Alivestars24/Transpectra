@@ -1,8 +1,8 @@
-const ManufacturingCompany = require("../models/ManufacturingCompany"); // Import ManufacturingCompany model
+const ManufacturingCompany = require("../models/ManufacturingUnit"); // Import ManufacturingCompany model
 const User = require("../models/User"); // Import User model
 
 // Controller to fetch manufacturer details with linked manufacturing address
-const getAllManufacturersWithDetails = async (req, res) => {
+const getAllManufacturers = async (req, res) => {
   try {
     // Populate manufacturerId (user details) and fetch manufacturing company data
     const manufacturers = await ManufacturingCompany.find()
@@ -34,4 +34,4 @@ const getAllManufacturersWithDetails = async (req, res) => {
   }
 };
 
-module.exports = { getAllManufacturersWithDetails };
+module.exports = { getAllManufacturers };

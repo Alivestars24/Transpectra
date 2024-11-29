@@ -21,13 +21,11 @@ const CONFIG = {
         store: '/api/v1/store',
         driver: '/api/v1/driver',
         warehouse: '/api/v1/warehouse',
-        manufacturingUnit: '/api/v1/manufacturingUnit',
+        manufacturingUnit: '/api/v1/manufacturingunit',
         yard: '/api/v1/yard',
-        graph1: '/api/v1/graph1',
         fleet: '/api/v1/fleet',
-        OrderedProducts: '/api/v1/OrderedProducts',
-        OrderRequest: '/api/v1/OrderRequest',
-        ManufacturerFetch: '/api/v1/ManufacturerFetch'
+        Order:"/api/v1/order",
+        ManufacturerFetch: '/api/v1/manufacturer'
           
     },
     KEYS: {

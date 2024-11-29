@@ -2,7 +2,7 @@ const express = require("express");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-const manufacturingCompanyController = require("../controllers/ManufacturingCompany");
+const manufacturingCompanyController = require("../controllers/ManufacturingUnit");
 
 const router = express.Router();
 
@@ -37,12 +37,30 @@ const upload = multer({
 });
 
 // Define routes
+
+/***
+ * 
+ * Purpose : assign Manufacturer unit
+ * 
+ * URl : /api/v1/manufacturingUnit/create
+ * 
+ * 
+ */
 router.post(
-  "/addManufacturingCompany",
+  "/create",
   upload.fields([{ name: "companyImage", maxCount: 1 }]),
   manufacturingCompanyController.addManufacturingCompany
 );
 
+
+/***
+ * 
+ * Purpose : Fetch Manufacturer unit details
+ * 
+ * URl : /api/v1/manufacturingUnit/:managerId
+ * 
+ * 
+ */
 router.get("/:managerId", manufacturingCompanyController.getCompanyDetailsByManagerId);
 
 module.exports = router;

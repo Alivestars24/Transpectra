@@ -11,7 +11,7 @@ export const endpoints = {
   RESETPASSTOKEN_API: BASE_URL + "/auth/reset-password-token",
   RESETPASSWORD_API: BASE_URL + "/auth/reset-password",
   WAREHOUSE_DETAILS_API: BASE_URL+"/warehouse/addWarehouse",
-  COMPANY_API:BASE_URL+"/manufacturingUnit/addManufacturingCompany",
+  COMPANY_API:BASE_URL+"/manufacturingUnit/create",
   FETCH_WAREHOUSE_API:BASE_URL+"/warehouse",
   YARD_DETAILS_API:BASE_URL+"/yard/addYard",
   FETCH_COMPANY_API:BASE_URL+"/manufacturingUnit",

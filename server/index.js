@@ -57,14 +57,14 @@ const DistributionStoreRoutes = require('./routes/DistributionCenter')
 const storeRoutes = require('./routes/Store');
 const driverRoutes = require('./routes/driver');
 const deliveriesRoutes = require('./routes/deliveries')
-const warehouseRoutes = require('./routes/warehouseRoutes')
-const ManufacturingComapanyRoutes =require('./routes/ManufacturingCompanyRoutes')
+const warehouseRoutes = require('./routes/Warehouse')
+const ManufacturingCompanyRoutes =require('./routes/ManufacturingUnit')
 const YardManage = require('./routes/YardManage')
-const graph1route = require('./routes/graph1route')
-const fleetroute = require('./routes/fleetroute')
-const OrderedProductsRoutes = require('./routes/OrderedProductsRoutes')
-const OrderRequestRoute = require('./routes/OrderRequestRoute')
-const ManufacturerFetchRoute = require('./routes/ManufacturerFetchRoute')
+const fleetRoutes = require('./routes/fleet')
+const OrderRoutes = require('./routes/Order');
+// const OrderedProductsRoutes = require('./routes/OrderedProductsRoutes')
+// const OrderRequestRoute = require('./routes/OrderRequestRoute')
+const ManufacturerFetchRoute = require('./routes/Manufacturer')
 
 
 
@@ -84,12 +84,12 @@ app.use(CONFIG.APIS.store, auth, storeRoutes);
 app.use(CONFIG.APIS.driver, auth, driverRoutes);
 app.use(CONFIG.APIS.delivery, auth, deliveriesRoutes)
 app.use(CONFIG.APIS.warehouse, warehouseRoutes)
-app.use(CONFIG.APIS.manufacturingUnit, ManufacturingComapanyRoutes)
+app.use(CONFIG.APIS.manufacturingUnit, ManufacturingCompanyRoutes)
 app.use(CONFIG.APIS.yard, YardManage)
-app.use(CONFIG.APIS.graph1, graph1route)
-app.use(CONFIG.APIS.fleet, fleetroute)
-app.use(CONFIG.APIS.OrderedProducts, OrderedProductsRoutes)
-app.use(CONFIG.APIS.OrderRequest, OrderRequestRoute)
+app.use(CONFIG.APIS.fleet, fleetRoutes)
+// app.use(CONFIG.APIS.OrderedProducts, OrderedProductsRoutes)
+// app.use(CONFIG.APIS.OrderRequest, OrderRequestRoute)
+app.use(CONFIG.APIS.Order,OrderRoutes);
 app.use(CONFIG.APIS.ManufacturerFetch, ManufacturerFetchRoute)
 
 

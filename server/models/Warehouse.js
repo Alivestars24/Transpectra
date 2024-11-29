@@ -33,7 +33,7 @@ const WarehouseSchema = new mongoose.Schema(
     linkedOrders: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "OrderProducts",
+        ref: "Order",
       },
     ],
   },

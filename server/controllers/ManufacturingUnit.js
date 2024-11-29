@@ -1,4 +1,4 @@
-const ManufacturingCompany = require("../models/ManufacturingCompany");
+const ManufacturingCompany = require("../models/ManufacturingUnit");
 const { uploadImageToCloudinary } = require("../utils/imageUploader");
 const User = require("../models/User");
 const { msgFunction } = require("../utils/msgFunction");
