@@ -29,7 +29,7 @@ const OrderSchema = new mongoose.Schema(
     },
     orderCreatedDate: {
       type: Date,
-      default: Date.now, 
+      default: Date.now,
     },
   },
   { timestamps: true }

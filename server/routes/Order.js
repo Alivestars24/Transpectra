@@ -20,7 +20,7 @@ router.post("/create", createOrder);
  * 
  * Purpose :  Route to fetch manufacturer details with linked warehouses and orders
  * 
- * URL : /api/v1/order//manufacturer/:manufacturerId/details
+ * URL : /api/v1/order/manufacturer/:manufacturerId/details
  *  
  * */ 
 router.get("/manufacturer/:manufacturerId/details", getManufacturerDetails);

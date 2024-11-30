@@ -7,7 +7,7 @@ const Warehouse = require("../models/Warehouse");
  * 
  * URL : /api/v1/order/create
  *  
- * */ 
+ * */
 exports.createOrder = async (req, res) => {
   try {
     const {
@@ -16,7 +16,7 @@ exports.createOrder = async (req, res) => {
       estimatedDeliveryDate,
       warehouseId,
     } = req.body;
-    
+
     if (!selectedProducts || !Array.isArray(selectedProducts) || selectedProducts.length === 0) {
       return res.status(400).json({
         success: false,
@@ -99,7 +99,7 @@ exports.createOrder = async (req, res) => {
  * 
  * Purpose :  Route to fetch manufacturer details with linked warehouses and orders
  * 
- * URL : /api/v1/order//manufacturer/:manufacturerId/details
+ * URL : /api/v1/order/manufacturer/:manufacturerId/details
  *  
  * */
 exports.getManufacturerDetails = async (req, res) => {

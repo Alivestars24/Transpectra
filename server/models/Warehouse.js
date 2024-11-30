@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const generateUniqueId = require('generate-unique-id');
+
 const WarehouseSchema = new mongoose.Schema(
   {
     warehouseName: { type: String, required: true },
@@ -36,9 +38,20 @@ const WarehouseSchema = new mongoose.Schema(
         ref: "Order",
       },
     ],
+    uniqueCode: {
+      type: String,
+      sparse: true,
+    },
   },
   { timestamps: true }
 );
+
+WarehouseSchema.pre('save', async function (next) {
+  this.uniqueCode = generateUniqueId({
+    length: 6
+  });
+  next();
+});
 
 const Warehouse = mongoose.model("warehouse", WarehouseSchema);
 

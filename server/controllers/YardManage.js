@@ -9,6 +9,7 @@ exports.addYard = async (req, res) => {
     console.log("Received request to add a yard", req.body);
 
     const { warehouseCode, yardManagerId } = req.body;
+
     // Validate input
     if (!warehouseCode || !yardManagerId) {
       throw new Error("Warehouse Code and Yard Manager ID are required");
@@ -17,7 +18,6 @@ exports.addYard = async (req, res) => {
     // Fetch warehouse by code
     const wareHouse = await Warehouse.findOne({ uniqueCode: warehouseCode });
     if (!wareHouse) {
-      console.log(wareHouse);
       throw new Error("Invalid Warehouse Code");
     }
 
@@ -52,6 +52,13 @@ exports.addYard = async (req, res) => {
     // Link the new Yard ID to the Yard Manager
     yardManager.LinkedYardID = yard._id;
     await yardManager.save();
+
+    // Add the Yard ID to the Warehouse
+    if (!wareHouse.yards) {
+      wareHouse.yards = [];
+    }
+    wareHouse.yards.push(yard._id);
+    await wareHouse.save();
 
     // Respond with success
     console.log("Yard added and linked successfully");
@@ -99,3 +106,37 @@ exports.getWarehouseDetailsForManager = async (req, res) => {
 };
 
 
+exports.getYardAndWarehouses = async (req, res) => {
+  try {
+    console.log("Received request to get yards and warehouses");
+
+    // Fetch all yards with associated warehouse and yard manager
+    const yards = await Yard.find()
+      .populate({
+        path: "warehouseId",
+        select: "uniqueCode name location",
+      })
+      .populate({
+        path: "yardManagerId",
+        select: "name email accountType",
+      });
+
+    // If no yards are found
+    if (!yards || yards.length === 0) {
+      return res.status(404).json(errorFunction(false, "No yards found"));
+    }
+
+    // Return the yards along with warehouse and yard manager information
+    console.log("Fetched yards and warehouses successfully");
+    return res.status(200).json({
+      success: true,
+      message: "Yards and warehouses fetched successfully",
+      yards,
+    });
+  } catch (error) {
+    console.error("Error while fetching yards and warehouses:", error);
+    return res.status(500).json(
+      errorFunction(false, error.message)
+    );
+  }
+};

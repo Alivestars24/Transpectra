@@ -1,15 +1,51 @@
 const express = require("express");
 const router = express.Router();
-const {addFleetDetails }= require("../controllers/fleet");
+const {
+  addFleetInYard,
+  getFleetDeparted,
+  registerIncomingFleet,
+  availableFleetInYard,
+  markTruckAsDeparted,
+} = require("../controllers/fleet");
+
+const { auth } = require('../middleware/auth')
 
 /**
- * 
- * Purpose : Route to add Fleet details 
- * 
+ *
+ * Purpose : Route to add Fleet  In yard
+ *
  * url : api/v1/fleet/add
- * 
- * 
+ *
+ *
  */
-router.post("/add", addFleetDetails);
+router.post("/add", addFleetInYard);
+
+/**
+ *
+ * Purpose : Route to add Fleet  In yard
+ *
+ * url : api/v1/fleet/available
+ *
+ *
+ */
+router.post("/available", availableFleetInYard);
+
+/** 
+ * 
+ * purpose : Check in that trucks which are going out side from the yard
+ * 
+ * url : api/v1/fleet/departed 
+ * 
+ * use : used in the Overview Fleet in the client side
+ * 
+*/
+router.get("/departed", auth, getFleetDeparted);
+
+
+
+
+router.post("/trucks/departed/:fleetId", markTruckAsDeparted);
+
 
 module.exports = router;
+

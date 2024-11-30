@@ -40,8 +40,10 @@ const FleetSchema = new mongoose.Schema(
       ref: "user",
       required: true,
     },
+    arrived: { type: Boolean, default: false },
+    departed: { type: Boolean, default: false },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const fleet = mongoose.model("fleet", FleetSchema);

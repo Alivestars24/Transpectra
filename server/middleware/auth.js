@@ -16,12 +16,12 @@ exports.auth = async (req, res, next) => {
             req.body.token ||
             req.header("Authorization").replace("Bearer ", "");
 
-        const storeToken =
-            req.cookies.storeToken ||
-            req.body.storeToken ||
-            req.header("Store-X-token").replace("Bearer ", "");
+        // const storeToken =
+        //     req.cookies.storeToken ||
+        //     req.body.storeToken ||
+        //     req.header("Store-X-token").replace("Bearer ", "");
 
-            console.log("this is cookie",req.cookies)
+        //     console.log("this is cookie",req.cookies)
              
 
         // If JWT is missing, return 401 Unauthorized response
