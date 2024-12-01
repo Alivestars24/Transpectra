@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const ManufacturingCompanySchema = new mongoose.Schema(
+const ManufacturingUnitSchema = new mongoose.Schema(
   {
     companyName: { type: String, required: true },
     companyAddress: { type: String, required: true },
@@ -21,16 +21,16 @@ const ManufacturingCompanySchema = new mongoose.Schema(
     linkedOrders: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "OrderProducts",
+        ref: "Order",
       },
     ],
   },
   { timestamps: true }
 );
 
-const ManufacturingCompany = mongoose.model(
-  "manufacturingCompany",
-  ManufacturingCompanySchema
+const ManufacturingUnit = mongoose.model(
+  "manufacturingUnit",
+  ManufacturingUnitSchema
 );
 
-module.exports = ManufacturingCompany;
+module.exports = ManufacturingUnit;

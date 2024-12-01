@@ -1,7 +1,13 @@
 const mongoose = require("mongoose");
 
+
 const OrderSchema = new mongoose.Schema(
   {
+    uniqueOrderId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     selectedProducts: [
       {
         productName: { type: String, required: true },
@@ -11,7 +17,7 @@ const OrderSchema = new mongoose.Schema(
     ],
     manufacturerId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "ManufacturingCompany",
+      ref: "ManufacturingUnit",
       required: true,
     },
     manufacturerName: {
@@ -27,6 +33,23 @@ const OrderSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    actualDeliveryDate: {
+      type: Date,
+      default: null, // This will be set later
+    },
+    orderStatus: {
+      type: String,
+      enum: ["pending", "processing", "fulfilled"],
+      default: "pending",
+    },
+    deliveries: {
+      type: [String], // Array to store delivery information
+      default: [],
+    },
+    qrCodeImageUrl: {
+      type: String, // URL to the uploaded QR code image
+      default: null,
+    },
     orderCreatedDate: {
       type: Date,
       default: Date.now,
@@ -35,6 +58,6 @@ const OrderSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Order = mongoose.model("OrderProducts", OrderSchema);
+const Order = mongoose.model("Order", OrderSchema);
 
 module.exports = Order;

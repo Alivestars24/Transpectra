@@ -29,7 +29,7 @@ const WarehouseSchema = new mongoose.Schema(
     linkedManufacturers: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "ManufacturingCompany",
+        ref: "ManufacturingUnit",
       },
     ],
     linkedOrders: [

@@ -1,9 +1,9 @@
-const ManufacturingCompany = require("../models/ManufacturingUnit");
+const ManufacturingUnit = require("../models/ManufacturingUnit");
 const { uploadImageToCloudinary } = require("../utils/imageUploader");
 const User = require("../models/User");
 const { msgFunction } = require("../utils/msgFunction");
 
-exports.addManufacturingCompany = async (req, res) => {
+exports.addManufacturingUnit = async (req, res) => {
   try {
     console.log("Received request to add a manufacturing company");
 
@@ -24,7 +24,7 @@ exports.addManufacturingCompany = async (req, res) => {
     );
 
     // **2. Save manufacturing company details in the database**
-    const manufacturingCompany = await ManufacturingCompany.create({
+    const manufacturingUnit = await ManufacturingUnit.create({
       companyName,
       companyAddress,
       companyArea,
@@ -40,7 +40,7 @@ exports.addManufacturingCompany = async (req, res) => {
       throw new Error("Manufacturer (User) not found");
     }
 
-    manufacturer.LinkedManufacturingUnitID = manufacturingCompany._id; // Assign the created manufacturing company ID
+    manufacturer.LinkedManufacturingUnitID = manufacturingUnit._id; // Assign the created manufacturing company ID
     await manufacturer.save();
 
     console.log("Manufacturing company added and linked to manufacturer");
@@ -49,7 +49,7 @@ exports.addManufacturingCompany = async (req, res) => {
     return res.status(201).json({
       success: true,
       message: "Manufacturing company added successfully and linked to manufacturer.",
-      manufacturingCompany,
+      manufacturingUnit: manufacturingUnit,
     });
 
   } catch (error) {
@@ -79,7 +79,7 @@ exports.getCompanyDetailsByManagerId = async (req, res) => {
     }
 
     // Step 3: Fetch company details and populate fields
-    const company = await ManufacturingCompany.findById(companyId)
+    const company = await ManufacturingUnit.findById(companyId)
 
     if (!company) {
       return res.status(404).json({ error: "Company not found." });
