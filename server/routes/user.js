@@ -39,12 +39,6 @@ endpoint = {
 // Route for user login
 router.post(endpoint.LOG_IN, login)
 
-// Route for user signup
-// const signupSchema = Joi.object({
-//     email: Joi.string().email().required(),
-//     password: Joi.string().required().min(5),
-// });
-
 router.post(endpoint.SIGN_UP, signup);
 
 // Route for sending OTP to the user's email

@@ -11,7 +11,6 @@ export function fetchCompanyDetails(managerId) {
       // Send GET request
       const response = await apiConnector("GET", `${endpoints.FETCH_COMPANY_API}/${managerId}`);
       console.log("FETCH_COMPANY API RESPONSE............", response);
-
       // Check if the response contains valid data
       if (!response?.data?.company) {
         throw new Error("Invalid response structure");

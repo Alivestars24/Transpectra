@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import IconBtn from "../../Common/IconBtn";
 import { useEffect } from "react";
+import { toast } from "react-hot-toast";
+import { RiFileCopyLine, RiShareLine } from "react-icons/ri";
 
 export default function MyProfile() {
   const dispatch = useDispatch();
@@ -10,6 +12,28 @@ export default function MyProfile() {
   const warehouse = useSelector((state) => state.warehouse?.warehouse || null); // Fetch warehouse details
   const company = useSelector((state) => state.company?.company || null); // Fetch company details
   const navigate = useNavigate();
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(warehouse?.uniqueCode || "");
+    toast.success("Unique Warehouse Code copied to clipboard");
+  };
+
+  const shareWarehouse = () => {
+    const shareData = {
+      title: "Warehouse Unique Code",
+      text: `Check out this warehouse unique code: ${warehouse?.uniqueCode || "No code available."}`,
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      navigator.share(shareData).catch((err) => {
+        console.error("Error sharing:", err);
+        toast.error("Sharing failed!");
+      });
+    } else {
+      toast.error("Sharing is not supported on this device.");
+    }
+  };
 
   // Debugging logs
   useEffect(() => {
@@ -93,6 +117,32 @@ export default function MyProfile() {
             : company?.companyDescription || "No description available."}
         </p>
       </div>
+
+      <div className="mt-4 mb-1 flex justify-between gap-x-2 rounded-md border-[1px] border-richblue-500 bg-llblue p-3 px-8">
+      <div className="flex flex-col w-full gap-y-2 ">
+        <p className="text-lg font-semibold text-richblue-900">Warehouse Code to link a Yard</p>
+        <p className="text-md font-medium text-richblue-800">
+        Unique Code: <span className="font-bold text-lg  text-richblue-900">{warehouse?.uniqueCode || "No code available."}</span>
+       </p>
+      </div>
+      <div className="mt-3 ml-12 flex items-center w-3/5 gap-x-4">
+        <button
+          className="flex items-center gap-x-2 rounded-md bg-richblue-500 px-6 py-2 text-sm font-medium text-white hover:bg-richblue-600"
+          onClick={copyToClipboard}
+        >
+          <RiFileCopyLine className="text-lg" />
+          Copy to Clipboard
+        </button>
+        <button
+          className="flex items-center gap-x-2 rounded-md bg-richblue-500 px-4 py-2 text-sm font-medium text-white hover:bg-richblue-600"
+          onClick={shareWarehouse}
+        >
+          <RiShareLine className="text-lg" />
+          Share
+        </button>
+      </div>
+    </div>
+
       <div className="my-4 flex flex-col gap-y-2 rounded-md border-[1px] border-richblue-500 bg-llblue p-3 px-8">
         <div className="flex w-full items-center justify-between">
           <p className="text-xl font-semibold text-richblue-900">User Details</p>

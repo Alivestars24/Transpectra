@@ -9,7 +9,7 @@ const Yard = require('../models/Yard')
 
 /**
  *
- * Purpose : controller to add Fleet  In yard
+ * Purpose : controller to add Fleet In yard
  *
  * url : api/v1/fleet/add
  *
@@ -98,8 +98,6 @@ exports.addFleetInYard = async (req, res) => {
   }
 };
 
-
-
 /**
  * 
  * @param {yardId , yardManagerId} req 
@@ -148,7 +146,6 @@ exports.availableFleetInYard = async (req, res) => {
       arrived: true,
     };
 
-
     // Fetch fleets based on the query
     const incomingFleets = await Fleet.find(query);
 
@@ -168,9 +165,6 @@ exports.availableFleetInYard = async (req, res) => {
 };
 
 
-
-
-
 /**
  * 
  * Purpose :Check in that trucks which are going out side from the yard
@@ -183,7 +177,8 @@ exports.availableFleetInYard = async (req, res) => {
  */
 exports.getFleetDeparted = async (req, res) => {
   try {
-    const warehouseManagerId = req.user.id;
+    console.log(req.body)
+    const warehouseManagerId = req.body.managerId;
 
     // Step 1: Find the warehouse managed by the warehouseManagerId
     const warehouse = await Warehouse.findOne({ managerId: warehouseManagerId });
@@ -289,9 +284,6 @@ exports.markTruckAsDeparted = async (req, res) => {
     return res.status(500).json(errorFunction(false, error.message));
   }
 };
-
-
-
 
 
 // Function to update warehouse inventory based on the orderId

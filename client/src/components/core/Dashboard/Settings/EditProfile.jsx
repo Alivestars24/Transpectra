@@ -7,6 +7,9 @@ import IconBtn from "../../../Common/IconBtn"
 export default function EditProfile() {
   const { user } = useSelector((state) => state.profile)
   const { token } = useSelector((state) => state.auth)
+  const warehouseData = useSelector((state) => state.warehouse?.warehouse);
+  const company = useSelector((state) => state.company?.company || null);
+  const isWarehouseManager = user?.accountType === "Warehouse_Manager";
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
@@ -30,12 +33,16 @@ export default function EditProfile() {
         {/* Profile Information */}
         <div className="mt-10 mb-3 pb-4 flex flex-col gap-y-3 rounded-md border-[1px] border-richblue-500 bg-llblue p-3 px-8">
           <h2 className="text-2xl font-bold text-richblue-900">
-            Profile Information
+          {isWarehouseManager
+                ? "Warehouse Details"
+                : "Manufacturing Unit Details"}
           </h2>
           <div className="flex flex-col gap-5 lg:flex-row">
             <div className="flex flex-col gap-2 lg:w-[48%]">
               <label htmlFor="firstName" className="text-richblack-700">
-                First Name
+              {isWarehouseManager
+                ?"Warehouse Address"
+                :"Manufacturing Unit Address"}
               </label>
               <input
                 type="text"
@@ -44,17 +51,21 @@ export default function EditProfile() {
                 placeholder="Enter first name"
                 className="bg-richblue-25 text-black py-2 px-3 rounded-md"
                 {...register("firstName", { required: true })}
-                defaultValue={user?.firstName}
+                defaultValue={isWarehouseManager
+                  ? warehouseData.warehouseAddress
+                  : company.companyAddress}
               />
               {errors.firstName && (
                 <span className="-mt-1 text-[12px] text-yellow-100">
-                  Please enter your first name.
+                  Please enter Address
                 </span>
               )}
             </div>
             <div className="flex flex-col gap-2 lg:w-[48%]">
               <label htmlFor="lastName" className="text-richblack-700">
-                Last Name
+              {isWarehouseManager
+                ?"Warehouse Area"
+                :"Manufacturing Unit Area"}
               </label>
               <input
                 type="text"
@@ -63,11 +74,13 @@ export default function EditProfile() {
                 placeholder="Enter first name"
                 className="bg-richblue-25 text-black py-2 px-3 rounded-md"
                 {...register("lastName", { required: true })}
-                defaultValue={user?.lastName}
+                defaultValue={isWarehouseManager
+                  ? warehouseData.warehouseArea
+                  : company.companyArea}
               />
               {errors.lastName && (
                 <span className="-mt-1 text-[12px] text-yellow-100">
-                  Please enter your last name.
+                  Please enter Area
                 </span>
               )}
             </div>

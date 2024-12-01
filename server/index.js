@@ -78,7 +78,7 @@ app.get("/", (req, res) => {
 
 // Routes
 app.use(CONFIG.APIS.auth, userRoutes);
-app.use(CONFIG.APIS.profile, auth, profileRoutes);
+app.use(CONFIG.APIS.profile, profileRoutes);
 app.use(CONFIG.APIS.distribution_center, auth, DistributionStoreRoutes);
 app.use(CONFIG.APIS.store, auth, storeRoutes);
 app.use(CONFIG.APIS.driver, auth, driverRoutes);

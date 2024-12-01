@@ -12,7 +12,7 @@ const { auth } = require('../middleware/auth')
 
 /**
  *
- * Purpose : Route to add Fleet  In yard
+ * Purpose : Route to add Fleet in the yard
  *
  * url : api/v1/fleet/add
  *
@@ -22,7 +22,7 @@ router.post("/add", addFleetInYard);
 
 /**
  *
- * Purpose : Route to add Fleet  In yard
+ * Purpose : Route to get available Fleet  In yard
  *
  * url : api/v1/fleet/available
  *
@@ -39,9 +39,7 @@ router.post("/available", availableFleetInYard);
  * use : used in the Overview Fleet in the client side
  * 
 */
-router.get("/departed", auth, getFleetDeparted);
-
-
+router.get("/departed", getFleetDeparted);
 
 
 router.post("/trucks/departed/:fleetId", markTruckAsDeparted);

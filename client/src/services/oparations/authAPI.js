@@ -191,56 +191,65 @@ export function registerYard(formData, navigate) {
 
 export function login(email, password, navigate) {
     return async (dispatch) => {
-        const toastId = toast.loading("Loading...")
-        dispatch(setLoading(true))
-        try {
-            const platform = "web"
-            const response = await apiConnector("POST", LOGIN_API, {
-                email,
-                password,
-                platform
-            })
+      const toastId = toast.loading("Logging in...");
+      dispatch(setLoading(true));
+  
+      try {
+        const platform = "web";
+        const response = await apiConnector("POST", LOGIN_API, { email, password, platform });
+        console.log("Login form response :",response)
+        if (!response.data.success) throw new Error(response.data.message || "Login failed");
+  
+        // Update toast to success
+        toast.success("Login Successful!", { id: toastId });
+  
+        const token = response.data.token;
+        const user = response.data.user;
+        const userId = user._id;
+        const userData = { ...response.data.user};
+        await dispatch(setUser(userData));
+        dispatch(setToken(token));
+        Cookies.set("token", token, { expires: 7 });
+        Cookies.set("storeToken", response.data.storeToken, { expires: 7 });
+        console.log("Login is completed but now i want to fetch other related")
+        // Fetch profile details based on account type
+        let fetchProfile;
+        let navigatePath = "/dashboard/my-profile";
 
-            console.log("LOGIN API RESPONSE............", response)
-
-            if (!response.data.success) {
-                throw new Error(response.data.message)
-            }
-
-            toast.success("Login Successful")
-            
-            dispatch(setToken(response.data.token))
-
-            const userImage = response.data?.user?.image
-                ? response.data.user.image
-                : `https://api.dicebear.com/5.x/initials/svg?seed=${response.data.user.firstName} ${response.data.user.lastName}`
-            dispatch(setUser({ ...response.data.user, image: userImage }))
-
-            Cookies.set('token', response.data.token, { expires: 7 });
-            Cookies.set('storeToken', response.data.storeToken, { expires: 7 });
-
-            console.log(response)
-            const userId = response.data.user._id; 
-
-    // Navigate based on the accountType in the response and pass userId
-    if (response.data.user.accountType === "Warehouse_Manager") {
-        await dispatch(fetchWarehouseDetails(userId));
-        navigate("/dashboard/my-profile")
-    } else if (response.data.user.accountType === "Yard_managers") {
-        await dispatch(fetchYardDetails(userId));
-        navigate("/dashboard/my-profile-yard")
-    } else {
-        await dispatch(fetchCompanyDetails(userId));
-        navigate("/dashboard/my-profile")
-    }
-        } catch (error) {
-            console.log("LOGIN API ERROR............", error)
-            toast.error("Login Failed")
+        switch (user.accountType) {
+        case "Warehouse_Manager":
+            console.log("Dispatching Warehouse Manager fetch...");
+            fetchProfile = fetchWarehouseDetails;
+            break;
+  
+        case "Yard_managers":
+            console.log("Dispatching Yard Manager fetch...");
+            fetchProfile = fetchYardDetails;
+            navigatePath = "/dashboard/my-profile-yard";
+            break;
+  
+        default:
+            console.log("Dispatching Company fetch...");
+            fetchProfile = fetchCompanyDetails;
+            break;
         }
-        dispatch(setLoading(false))
-        toast.dismiss(toastId)
-    }
-}
+  
+        await dispatch(fetchProfile({ managerId: userId }))
+        .then(() => navigate(navigatePath))
+        .catch((error) => {
+          console.error("Error fetching profile:", error);
+          toast.error("Error fetching profile details.");
+        });
+
+  
+      } catch (error) {
+        console.error("Login Error:", error);
+        toast.error("Login Failed", { id: toastId });
+      } finally {
+        dispatch(setLoading(false));
+      }
+    };
+  }
 
 export function getPasswordResetToken(email, setEmailSent) {
     return async (dispatch) => {

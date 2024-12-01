@@ -5,7 +5,7 @@ export const sidebarLinks = [
     id: 1,
     name: "My Profile",
     path: "/dashboard/my-profile",
-    type: ACCOUNT_TYPE.WAREHOUSE_MANAGER || ACCOUNT_TYPE.SUPPLIER,
+    type: ACCOUNT_TYPE.WAREHOUSE_MANAGER,
     icon: "VscAccount",
   },
   {

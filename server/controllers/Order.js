@@ -1,6 +1,10 @@
 const Order = require("../models/Order");
 const ManufacturingCompany = require("../models/ManufacturingUnit");
 const Warehouse = require("../models/Warehouse");
+const QRCode = require("qrcode");
+const { uploadImageToCloudinary } = require("../utils/imageUploader");
+const generateUniqueId = require("generate-unique-id");
+
 /**
  * 
  * Purpose : creating Order By the Ware House manager
@@ -17,6 +21,7 @@ exports.createOrder = async (req, res) => {
       warehouseId,
     } = req.body;
 
+    // Validate inputs
     if (!selectedProducts || !Array.isArray(selectedProducts) || selectedProducts.length === 0) {
       return res.status(400).json({
         success: false,
@@ -31,7 +36,7 @@ exports.createOrder = async (req, res) => {
     }
 
     // Validate manufacturer and warehouse
-    const manufacturer = await ManufacturingCompany.findById(manufacturerId);
+    const manufacturer = await ManufacturingUnit.findById(manufacturerId);
     if (!manufacturer) {
       return res.status(404).json({
         success: false,
@@ -47,11 +52,15 @@ exports.createOrder = async (req, res) => {
       });
     }
 
+    // Generate a unique 8-digit ID for the order
+    const uniqueOrderId = generateUniqueId({ length: 8 });
+
     // Save the order details
     const order = await Order.create({
+      uniqueOrderId,
       selectedProducts,
       manufacturerId,
-      manufacturerName: manufacturer.companyName, // Extract from the manufacturing company
+      manufacturerName: manufacturer.companyName,
       warehouseId,
       estimatedDeliveryDate,
     });
@@ -78,6 +87,27 @@ exports.createOrder = async (req, res) => {
     await manufacturer.save();
     await warehouse.save();
 
+    // Generate QR code data
+    const qrData = {
+      uniqueOrderId,
+      orderId: order._id,
+      warehouseId,
+      warehouseManagerId: warehouse.managerId,
+    };
+
+    // Generate the QR code
+    const qrCodeImage = await QRCode.toDataURL(JSON.stringify(qrData));
+
+    // Upload the QR code image to Cloudinary
+    const uploadResult = await uploadImageToCloudinary(
+      { path: qrCodeImage },
+      "orders/qr-codes"
+    );
+
+    // Save the QR code URL to the order
+    order.qrCodeImageUrl = uploadResult.secure_url;
+    await order.save();
+
     // Return success response
     return res.status(201).json({
       success: true,
@@ -93,8 +123,6 @@ exports.createOrder = async (req, res) => {
     });
   }
 };
-
-
 /**
  * 
  * Purpose :  Route to fetch manufacturer details with linked warehouses and orders

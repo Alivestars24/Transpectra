@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
+import { addFleetToYard } from '../../../services/oparations/YardAPI';
+import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 const IncomingFleetPage = () => {
+  const dispatch=useDispatch();
+  const user = useSelector((state) => state.profile?.user || null);
   const [formData, setFormData] = useState({
-    licensePlate: '',
+    vehicleLicensePlate: '',
     driverName: '',
-    incomingTime: '',
-    purpose: 'Loading',
+    dateOfArrival: '',
+    purpose: 'loading',
     orderId: '',
-    priority: 'High',
-    dock: '',
+    allocatedDock: '',
   });
 
   const handleChange = (e) => {
@@ -18,16 +22,28 @@ const IncomingFleetPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Submitted Truck Details:', formData);
-    alert('Truck details added successfully!');
+
+    if (!user?._id) {
+      alert("User not authenticated.");
+      return;
+    }
+
+    const payload = {
+      ...formData,
+      yardManagerId: user._id, 
+    };
+
+    console.log("Submitting Truck Details with payload:", payload);
+
+    dispatch(addFleetToYard(payload));
+
     setFormData({
-      licensePlate: '',
+      vehicleLicensePlate: '',
       driverName: '',
-      incomingTime: '',
-      purpose: 'Loading',
+      dateOfArrival: '',
+      purpose: 'loading',
       orderId: '',
-      priority: 'High',
-      dock: '',
+      allocatedDock: '',
     });
   };
 
@@ -59,9 +75,9 @@ const IncomingFleetPage = () => {
             </label>
             <input
               type="text"
-              name="licensePlate"
+              name="vehicleLicensePlate"
               placeholder="License Plate Number"
-              value={formData.licensePlate}
+              value={formData.vehicleLicensePlate}
               onChange={handleChange}
               required
               className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1"
@@ -72,8 +88,8 @@ const IncomingFleetPage = () => {
             <label className="block font-semibold text-gray-700">Incoming Date & Time *</label>
             <input
               type="datetime-local"
-              name="incomingTime"
-              value={formData.incomingTime}
+              name="dateOfArrival"
+              value={formData.dateOfArrival}
               onChange={handleChange}
               required
               className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1"
@@ -87,8 +103,8 @@ const IncomingFleetPage = () => {
               onChange={handleChange}
               className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1"
             >
-              <option value="Loading">Loading</option>
-              <option value="Unloading">Unloading</option>
+              <option value="loading">Loading</option>
+              <option value="unloading">Unloading</option>
             </select>
           </div>
         </div>
@@ -99,8 +115,8 @@ const IncomingFleetPage = () => {
             <label className="block font-semibold text-gray-700">Allocated Dock *</label>
             <input
               type="text"
-              name="dock"
-              value={formData.dock}
+              name="allocatedDock"
+              value={formData.allocatedDock}
               onChange={handleChange}
               required
               className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1"

@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import { FaRegArrowAltCircleRight } from "react-icons/fa";
 import { FaRegArrowAltCircleDown } from "react-icons/fa";
+import { useSelector, useDispatch } from 'react-redux';
 import { FaRegArrowAltCircleUp } from "react-icons/fa";
+import { fetchDepartedFleetDetails } from "../../../services/oparations/YardAPI";
+import { useEffect } from "react";
 
 // Component for a single truck card
 const TruckCard = ({ truck, isAlternate }) => {
@@ -78,7 +80,18 @@ const TruckCard = ({ truck, isAlternate }) => {
 // Main FleetOverviewPage Component
 const FleetOverviewPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.profile?.user || null);
+  const departedFleets = useSelector((state) => state.departedFleet?.departedFleets || []);
+  console.log("For fleet overview Page :",user._id);
+  
+  useEffect(() => {
+    if (user?._id) {
+      dispatch(fetchDepartedFleetDetails({ managerId: user._id }));
+    }
+  }, [dispatch, user]);
 
+  console.log("Data received from departedFleet API is :",departedFleets);
   // Dummy fleet data
   const fleetData = [
     {
