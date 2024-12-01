@@ -24,9 +24,9 @@ const CONFIG = {
         manufacturingUnit: '/api/v1/manufacturingunit',
         yard: '/api/v1/yard',
         fleet: '/api/v1/fleet',
-        Order:"/api/v1/order",
-        ManufacturerFetch: '/api/v1/manufacturer'
-          
+        Order: "/api/v1/order",
+        ManufacturerFetch: '/api/v1/manufacturer',
+        forecast: '/api/v1/forecast',
     },
     KEYS: {
         CLOUDINARY: {
@@ -48,12 +48,21 @@ const CONFIG = {
         STORE: "Warehouse_Manager",
         DISTRIBUTION_CENTER: "Supplier",
         DRIVER: "Driver",
-        YARD : "Yard_managers"
+        YARD: "Yard_managers"
     },
-      STORE_TYPE :{
-        STORE :"Store",
-        DISTRIBUTION_CENTER : "Distribution Center"
-    }
+    STORE_TYPE: {
+        STORE: "Store",
+        DISTRIBUTION_CENTER: "Distribution Center"
+    },
+    ULIP: {
+        url: process.env.ULIP_PORTAL,
+        username: process.env.ULIP_USERNAME,
+        password: process.env.ULIP_PASSWORD
+    },
+    ULIP_API: {
+        CARBON_EMISSION: process.env.CARBON_EMISSION
+    },
+    DJANGO_URL: process.env.DJANGO_SERVER_URL
 };
 
 module.exports = {

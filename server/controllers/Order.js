@@ -1,5 +1,5 @@
 const Order = require("../models/Order");
-const ManufacturingCompany = require("../models/ManufacturingUnit");
+const ManufacturingUnit = require("../models/ManufacturingUnit");
 const Warehouse = require("../models/Warehouse");
 const QRCode = require("qrcode");
 const { uploadImageToCloudinary } = require("../utils/imageUploader");
@@ -123,6 +123,7 @@ exports.createOrder = async (req, res) => {
     });
   }
 };
+
 /**
  * 
  * Purpose :  Route to fetch manufacturer details with linked warehouses and orders
@@ -143,7 +144,7 @@ exports.getManufacturerDetails = async (req, res) => {
     }
 
     // Fetch the manufacturer
-    const manufacturer = await ManufacturingCompany.findById(manufacturerId)
+    const manufacturer = await ManufacturingUnit.findById(manufacturerId)
       .populate("linkedWarehouses") // Populate linked warehouses
       .populate("linkedOrders"); // Populate linked orders
 

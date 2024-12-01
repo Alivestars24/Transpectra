@@ -123,7 +123,7 @@ exports.getYardAndWarehouses = async (req, res) => {
 
     // If no yards are found
     if (!yards || yards.length === 0) {
-      return res.status(404).json(errorFunction(false, "No yards found"));
+      return res.status(404).json(msgFunction(false, "No yards found"));
     }
 
     // Return the yards along with warehouse and yard manager information
@@ -136,7 +136,7 @@ exports.getYardAndWarehouses = async (req, res) => {
   } catch (error) {
     console.error("Error while fetching yards and warehouses:", error);
     return res.status(500).json(
-      errorFunction(false, error.message)
+      msgFunction(false, error.message)
     );
   }
 };

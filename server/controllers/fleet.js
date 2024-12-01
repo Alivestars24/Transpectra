@@ -257,11 +257,11 @@ exports.markTruckAsDeparted = async (req, res) => {
     // Fetch the truck by ID
     const truck = await Fleet.findById(fleetId);
     if (!truck) {
-      return res.status(404).json(errorFunction(false, "Truck not found."));
+      return res.status(404).json(msgFunction(false, "Truck not found."));
     }
 
     if (truck.departed) {
-      return res.status(400).json(errorFunction(false, "Truck has already been marked as departed."));
+      return res.status(400).json(msgFunction(false, "Truck has already been marked as departed."));
     }
 
     // Mark the truck as departed
@@ -281,7 +281,7 @@ exports.markTruckAsDeparted = async (req, res) => {
     });
   } catch (error) {
     console.error("Error marking truck as departed:", error);
-    return res.status(500).json(errorFunction(false, error.message));
+    return res.status(500).json(msgFunction(false, error.message));
   }
 };
 

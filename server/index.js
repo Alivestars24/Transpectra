@@ -7,6 +7,7 @@ const path=require("path")
 
 const { CONFIG } = require('./constants/config')
 const { auth } = require('./middleware/auth');
+const forecastRoutes = require('./routes/stockForecast');
 
 // Setting up port number
 const PORT = process.env.PORT || 4000
@@ -56,16 +57,16 @@ const profileRoutes = require('./routes/profile');
 const DistributionStoreRoutes = require('./routes/DistributionCenter')
 const storeRoutes = require('./routes/Store');
 const driverRoutes = require('./routes/driver');
-const deliveriesRoutes = require('./routes/deliveries')
+const deliveriesRoutes = require('./routes/delivery')
 const warehouseRoutes = require('./routes/Warehouse')
-const ManufacturingCompanyRoutes =require('./routes/ManufacturingUnit')
+const ManufacturingUnitRoutes =require('./routes/ManufacturingUnit')
 const YardManage = require('./routes/YardManage')
 const fleetRoutes = require('./routes/fleet')
 const OrderRoutes = require('./routes/Order');
+const DeliveryRoutes = require('./routes/delivery');
 // const OrderedProductsRoutes = require('./routes/OrderedProductsRoutes')
 // const OrderRequestRoute = require('./routes/OrderRequestRoute')
 const ManufacturerFetchRoute = require('./routes/Manufacturer')
-
 
 
 app.get("/", (req, res) => {
@@ -84,14 +85,16 @@ app.use(CONFIG.APIS.store, auth, storeRoutes);
 app.use(CONFIG.APIS.driver, auth, driverRoutes);
 app.use(CONFIG.APIS.delivery, auth, deliveriesRoutes)
 app.use(CONFIG.APIS.warehouse, warehouseRoutes)
-app.use(CONFIG.APIS.manufacturingUnit, ManufacturingCompanyRoutes)
+app.use(CONFIG.APIS.manufacturingUnit, ManufacturingUnitRoutes)
 app.use(CONFIG.APIS.yard, YardManage)
 app.use(CONFIG.APIS.fleet, fleetRoutes)
+app.use(CONFIG.APIS.delivery,DeliveryRoutes);
 // app.use(CONFIG.APIS.OrderedProducts, OrderedProductsRoutes)
 // app.use(CONFIG.APIS.OrderRequest, OrderRequestRoute)
 app.use(CONFIG.APIS.Order,OrderRoutes);
 app.use(CONFIG.APIS.ManufacturerFetch, ManufacturerFetchRoute)
 
+app.use(CONFIG.APIS.forecast, forecastRoutes); 
 
 // Listening to the server
 app.listen(PORT, () => {
