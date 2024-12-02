@@ -19,6 +19,10 @@ export const endpoints = {
   FETCH_FLEET_YARD:BASE_URL+"/fleet/available",
   MARK_AS_DEPARTED_API:BASE_URL+"/fleet//trucks/departed",
   FETCH_DEPARTED_TRUCKS_API:BASE_URL+"/fleet/departed",
+  //Orders creation and fetching 
+  CREATE_ORDER_API:BASE_URL+"/order/create",
+  FETCH_ORDER_FOR_MANUFACTURER:BASE_URL+"/order/manufacturer",
+  GET_ALL_MANUFACTURERS: BASE_URL+"/manufacturer",
 }
 
 export const profileEndpoints = {
@@ -27,9 +31,9 @@ export const profileEndpoints = {
 
 // SETTINGS PAGE API
 export const settingsEndpoints = {
-  UPDATE_DISPLAY_PICTURE_API: BASE_URL + "/profile/updateDisplayPicture",
-  UPDATE_PROFILE_API: BASE_URL + "/profile/updateProfile",
+  UPDATE_DISPLAY_PICTURE_API: BASE_URL + "/profile/update-picture",
+  UPDATE_PROFILE_API: BASE_URL + "/profile/update-details",
   CHANGE_PASSWORD_API: BASE_URL + "/auth/changepassword",
-  DELETE_PROFILE_API: BASE_URL + "/profile/deleteProfile",
-  UPDATE_INVENTORY_EXCEL_API:BASE_URL+"/profile/updateExcelSheet",
+  DELETE_PROFILE_API: BASE_URL + "/profile/delete",
+  UPDATE_INVENTORY_EXCEL_API:BASE_URL+"/profile/update-inventory",
 }

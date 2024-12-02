@@ -1,6 +1,18 @@
 import React, { useState } from "react";
+import {useSelector,useDispatch} from "react-redux"
+import { useEffect } from "react";
+import { fetchManufacturers } from "../../services/oparations/CompanyAPI";
 
 const ProductSelectionPage = () => {
+  const dispatch = useDispatch();
+  const manufacturers = useSelector((state) => state.manufacturer?.manufacturers || []);
+
+  useEffect(() => {
+    dispatch(fetchManufacturers()).then((data) => {
+      console.log("Manufacturers fetched: ", data);
+    });
+  }, [dispatch]);
+
   // Dummy data for products
   const initialProducts = [
     { id: 1, name: "Smartphone", predictedQuantity: 50, specifications: "", isSelected: false },

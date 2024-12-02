@@ -88,7 +88,7 @@ function InventoryBarChart({ categories, currentData, pastData }) {
   };
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full items-center">
       <Bar data={data} options={options} height="full" width="full" />
     </div>
   );

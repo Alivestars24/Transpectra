@@ -11,14 +11,13 @@ const getAllManufacturers = async (req, res) => {
         select: "firstName lastName email accountType", // Include specific fields from the User schema
       })
       .select("companyName companyAddress companyArea companyDescription companyImage");
-
+    
     if (!manufacturers || manufacturers.length === 0) {
       return res.status(404).json({
         success: false,
         message: "No manufacturers found.",
       });
     }
-
     return res.status(200).json({
       success: true,
       message: "Manufacturers fetched successfully.",

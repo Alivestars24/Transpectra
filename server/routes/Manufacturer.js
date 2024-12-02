@@ -2,8 +2,6 @@ const express = require("express");
 const router = express.Router();
 const { getAllManufacturers } = require("../controllers/Manufacturer");
 
-
-
 /**
  * 
  * Purpose : fetch manufacturers with linked details
@@ -12,7 +10,6 @@ const { getAllManufacturers } = require("../controllers/Manufacturer");
  * 
  *  
  */
-
 router.get("/", getAllManufacturers);
 
 module.exports = router;

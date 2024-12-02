@@ -139,7 +139,7 @@ function getMonthlyInventoryData(warehouseData) {
   
       // Sort by restock urgency (difference) and return the top 5
       restockAlerts.sort((a, b) => b.restockDifference - a.restockDifference);
-      return restockAlerts.slice(0, 5);
+      return restockAlerts.slice(0, 4);
     }
   
     return [];

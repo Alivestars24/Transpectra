@@ -6,7 +6,7 @@ const { msgFunction } = require("../utils/msgFunction");
 exports.addManufacturingUnit = async (req, res) => {
   try {
     console.log("Received request to add a manufacturing company");
-
+    
     // Destructure fields from request body
     const { companyName, companyAddress, companyArea, companyDescription, manufacturerId } = req.body;
 
@@ -66,18 +66,18 @@ exports.getCompanyDetailsByManagerId = async (req, res) => {
   const { managerId } = req.params;
   console.log(managerId)
   try {
-    // Step 1: Find the user by managerId
+    //Step 1: Find the user by managerId
     const user = await User.findById(managerId);
     if (!user) {
       return res.status(404).json({ error: "User not found." });
     }
-
+    console.log(user)
     // Step 2: Extract linkedManufacturingUnitID
     const companyId = user.LinkedManufacturingUnitID;
     if (!companyId) {
       return res.status(404).json({ error: "No linked Company found for this user" });
     }
-
+    console.log("Company for Manufacturer:",companyId)
     // Step 3: Fetch company details and populate fields
     const company = await ManufacturingUnit.findById(companyId)
 

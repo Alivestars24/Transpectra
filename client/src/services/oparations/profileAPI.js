@@ -51,3 +51,4 @@ export function getUserDetails(token, navigate) {
         dispatch(setLoading(false))
     }
 }
+

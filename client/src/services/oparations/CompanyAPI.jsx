@@ -2,6 +2,7 @@ import { apiConnector } from "../apiConnector";
 import { endpoints } from "../api";
 import { toast } from "react-toastify";
 import { setLoading, setcompanyDetails } from "../../slices/companySlice";
+import { setManufacturers } from "../../slices/manufatcurerSlice";
 
 export function fetchCompanyDetails(managerId) {
   return async (dispatch) => {
@@ -23,6 +24,38 @@ export function fetchCompanyDetails(managerId) {
       console.error("FETCH_COMPANY API ERROR............", error);
       toast.error("Could not fetch company details");
     } finally {
+      toast.dismiss(toastId);
+      dispatch(setLoading(false));
+    }
+  };
+}
+
+export function fetchManufacturers() {
+  return async (dispatch) => {
+    const toastId = toast.loading("Fetching manufacturers...");
+    dispatch(setLoading(true));
+
+    try {
+      // Call the API to fetch manufacturer details
+      const response = await apiConnector("GET", endpoints.GET_ALL_MANUFACTURERS);
+
+      console.log("FETCH_MANUFACTURERS API RESPONSE............", response);
+
+      // Validate response structure
+      if (response?.data?.manufacturers && Array.isArray(response.data.manufacturers)) {
+        // Save manufacturer details to Redux store
+        dispatch(setManufacturers(response.data.manufacturers));
+        toast.success("Manufacturers fetched successfully");
+        return response.data.manufacturers;
+      } else {
+        console.error("Invalid response structure:", response);
+        throw new Error("Invalid response structure");
+      }
+    } catch (error) {
+      console.error("FETCH_MANUFACTURERS API ERROR............", error);
+      toast.error("Could not fetch manufacturers");
+    } finally {
+      // Dismiss the loading toast and reset loading state
       toast.dismiss(toastId);
       dispatch(setLoading(false));
     }

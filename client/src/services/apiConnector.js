@@ -3,8 +3,6 @@ import axios from "axios";
 export const axiosInstance = axios.create({
   withCredentials: true,
 });
-
-
 export const apiConnector = (method, url, bodyData, headers, params) => {
 
   console.log("this is url", url);
