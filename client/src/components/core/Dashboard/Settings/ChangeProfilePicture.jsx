@@ -40,19 +40,23 @@ export default function ChangeProfilePicture() {
 
   const handleFileUpload = () => {
     try {
-      console.log("uploading...")
-      setLoading(true)
-      const formData = new FormData()
-      formData.append("displayPicture", imageFile)
-      console.log("formdata", formData)
-      dispatch(updateDisplayPicture(token, formData)).then(() => {
-        setLoading(false)
-      })
+      console.log("uploading...");
+  const formData = new FormData();
+  formData.append("userId", user?._id);
+  formData.append("image", imageFile);
+
+  // Inspect FormData contents
+  for (let pair of formData.entries()) {
+    console.log(`${pair[0]}: ${pair[1]}`);
+  }
+
+  dispatch(updateDisplayPicture(formData));
     } catch (error) {
       console.log("ERROR MESSAGE - ", error.message)
     }
   }
   const isWarehouseManager = user?.accountType === "Warehouse_Manager";
+
   useEffect(() => {
     if (imageFile) {
       previewFile(imageFile)

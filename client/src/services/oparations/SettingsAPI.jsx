@@ -13,18 +13,14 @@ const {
   UPDATE_INVENTORY_EXCEL_API,
 } = settingsEndpoints
 
-export function updateDisplayPicture(token, formData) {
+export function updateDisplayPicture(formData) {
   return async (dispatch) => {
     const toastId = toast.loading("Loading...")
     try {
       const response = await apiConnector(
-        "PUT",
+        "POST",
         UPDATE_DISPLAY_PICTURE_API,
-        formData,
-        {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        }
+        formData
       )
       console.log(
         "UPDATE_DISPLAY_PICTURE_API API RESPONSE............",
