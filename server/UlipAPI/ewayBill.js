@@ -8,7 +8,7 @@ const { CONFIG } = require('../constants/config');
  * @returns {Promise<object>} - Resolves to the response containing e-way bill details.
  */
 const getEwayBillDetails = async (ewbNo) => {
-    const url = CONFIG.ULIP_API.EWAY_BILL; // Ensure this is correctly set in your config
+    const url = CONFIG.ULIP_API.EWAY_BILL; 
     
     const data = {
         ewbNo: ewbNo.toString(),

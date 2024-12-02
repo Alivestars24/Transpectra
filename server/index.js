@@ -60,7 +60,6 @@ const profileRoutes = require('./routes/profile');
 const DistributionStoreRoutes = require('./routes/DistributionCenter')
 const storeRoutes = require('./routes/Store');
 const driverRoutes = require('./routes/driver');
-const deliveriesRoutes = require('./routes/delivery')
 const warehouseRoutes = require('./routes/Warehouse')
 const ManufacturingUnitRoutes = require('./routes/ManufacturingUnit')
 const YardManage = require('./routes/YardManage')
@@ -100,7 +99,6 @@ app.use(CONFIG.APIS.profile, profileRoutes);
 app.use(CONFIG.APIS.distribution_center, auth, DistributionStoreRoutes);
 app.use(CONFIG.APIS.store, auth, storeRoutes);
 app.use(CONFIG.APIS.driver, auth, driverRoutes);
-app.use(CONFIG.APIS.delivery, auth, deliveriesRoutes)
 app.use(CONFIG.APIS.warehouse, warehouseRoutes)
 app.use(CONFIG.APIS.manufacturingUnit, ManufacturingUnitRoutes)
 app.use(CONFIG.APIS.yard, YardManage)
