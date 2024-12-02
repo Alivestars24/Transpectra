@@ -51,13 +51,15 @@ const DeliverySchema = new mongoose.Schema({
     },
     deliveryRoutes: [
         {
-            step: { type: Number, required: true }, // Step number in the route
-            from: { type: String, required: true, trim: true }, // Starting point
-            to: { type: String, required: true, trim: true }, // Destination point
-            by: { type: String, required: true, enum: ['rail', 'road', 'air', 'sea'] }, // Mode of transport
-            distance: { type: Number, required: true }, // Distance in kilometers
-            expectedTime: { type: String, required: true }, // Expected time in hours
-            cost: { type: Number, required: true } // Cost for this step
+            step: { type: Number, required: true }, 
+            from: { type: String, required: true, trim: true }, 
+            to: { type: String, required: true, trim: true }, 
+            by: { type: String, required: true, enum: ['rail', 'road', 'air', 'sea'] }, 
+            distance: { type: Number, required: true },
+            expectedTime: { type: String, required: true }, 
+            cost: { type: Number, required: true },
+            remarks :{type : String},
+            status: { type: String, enum: ['Completed', 'Ongoing', 'Pending'], default: 'Pending' }
         }
     ],
     overallTripCost: { type: Number, default: 0 }, // Total cost of the trip
