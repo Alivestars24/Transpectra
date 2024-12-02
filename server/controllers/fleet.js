@@ -177,7 +177,6 @@ exports.availableFleetInYard = async (req, res) => {
  */
 exports.getFleetDeparted = async (req, res) => {
   try {
-    console.log(req.body)
     const warehouseManagerId = req.body.managerId;
 
     // Step 1: Find the warehouse managed by the warehouseManagerId

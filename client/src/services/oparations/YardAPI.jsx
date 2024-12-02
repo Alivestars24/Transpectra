@@ -129,7 +129,7 @@ export function fetchDepartedFleetDetails({ managerId }) {
 
     try {
       // Call the API to fetch departed fleets
-      const response = await apiConnector("POST", endpoints.FETCH_DEPARTED_TRUCKS_API, {
+      const response = await apiConnector("GET", endpoints.FETCH_DEPARTED_TRUCKS_API, {
         managerId,
       });
 

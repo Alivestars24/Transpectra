@@ -1,9 +1,9 @@
 import { toast } from "react-hot-toast"
-
-import { setUser } from "../../slices/profileSlice"
+import { setLoading ,setUser } from "../../slices/profileSlice"
 import { apiConnector } from "../apiConnector"
 import { settingsEndpoints } from "../api"
 import { logout } from "./authAPI"
+
 
 const {
   UPDATE_DISPLAY_PICTURE_API,
@@ -13,36 +13,30 @@ const {
   UPDATE_INVENTORY_EXCEL_API,
 } = settingsEndpoints
 
-export function updateDisplayPicture(token, formData) {
+export function updateProfilePicture(formData) {
   return async (dispatch) => {
-    const toastId = toast.loading("Loading...")
-    try {
-      const response = await apiConnector(
-        "PUT",
-        UPDATE_DISPLAY_PICTURE_API,
-        formData,
-        {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        }
-      )
-      console.log(
-        "UPDATE_DISPLAY_PICTURE_API API RESPONSE............",
-        response
-      )
+    const toastId = toast.loading("Updating profile picture...");
 
-      if (!response.data.success) {
-        throw new Error(response.data.message)
+    try {
+      const response = await apiConnector("POST", UPDATE_DISPLAY_PICTURE_API, formData);
+
+      console.log("UPDATE_DISPLAY_PICTURE API RESPONSE............", response);
+
+      if (response?.data?.success) {
+        toast.success("Profile picture updated successfully!");
+      } else {
+        throw new Error(response?.data?.message || "Unknown error");
       }
-      toast.success("Display Picture Updated Successfully")
-      dispatch(setUser(response.data.data))
     } catch (error) {
-      console.log("UPDATE_DISPLAY_PICTURE_API API ERROR............", error)
-      toast.error("Could Not Update Display Picture")
+      console.error("UPDATE_DISPLAY_PICTURE API ERROR............", error);
+      toast.error(error.response?.data?.message || "Could not update profile picture.");
+    } finally {
+      toast.dismiss(toastId);
     }
-    toast.dismiss(toastId)
-  }
+  };
 }
+
+
 
 export function updateInventoryExcelSheet(token, formData) {
   return async (dispatch) => {

@@ -41,7 +41,6 @@ export function getUserDetails(token, navigate) {
     } else {
         await dispatch(fetchCompanyDetails(userId));
     }
-            toast.success("User details fetched successfully");
         } catch (error) {
             dispatch(logout(navigate))
             console.log("GET_USER_DETAILS API ERROR............", error)

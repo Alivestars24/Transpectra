@@ -14,7 +14,15 @@ const endpoints = {
 }
 
 
+/**
+ * @url : api/v1/delivery/create
+ * 
+ * purpose : create delivery for perticular order 
+ */
+
 router.post(endpoints.CREATE_DELIVERIES, CreateDelivery)
+
+
 router.post(endpoints.GET_DELIVERIES, FetchDelivery)
 
 

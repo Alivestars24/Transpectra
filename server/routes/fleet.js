@@ -34,6 +34,9 @@ router.post("/available", availableFleetInYard);
  * 
  * purpose : Check in that trucks which are going out side from the yard
  * 
+ * @method : GET
+ * 
+ *
  * url : api/v1/fleet/departed 
  * 
  * use : used in the Overview Fleet in the client side

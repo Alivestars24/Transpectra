@@ -14,7 +14,7 @@ const moment = require("moment");
 
 exports.profile = async (req, res) => {
     try {
-        const userId = req.user.id || "";
+        const userId = req.user?.id || "";
 
         console.log("this is from the auth user", req.user);
 
@@ -137,7 +137,8 @@ exports.updateProfilePicture = async (req, res) => {
     try {
       const { userId } = req.body; // Extract userId from form data
       const file = req.file; // Extract the uploaded file
-
+      console.log("Request file:", req.file); 
+      console.log("Request body:", req.body);
       if (!file) {
         return res.status(400).json({
           success: false,

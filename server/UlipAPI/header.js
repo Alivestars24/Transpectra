@@ -1,4 +1,5 @@
 const axios = require("axios");
+const jwt = require("jsonwebtoken");
 const { CONFIG } = require("../constants/config");
 
 // Configuration constants
@@ -6,20 +7,31 @@ const AUTH_URL = CONFIG.ULIP.url;
 const USERNAME = CONFIG.ULIP.username;
 const PASSWORD = CONFIG.ULIP.password;
 
+// Global token variable
 let token = null;
 
 /**
- * Validate the current token's expiration.
+ * Validate the token's properties based on the payload.
+ * @param {string} token - The JWT token to validate.
  * @returns {boolean} - True if the token is valid; otherwise, false.
  */
 const isTokenValid = () => {
     if (!token) return false;
 
     try {
-        const decoded = jwt.decode(token, { complete: true });
-        return decoded && Date.now() < decoded.payload.exp * 1000;
+        const decoded = jwt.decode(token);
+        if (!decoded) return false;
+
+        const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+
+        // Validate 'iat' (issued at) and ensure it's not in the future
+        if (!decoded.iat || decoded.iat > currentTime) {
+            console.error("Invalid 'iat' in token.");
+            return false;
+        }
+
+        return true;
     } catch (err) {
-        logger.error(`Error validating token: ${err.message}`);
         return false;
     }
 };
@@ -44,20 +56,17 @@ const fetchToken = async () => {
         const newToken = response.data.response.id;
         if (newToken) {
             token = newToken;
-            logger.info("Token fetched successfully.");
             return newToken;
         } else {
-            logger.error("No token found in the response.");
             return "";
         }
     } catch (error) {
-        logger.error(`Error fetching token: ${error.response?.data || error.message}`);
         return "";
     }
 };
 
 /**
- * Get common headers for API requests.
+ * Get headers for API requests.
  * @param {boolean} isTokenRequired - Whether the token is required in the headers.
  * @returns {Promise<object>} - Resolves to the headers object.
  */
@@ -69,12 +78,13 @@ const getHeaders = async (isTokenRequired = true) => {
 
     if (isTokenRequired) {
         if (!isTokenValid()) {
+            console.log("Token is invalid or expired. Fetching a new token...");
             await fetchToken();
         }
         if (token) {
             headers["Authorization"] = `Bearer ${token}`;
         } else {
-            logger.error("Failed to include token in headers.");
+            console.warn("Authorization token is unavailable.");
         }
     }
 

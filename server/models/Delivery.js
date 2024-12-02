@@ -72,6 +72,7 @@ const DeliverySchema = new mongoose.Schema({
     },
     estimatedDeliveryTime: { type: Date },
     actualDeliveryDate: { type: Date },
+    invoicePdf: { type: String }, // Stores the Cloudinary URL of the uploaded PDF
     createdAt: { type: Date, default: Date.now }
 });
 
