@@ -20,12 +20,18 @@ export default function EditProfile() {
   } = useForm()
 
   const submitProfileForm = async (data) => {
-    console.log("Form Data - ", data)
-    try {
-    dispatch(updateProfile(token, data))
-    } catch (error) {
-      console.log("ERROR MESSAGE - ", error.message)
-    }
+    console.log("Form Data - ", data);
+
+  const payload = {
+    userId: user._id,
+    address: data.firstName, 
+    area: data.lastName,
+  };
+  try {
+    dispatch(updateProfile(isWarehouseManager,token, payload));
+  } catch (error) {
+    console.log("ERROR MESSAGE - ", error.message);
+  }
   }
   return (
     <>

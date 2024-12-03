@@ -12,7 +12,7 @@ const CONFIG = {
     APIS: {
         auth: "/api/v1/auth",
         profile: "/api/v1/profile",
-        inventory: "api/v1/inventory",
+        inventory: "/api/v1/inventory",
         qr_code: "/api/v1/qr",
         delivery: '/api/v1/delivery',
         trailer: '/api/v1/trailer',
@@ -60,7 +60,8 @@ const CONFIG = {
         password: process.env.ULIP_PASSWORD
     },
     ULIP_API: {
-        CARBON_EMISSION: process.env.CARBON_EMISSION
+        CARBON_EMISSION: process.env.CARBON_EMISSION_URL,
+        EWAY_BILL : process.env.EWAY_BILL_URL
     },
     DJANGO_URL: process.env.DJANGO_SERVER_URL
 };

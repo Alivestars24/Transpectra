@@ -5,12 +5,16 @@ import { deleteProfile } from "../../../../services/oparations/SettingsAPI"
 
 export default function DeleteAccount() {
   const { token } = useSelector((state) => state.auth)
+  const { user } = useSelector((state) => state.profile)
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
   async function handleDeleteAccount() {
     try {
-    dispatch(deleteProfile(token, navigate))
+      const data = {
+        userId: user._id,
+      };
+    dispatch(deleteProfile(data,navigate))
     } catch (error) {
       console.log("ERROR MESSAGE - ", error.message)
     }

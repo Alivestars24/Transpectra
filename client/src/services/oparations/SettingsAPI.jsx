@@ -1,10 +1,12 @@
 import { toast } from "react-hot-toast"
-
-import { setUser } from "../../slices/profileSlice"
+import { setLoading ,setUser } from "../../slices/profileSlice"
 import { apiConnector } from "../apiConnector"
 import { settingsEndpoints } from "../api"
 import { logout } from "./authAPI"
-
+import Cookies from "js-cookie";
+import { getUserDetails } from "./profileAPI";
+import { setWarehouseDetails } from "../../slices/warehouseSlice"
+import { setcompanyDetails } from "../../slices/companySlice"
 const {
   UPDATE_DISPLAY_PICTURE_API,
   UPDATE_PROFILE_API,
@@ -13,7 +15,7 @@ const {
   UPDATE_INVENTORY_EXCEL_API,
 } = settingsEndpoints
 
-export function updateDisplayPicture(formData) {
+export function updateDisplayPicture(isWarehouseManager,formData) {
   return async (dispatch) => {
     const toastId = toast.loading("Loading...")
     try {
@@ -26,68 +28,90 @@ export function updateDisplayPicture(formData) {
         "UPDATE_DISPLAY_PICTURE_API API RESPONSE............",
         response
       )
-
-      if (!response.data.success) {
-        throw new Error(response.data.message)
+      if (response?.data?.success) {
+        toast.success("Profile picture updated successfully!");
+        dispatch(getUserDetails(Cookies.get("token")));
+        const warehouseData = response.data.data;
+        if(isWarehouseManager){
+          dispatch(setWarehouseDetails(warehouseData));
+        }
+        else{
+          dispatch(setcompanyDetails(warehouseData));
+        }
+      } else {
+        throw new Error(response?.data?.message || "Unknown error");
       }
-      toast.success("Display Picture Updated Successfully")
-      dispatch(setUser(response.data.data))
     } catch (error) {
-      console.log("UPDATE_DISPLAY_PICTURE_API API ERROR............", error)
-      toast.error("Could Not Update Display Picture")
-    }
-    toast.dismiss(toastId)
-  }
-}
-
-export function updateInventoryExcelSheet(token, formData) {
-  return async (dispatch) => {
-    const toastId = toast.loading("Uploading Inventory Excel...");
-    try {
-      const response = await apiConnector("PUT", UPDATE_INVENTORY_EXCEL_API, formData, {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${token}`,
-      });
-
-      if (!response.data.success) {
-        throw new Error(response.data.message);
-      }
-
-      toast.success("Inventory Excel Updated Successfully");
-    } catch (error) {
-      console.log("Error updating inventory Excel:", error);
-      toast.error("Failed to Update Inventory Excel");
+      console.error("UPDATE_DISPLAY_PICTURE API ERROR............", error);
+      toast.error(error.response?.data?.message || "Could not update profile picture.");
     } finally {
       toast.dismiss(toastId);
     }
   };
 }
 
-export function updateProfile(token, formData) {
+export function updateInventoryExcelSheet(formData) {
   return async (dispatch) => {
-    const toastId = toast.loading("Loading...")
+    const toastId = toast.loading("Updating Inventory Excel Sheet...")
     try {
-      const response = await apiConnector("PUT", UPDATE_PROFILE_API, formData, {
-        Authorization: `Bearer ${token}`,
-      })
-      console.log("UPDATE_PROFILE_API API RESPONSE............", response)
-
-      if (!response.data.success) {
-        throw new Error(response.data.message)
-      }
-      const userImage = response.data.updatedUserDetails.image
-        ? response.data.updatedUserDetails.image
-        : `https://api.dicebear.com/5.x/initials/svg?seed=${response.data.updatedUserDetails.firstName} ${response.data.updatedUserDetails.lastName}`
-      dispatch(
-        setUser({ ...response.data.updatedUserDetails, image: userImage })
+      const response = await apiConnector(
+        "POST",
+        UPDATE_INVENTORY_EXCEL_API,
+        formData
       )
-      toast.success("Profile Updated Successfully")
+      console.log(
+        "UPDATE_Inventory_API API RESPONSE............",
+        response
+      )
+      if (response?.data?.success) {
+        toast.success("Inventory updated successfully!");
+        dispatch(getUserDetails(Cookies.get("token")));
+        const warehouseData = response.data.data;
+        dispatch(setWarehouseDetails(warehouseData));
+      } else {
+        throw new Error(response?.data?.message || "Unknown error");
+      }
     } catch (error) {
-      console.log("UPDATE_PROFILE_API API ERROR............", error)
-      toast.error("Could Not Update Profile")
+      console.error("Inventory API ERROR............", error);
+      toast.error(error.response?.data?.message || "Could not update inventory sheet");
+    } finally {
+      toast.dismiss(toastId);
     }
-    toast.dismiss(toastId)
-  }
+  };
+}
+
+
+export function updateProfile(isWarehouseManager,token, data) {
+  return async (dispatch) => {
+    const toastId = toast.loading("Updating Profile...");
+    try {
+      const response = await apiConnector("POST", UPDATE_PROFILE_API, data, {
+        Authorization: `Bearer ${token}`, // Passing the token in the headers
+      });
+      console.log("UPDATE_PROFILE_API RESPONSE: ", response);
+
+      if (response?.data?.success) {
+        toast.success("Profile updated successfully!");
+        dispatch(getUserDetails(Cookies.get("token")));
+        const warehouseData = response.data.data;
+        if(isWarehouseManager){
+          dispatch(setWarehouseDetails(warehouseData));
+        }
+        else{
+          dispatch(setcompanyDetails(warehouseData));
+        }
+      } else {
+        throw new Error(response?.data?.message || "Profile update failed.");
+      }
+    } catch (error) {
+      console.error("UPDATE_PROFILE_API ERROR: ", error);
+      toast.error(
+        error.response?.data?.message || "Unable to update profile. Please try again."
+      );
+    } finally {
+      toast.dismiss(toastId);
+    }
+  };
 }
 
 export async function changePassword(token, formData) {
@@ -109,13 +133,11 @@ export async function changePassword(token, formData) {
   toast.dismiss(toastId)
 }
 
-export function deleteProfile(token, navigate) {
+export function deleteProfile(data, navigate) {
   return async (dispatch) => {
-    const toastId = toast.loading("Loading...")
+    const toastId = toast.loading("Deleting the Account...")
     try {
-      const response = await apiConnector("DELETE", DELETE_PROFILE_API, null, {
-        Authorization: `Bearer ${token}`,
-      })
+      const response = await apiConnector("DELETE", DELETE_PROFILE_API, data)
       console.log("DELETE_PROFILE_API API RESPONSE............", response)
 
       if (!response.data.success) {

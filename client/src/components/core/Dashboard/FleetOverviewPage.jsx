@@ -83,7 +83,6 @@ const FleetOverviewPage = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.profile?.user || null);
   const departedFleets = useSelector((state) => state.departedFleet?.departedFleets || []);
-  console.log("For fleet overview Page :",user._id);
   
   useEffect(() => {
     if (user?._id) {

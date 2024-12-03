@@ -7,6 +7,7 @@ import img from "../../../../assets/Images/Excelsheet.jpg"
 
 export default function ChangeInventoryExcelSheet() {
   const { token } = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.profile);
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [excelFile, setExcelFile] = useState(null);
@@ -25,12 +26,10 @@ export default function ChangeInventoryExcelSheet() {
 
   const handleFileUpload = () => {
     try {
-      setLoading(true);
       const formData = new FormData();
-      formData.append("inventoryExcel", excelFile);
-      dispatch(updateInventoryExcelSheet(token, formData)).then(() => {
-        setLoading(false);
-      });
+      formData.append("userId",user?._id)
+      formData.append("file", excelFile);
+      dispatch(updateInventoryExcelSheet(formData));
     } catch (error) {
       console.log("Error uploading file: ", error.message);
     }

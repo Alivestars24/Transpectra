@@ -4,6 +4,7 @@ const Joi = require('joi');
 const validateWith = require('../middleware/validation')
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
+const {auth} = require('../middleware/auth')
 const { 
     profile, 
     deleteAccount, 
@@ -57,7 +58,7 @@ router.post('/update-inventory', upload.single('file'),updateInventorySheet);
 router.post('/update-details', updateDetails);
 
 // Route for the fetching the profile
-router.get(endpoint.PROFILE, profile);
+router.get(endpoint.PROFILE,auth, profile);
 
 
 // Export the router for use in the main application

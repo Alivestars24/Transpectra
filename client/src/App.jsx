@@ -29,6 +29,8 @@ import ProductSelectionPage from "./components/core/ProductSelectionPage";
 import { fetchCompanyDetails } from "./services/oparations/CompanyAPI";
 import { fetchWarehouseDetails } from "./services/oparations/warehouseAPI";
 import YardProfile from "./components/core/Dashboard/YardProfile"
+import SingleProductOrderPage from "./components/core/Dashboard/SingleProductOrderPage";
+import { fetchYardDetails } from "./services/oparations/YardAPI";
 
 function App() {
   const navigate = useNavigate();
@@ -46,9 +48,15 @@ function App() {
 
   useEffect(() => {
     if (user && user._id) {
-      console.log("User fetched, triggering dependent dispatches");
+      console.log("User fetched, triggering dependent dispatches",user);
+      if(user?.accountType==="Warehouse_Manager"){
       dispatch(fetchCompanyDetails(user._id));
+      }else if(user?.accountType==="Supplier"){
       dispatch(fetchWarehouseDetails(user._id));
+      }
+      else{
+        dispatch(fetchYardDetails(user._id));
+      }
     }
   }, [user, dispatch]);
 
@@ -167,6 +175,14 @@ function App() {
             element={
               <PrivateRoute>
                 <ProductSelectionPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="dashboard/product-order"
+            element={
+              <PrivateRoute>
+                <SingleProductOrderPage />
               </PrivateRoute>
             }
           />

@@ -4,11 +4,75 @@ const { CONFIG } = require('../constants/config')
 const mongoose = require('mongoose');
 const ManufacturingUnit = require('../models/ManufacturingUnit');
 const Warehouse = require('../models/Warehouse');
+const Order = require("../models/Order");
+const { uploadPdfToCloudinary } = require("../utils/pdfUploader");
+const multer = require("multer");
 
-const { getCarbonEmission } = require('../UlipAPI/carbonEmissionapi')
 
-exports.available_delivery = async (req, res) => {
+
+
+
+
+exports.generateRoutesForDelivery = async (req, res) => {
     try {
+
+        const {orderId} = req.body;
+        
+        if (!orderId) {
+            return res.status(401).json(msgFunction(false, "please provided the orderId"));
+        }
+
+        //find the orderId 
+
+        //from this order take manufactorId and warehouseId and from this take address like 
+        
+        /***
+         *  // Fetch Manufacturing Unit and Warehouse details
+            const manufacturingUnit = await ManufacturingUnit.findById(ManufactureId);
+            if (!manufacturingUnit) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Manufacturing unit not found.",
+                });
+            }
+
+            const warehouse = await Warehouse.findById(warehouseId);
+            if (!warehouse) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Warehouse not found.",
+                });
+            }
+
+            // Extract pickup and dropoff locations
+            const pickupLocation = {
+                address: manufacturingUnit.address,
+                contactPerson: manufacturingUnit.contactPerson,
+                contactNumber: manufacturingUnit.contactNumber,
+            };
+
+            const dropoffLocation = {
+                address: warehouse.address,
+                contactPerson: warehouse.contactPerson,
+                contactNumber: warehouse.contactNumber,
+            };
+         */
+
+
+        // distance btw to location 
+        // cost for this traveling 
+        // time required for this routes
+        // by train , by road , by truck
+        // kab tak delivery chhaiye 
+        // fuel price 
+        // carbon emmision details
+        //
+
+
+        // frontend se data ayega 
+        //  do city ke address 
+        //  kaya kaya products hai and aur bill kitne ka ban raha 
+
 
     } catch {
 
@@ -83,121 +147,189 @@ exports.FetchDelivery = async (req, res) => {
 
 
 
+/**
+ * @url : api/v1/delivery/create
+ * 
+ * purpose : create delivery for particular order 
+ */
+// Configure multer for file uploads
+const upload = multer({
+    storage: multer.diskStorage({
+        destination: (req, file, cb) => {
+            cb(null, "uploads/"); // Temporary upload directory
+        },
+        filename: (req, file, cb) => {
+            cb(null, `${Date.now()}-${file.originalname}`);
+        },
+    }),
+    fileFilter: (req, file, cb) => {
+        const ext = path.extname(file.originalname);
+        if (ext !== ".pdf") {
+            return cb(new Error("Only PDF files are allowed."), false);
+        }
+        cb(null, true);
+    },
+}).single("invoicePdf"); // Expect 'invoicePdf' as the key for the file upload
 
 exports.CreateDelivery = async (req, res) => {
-    try {
-        const {
-            orderId,
-            uniqueOrderId,
-            warehouseId,
-            ManufactureId,
-            selectedProducts,
-            estimatedDeliveryTime
-        } = req.body;
-
-        // Validate mandatory fields
-        if (
-            !orderId ||
-            !uniqueOrderId ||
-            !warehouseId ||
-            !ManufactureId ||
-            !selectedProducts ||
-            !estimatedDeliveryTime
-        ) {
-            return res.status(400).json(msgFunction(false, "Missing required fields."));
+    upload(req, res, async (err) => {
+        if (err) {
+            return res.status(400).json({
+                success: false,
+                message: err.message,
+            });
         }
 
-        // Validate product structure
-        if (!Array.isArray(selectedProducts) || selectedProducts.length === 0) {
-            return res
-                .status(400)
-                .json(msgFunction(false, "Selected products must be a non-empty array."));
+        try {
+            const {
+                orderId,
+                uniqueOrderId,
+                warehouseId,
+                ManufactureId,
+                selectedProducts,
+                estimatedDeliveryTime,
+            } = req.body;
+
+            // Validate required fields
+            if (
+                !orderId ||
+                !uniqueOrderId ||
+                !warehouseId ||
+                !ManufactureId ||
+                !selectedProducts ||
+                !estimatedDeliveryTime ||
+                !req.file // Validate that the PDF file is uploaded
+            ) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Missing required fields.",
+                });
+            }
+
+            // Parse and validate the products array
+            const parsedProducts = JSON.parse(selectedProducts);
+            if (!Array.isArray(parsedProducts) || parsedProducts.length === 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Selected products must be a non-empty array.",
+                });
+            }
+
+            const isProductValid = parsedProducts.every(
+                (product) =>
+                    product.productName &&
+                    typeof product.productName === "string" &&
+                    product.quantity &&
+                    typeof product.quantity === "number" &&
+                    product.specifications &&
+                    typeof product.specifications === "string" &&
+                    product.unitCost &&
+                    typeof product.unitCost === "number" &&
+                    product._id &&
+                    typeof product._id === "string"
+            );
+
+            if (!isProductValid) {
+                return res.status(400).json({
+                    success: false,
+                    message:
+                        "Invalid product structure. Each product must have 'productName' (string), 'quantity' (number), 'specifications' (string), 'unitCost' (number), and '_id' (string).",
+                });
+            }
+
+            // Fetch Manufacturing Unit and Warehouse details
+            const manufacturingUnit = await ManufacturingUnit.findById(ManufactureId);
+            if (!manufacturingUnit) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Manufacturing unit not found.",
+                });
+            }
+
+            const warehouse = await Warehouse.findById(warehouseId);
+            if (!warehouse) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Warehouse not found.",
+                });
+            }
+
+            // Extract pickup and dropoff locations
+            const pickupLocation = {
+                address: manufacturingUnit.address,
+                contactPerson: manufacturingUnit.contactPerson,
+                contactNumber: manufacturingUnit.contactNumber,
+            };
+
+            const dropoffLocation = {
+                address: warehouse.address,
+                contactPerson: warehouse.contactPerson,
+                contactNumber: warehouse.contactNumber,
+            };
+
+            // Upload the PDF to Cloudinary
+            const uploadedPdf = await uploadPdfToCloudinary(req.file.path, "invoices");
+            if (!uploadedPdf || !uploadedPdf.secure_url) {
+                return res.status(500).json({
+                    success: false,
+                    message: "Failed to upload PDF to Cloudinary.",
+                });
+            }
+
+            // Create a new delivery document
+            const newDelivery = new Delivery({
+                orderId,
+                uniqueOrderId,
+                warehouseId,
+                ManufactureId,
+                pickupLocation,
+                dropoffLocation,
+                products: parsedProducts,
+                packageDetails: {
+                    weight: `${parsedProducts.length * 10}kg`,
+                    dimensions: "Varied",
+                    fragile: false,
+                    description: "Delivery of selected products",
+                },
+                invoicePdf: uploadedPdf.secure_url, // Save Cloudinary URL
+                estimatedDeliveryTime,
+                createdAt: new Date(),
+                status: "Pending",
+            });
+
+            // Save the delivery to the database
+            const savedDelivery = await newDelivery.save();
+
+            // Update the corresponding order's deliveries array and status
+            const updatedOrder = await Order.findByIdAndUpdate(
+                orderId,
+                {
+                    $push: { deliveries: savedDelivery._id },
+                    orderStatus: "Processing",
+                },
+                { new: true } // Return the updated document
+            );
+
+            if (!updatedOrder) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Order not found. Could not associate delivery.",
+                });
+            }
+
+            // Respond with success
+            return res.status(200).json({
+                success: true,
+                message: "Delivery created, associated with the order, and order status updated to 'Processing' successfully.",
+                data: savedDelivery,
+            });
+        } catch (error) {
+            console.error("Error creating delivery:", error);
+            return res.status(500).json({
+                success: false,
+                message: "Internal server error.",
+                error: error.message,
+            });
         }
-
-        const isProductValid = selectedProducts.every(product =>
-            product.productName &&
-            typeof product.productName === 'string' &&
-            product.quantity &&
-            typeof product.quantity === 'number' &&
-            product.specifications &&
-            typeof product.specifications === 'string' &&
-            product.unitCost &&
-            typeof product.unitCost === 'number' &&
-            product._id &&
-            typeof product._id === 'string'
-        );
-
-        if (!isProductValid) {
-            return res
-                .status(400)
-                .json(msgFunction(false, "Invalid product structure. Each product must have 'productName' (string), 'quantity' (number), 'specifications' (string), 'unitCost' (number), and '_id' (string)."));
-        }
-
-        // Retrieve Manufacturing Unit details
-        const manufacturingUnit = await ManufacturingUnit.findById(ManufactureId);
-        if (!manufacturingUnit) {
-            return res
-                .status(404)
-                .json(msgFunction(false, "Manufacturing unit not found."));
-        }
-
-        // Retrieve Warehouse details
-        const warehouse = await Warehouse.findById(warehouseId);
-        if (!warehouse) {
-            return res.status(404).json(msgFunction(false, "Warehouse not found."));
-        }
-
-        // Extract pickup and dropoff locations from Manufacturing Unit and Warehouse
-        const pickupLocation = {
-            address: manufacturingUnit.address,
-            contactPerson: manufacturingUnit.contactPerson,
-            contactNumber: manufacturingUnit.contactNumber
-        };
-
-        const dropoffLocation = {
-            address: warehouse.address,
-            contactPerson: warehouse.contactPerson,
-            contactNumber: warehouse.contactNumber
-        };
-
-
-        const result = await getCarbonEmission('1823.3', 'Light Commercial Vehicles - Rigid Trucks', 'Diesel', 1);
-
-        console.log(result)
-
-
-        // Create new delivery
-        const newDelivery = new Delivery({
-            orderId,
-            uniqueOrderId,
-            uniqueDeliveryId: `DEL-${Date.now()}`, // Generate unique delivery ID
-            warehouseId,
-            ManufactureId,
-            pickupLocation,
-            dropoffLocation,
-            products: selectedProducts, // Include the validated products
-            packageDetails: {
-                weight: `${selectedProducts.length * 10}kg`, // Example: Approximate weight calculation
-                dimensions: "Varied",
-                fragile: false,
-                description: "Delivery of selected products"
-            },
-            estimatedDeliveryTime,
-            createdAt: new Date(),
-            status: "Pending" // Default status
-        });
-
-        // Save the delivery to the database
-        await newDelivery.save();
-
-        // Respond with success
-        return res
-            .status(200)
-            .json(msgFunction(true, "Delivery created successfully.", newDelivery));
-    } catch (error) {
-        console.error("Error creating delivery:", error);
-        return res
-            .status(500)
-            .json(msgFunction(false, "Internal server error.", error.message));
-    }
+    });
 };

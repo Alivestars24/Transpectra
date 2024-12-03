@@ -1,9 +1,18 @@
 const express = require("express")
 const router = express.Router();
+const {auth} = require('../middleware/auth')
+const {fetchInventory} = require('../controllers/inventory')
 
 
 
-router.post('/',)
+/**
+ * purpose : find the inventory of particular ware house
+ * 
+ * 
+ * api/v1/inventory/
+ */
+
+router.get('/',auth,fetchInventory);
 
 
 

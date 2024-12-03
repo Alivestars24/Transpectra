@@ -2,24 +2,19 @@ import React, { useState } from 'react';
 import { HiSparkles } from 'react-icons/hi2';
 import { useLocation } from 'react-router-dom';
 import jsPDF from 'jspdf';
+import { useSelector , useDispatch} from 'react-redux';
 
 function OrderDetails() {
     const { state } = useLocation();
     const orderDetails = state.orderDetails || [];
-
-    // Sample warehouse and supplier details
-    const warehouseDetails = {
-        name: "Bharat Logistics",
-        address: "Gurugram, Haryana, India",
-        contact: "0124-1234567",
-    };
-
-    const supplierDetails = {
-        name: "Electric Goods Supplier",
-        address: "Chennai, Tamil Nadu, India",
-        contact: "022-9876543",
-    };
-
+    const orderId = state.orderId || [];
+    const uniqueId = state.uniqueId || "";
+    console.log("Received Products for order are:",orderDetails);
+    console.log("Order Id received : ",orderId)
+    const warehouseDetails=state.warehouseDetails || [];
+    const company = useSelector((state) => state.company?.company || null);
+    console.log("received warehouseDetails:",warehouseDetails)
+    console.log("Company Details are :", company)
     // Sample delivery routes
     const routes = [
         {
@@ -126,26 +121,24 @@ function OrderDetails() {
     
         // Invoice Info
         doc.setFontSize(12);
-        addLine(`Invoice No: INV-${Math.floor(Math.random() * 10000)}`, 20, startY);
-        addLine(`Date: ${new Date().toLocaleDateString()}`, 20, startY);
-    
+        doc.text(`Invoice No: INV-${Math.floor(Math.random() * 10000)}`, 20, startY);
+        doc.text(`Date: ${new Date().toLocaleDateString()}`, 150, startY);
+        startY += lineSpacing;
         doc.line(20, startY, 190, startY);
         startY += lineSpacing;
     
         // Supplier Info on the left
         doc.setFontSize(10);
         doc.text("From (Supplier):", 20, startY);
-        doc.text(supplierDetails.name, 20, startY + lineSpacing);
-        doc.text(supplierDetails.address, 20, startY + lineSpacing * 2);
-        doc.text(`Contact: ${supplierDetails.contact}`, 20, startY + lineSpacing * 3);
+        doc.text(company.companyName, 20, startY + lineSpacing);
+        doc.text(company.companyAddress, 20, startY + lineSpacing * 2);
     
         // Warehouse Info on the right
-        doc.text("To (Warehouse):", 130, startY);
-        doc.text(warehouseDetails.name, 130, startY + lineSpacing);
-        doc.text(warehouseDetails.address, 130, startY + lineSpacing * 2);
-        doc.text(`Contact: ${warehouseDetails.contact}`, 130, startY + lineSpacing * 3);
+        doc.text("To (Warehouse):", 110, startY);
+        doc.text(warehouseDetails.warehouseName, 110, startY + lineSpacing);
+        doc.text(warehouseDetails.warehouseAddress, 110, startY + lineSpacing * 2);
     
-        startY += lineSpacing * 4;
+        startY += lineSpacing * 3;
         doc.line(20, startY, 190, startY);
         startY += lineSpacing;
     
@@ -159,7 +152,6 @@ function OrderDetails() {
                 addLine(`${index + 1}. ${step.title} (Arrival: ${step.arrivalDate})`, 20, startY);
             });
         }
-    
         doc.line(20, startY, 190, startY);
         startY += lineSpacing;
     
@@ -177,7 +169,7 @@ function OrderDetails() {
     
         orderDetails.forEach((item) => {
             startY += lineSpacing;
-            doc.text(item.name, 20, startY);
+            doc.text(item.productName, 20, startY);
             doc.text(`${item.providedQuantity}`, 70, startY);
             doc.text(`${item.unitCost.toLocaleString()}`, 100, startY);
             doc.text(`${(item.providedQuantity * item.unitCost).toLocaleString()}`, 150, startY);
@@ -292,7 +284,7 @@ function OrderDetails() {
 
             {/* Order ID and total quantity */}
             <div className="mb-4 flex justify-between">
-                <p><strong>Order ID:</strong> #ORD123456</p>
+                <p><strong>Order ID:</strong>{uniqueId}</p>
                 <p><strong>Total Quantity:</strong> {totalQuantity} items</p>
             </div>
 
@@ -303,16 +295,14 @@ function OrderDetails() {
                 {/* Warehouse Details */}
                 <div>
                     <h3 className="text-xl font-semibold text-gray-800">To (Warehouse):</h3>
-                    <p><strong>Name:</strong> {warehouseDetails.name}</p>
-                    <p><strong>Address:</strong> {warehouseDetails.address}</p>
-                    <p><strong>Contact:</strong> {warehouseDetails.contact}</p>
+                    <p><strong>Name:</strong> {warehouseDetails.warehouseName}</p>
+                    <p><strong>Address:</strong> {warehouseDetails.warehouseAddress}</p>
                 </div>
                 {/* Supplier Details */}
                 <div>
-                    <h3 className="text-xl font-semibold text-gray-800">From (Supplier):</h3>
-                    <p><strong>Name:</strong> {supplierDetails.name}</p>
-                    <p><strong>Address:</strong> {supplierDetails.address}</p>
-                    <p><strong>Contact:</strong> {supplierDetails.contact}</p>
+                    <h3 className="text-xl font-semibold text-gray-800">From (Manufacturing Unit):</h3>
+                    <p><strong>Name:</strong> {company.companyName}</p>
+                    <p><strong>Address:</strong> {company.companyAddress}</p>
                 </div>
             </div>
 
@@ -331,7 +321,7 @@ function OrderDetails() {
                     <tbody>
                         {orderDetails.map((item, index) => (
                             <tr key={index} className="text-gray-700 text-sm">
-                                <td className="py-2 px-2 text-center border-b">{item.name}</td>
+                                <td className="py-2 px-2 text-center border-b">{item.productName}</td>
                                 <td className="py-2 px-2 text-center border-b">{item.providedQuantity}</td>
                                 <td className="py-2 px-2 text-center border-b">₹{item.unitCost}</td>
                                 <td className="py-2 px-2 text-center border-b">₹{item.providedQuantity * item.unitCost}</td>
@@ -411,9 +401,6 @@ function OrderDetails() {
                     Confirm the Order
                 </button>
             </div>
-
-            {/* Generate Invoice Button */}
-            {/* Generate Invoice Button */}
     {confirmed && (
     <div className="flex justify-end mt-4">
         <button

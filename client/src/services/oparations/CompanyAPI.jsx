@@ -1,8 +1,9 @@
 import { apiConnector } from "../apiConnector"; 
 import { endpoints } from "../api";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { setLoading, setcompanyDetails } from "../../slices/companySlice";
 import { setManufacturers } from "../../slices/manufatcurerSlice";
+import { setorderDetails } from "../../slices/orderSlice";
 
 export function fetchCompanyDetails(managerId) {
   return async (dispatch) => {
@@ -22,7 +23,6 @@ export function fetchCompanyDetails(managerId) {
       toast.success("Company details fetched successfully");
     } catch (error) {
       console.error("FETCH_COMPANY API ERROR............", error);
-      toast.error("Could not fetch company details");
     } finally {
       toast.dismiss(toastId);
       dispatch(setLoading(false));
@@ -58,6 +58,28 @@ export function fetchManufacturers() {
       // Dismiss the loading toast and reset loading state
       toast.dismiss(toastId);
       dispatch(setLoading(false));
+    }
+  };
+}
+
+
+export function fetchOrderDetails({ managerId }) {
+  console.log("fetch Order Details called with managerId:", managerId);
+  return async (dispatch) => {
+    const toastId = toast.loading("Fetching Request Order details for manufacturer...");
+    try {
+      const response = await apiConnector("GET", `${endpoints.FETCH_ORDER_FOR_MANUFACTURER}/${managerId}/details`);
+      console.log("Order API response:", response);
+      if (!response?.data) {
+        throw new Error("Invalid response structure");
+      }
+      dispatch(setorderDetails(response.data.manufacturerDetails.linkedWarehouses));
+      toast.success("Request Order details fetched successfully");
+    } catch (error) {
+      console.error("Order Fetch API ERROR............", error);
+      toast.error("Could not fetch order details");
+    } finally {
+      toast.dismiss(toastId);
     }
   };
 }

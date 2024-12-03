@@ -3,32 +3,46 @@ import { useSelector } from "react-redux";
 import { HiSparkles } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import IconBtn from "../../Common/IconBtn";
+import { fetchInventoryForWarehouse } from "../../../services/oparations/warehouseAPI";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 function Inventory() {
+  const location=useLocation;
+  const [inventory, setInventory] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState("All");
-
-  // Accessing warehouse data from Redux store
+  const Cat = location.state?.category || "";
   const warehouseData = useSelector((state) => state.warehouse?.warehouse); // Assuming warehouseSlice is set correctly
-  const inventory = warehouseData.inventory.map((item) => ({
-    type: item.productType,
-    productName: item.productName,
-    quantity: item.productQuantity,
-    category: item.productCategory,
-    threshold: item.productThreshold,
-    stockStatus: getStockStatus(item.productQuantity, item.productThreshold),
-  }));
-
+  const { token } = useSelector((state) => state.auth); // Assuming token is stored in auth slice
   const navigate = useNavigate();
 
-  // Function to determine stock status
+  // Fetch inventory on mount
+  useEffect(() => {
+    const fetchInventory = async () => {
+      const data = await fetchInventoryForWarehouse(token);
+      if (data) {
+        setInventory(
+          data.map((item) => ({
+            type: item.productType,
+            productName: item.productName,
+            quantity: item.productQuantity,
+            category: item.productCategory,
+            threshold: item.productThreshold,
+            stockStatus: getStockStatus(item.productQuantity, item.productThreshold),
+          }))
+        );
+      }
+    };
+    fetchInventory();
+  }, [token]);
+
   function getStockStatus(quantity, threshold) {
     if (quantity < threshold) return "Low Stock";
     if (quantity < threshold + 10) return "Limited Stock";
     return "In Stock";
   }
 
-  // Filter products by search term and category
   const filteredInventory = inventory.filter(
     (item) =>
       item.productName.toLowerCase().includes(searchTerm.toLowerCase()) &&
@@ -51,8 +65,10 @@ function Inventory() {
   const restockInfo = getRestockDetails();
 
   const handleOrder = (category) => {
+    console.log("Category is ",category);
     const productsToOrder = restockInfo[category];
-    navigate("/dashboard/inventory-select", { state: { restockProducts: productsToOrder } });
+    console.log("Products to be ordered are :",productsToOrder);
+    navigate("/dashboard/inventory-select", { state: { category:category ,restockProducts: productsToOrder } });
   };
 
   return (
@@ -123,6 +139,14 @@ function Inventory() {
                 <tr
                   key={item.id}
                   className={`${index % 2 === 0 ? "bg-[#edf5ffd0]" : "bg-white"} text-richblue-600 text-xs font-inter`}
+                  onClick={() =>
+                    navigate("/dashboard/product-order", {
+                      state: {
+                        category:item.category,
+                        product:item,
+                      },
+                    })
+                  }
                 >
                   <td className="py-2 px-4 border-b text-center border-blue-300">{item.productName}</td>
                   <td className="py-2 px-4 border-b text-center border-blue-300">{item.quantity}</td>

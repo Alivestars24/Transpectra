@@ -1,6 +1,6 @@
 import { apiConnector } from "../apiConnector"; // Assuming you have this utility
 import { endpoints } from "../api"
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { setLoading, setWarehouseDetails } from "../../slices/warehouseSlice"
 
 export function fetchWarehouseDetails(managerId) {
@@ -24,7 +24,6 @@ export function fetchWarehouseDetails(managerId) {
         toast.success("Warehouse details fetched successfully");
       } catch (error) {
         console.error("FETCH_WAREHOUSE API ERROR............", error);
-        toast.error("Could not fetch warehouse details");
       } finally {
         toast.dismiss(toastId);
         dispatch(setLoading(false));
@@ -32,3 +31,48 @@ export function fetchWarehouseDetails(managerId) {
     };
   }
   
+
+  export async function fetchInventoryForWarehouse(token) {
+    const toastId = toast.loading("Fetching inventory...");
+    try {
+      const response = await apiConnector("GET", endpoints.FETCH_INVENTORY_FOR_WAREHOUSE, null, {
+        Authorization: `Bearer ${token}`, 
+      });
+      console.log("FETCH_INVENTORY_FOR_WAREHOUSE RESPONSE:", response);
+  
+      if (response?.data?.success) {
+        toast.success("Inventory fetched successfully!");
+        return response.data.data; // Return the inventory data
+      } else {
+        throw new Error(response?.data?.message || "Failed to fetch inventory.");
+      }
+    } catch (error) {
+      console.error("FETCH_INVENTORY_FOR_WAREHOUSE ERROR:", error);
+      toast.error("Could not fetch inventory. Please try again.");
+      return null;
+    } finally {
+      toast.dismiss(toastId);
+    }
+  }
+
+
+  export function createOrder(formData,category,navigate) {
+    return async (dispatch) => {
+      const toastId = toast.loading("Creating a Order...");
+      try {
+        const response = await apiConnector("POST", endpoints.CREATE_ORDER_API, formData);
+        console.log("CREATE_ORDER_API RESPONSE............", response);
+        if (response?.data?.success) {
+          toast.success("Order created successfully");
+        } else {
+          throw new Error(response?.data?.message || "Unknown error");
+        }
+        navigate('/dashboard/inventory', { state: { category:category }})
+      } catch (error) {
+        console.error("CREATE_ORDER_API API ERROR............", error);
+        toast.error("Could not create Order");
+      } finally {
+        toast.dismiss(toastId);
+      }
+    };
+  }

@@ -12,6 +12,11 @@ export default function MyProfile() {
   const warehouse = useSelector((state) => state.warehouse?.warehouse || null); // Fetch warehouse details
   const company = useSelector((state) => state.company?.company || null); // Fetch company details
   const navigate = useNavigate();
+  console.log(user)
+  const isStore = user?.accountType === "Supplier";
+  console.log(isStore)
+  const isWarehouseManager = user?.accountType === "Warehouse_Manager";
+  console.log(isWarehouseManager)
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(warehouse?.uniqueCode || "");
@@ -38,14 +43,10 @@ export default function MyProfile() {
   // Debugging logs
   useEffect(() => {
     console.log("User Data:", user);
-    console.log("Account Type of user is: ",user.accountType)
     console.log("Warehouse Data:", warehouse);
     console.log("Company Data:", company);
   }, [user, warehouse, company]);
 
-  console.log("Account Type of user is: ",user?.accountType)
-  const isStore = user?.accountType === "Supplier";
-  const isWarehouseManager = user?.accountType === "Warehouse_Manager";
 
   // Avoid rendering if essential data is missing
   if (!user || (!warehouse && isWarehouseManager) || (!company && isStore)) {
@@ -120,7 +121,7 @@ export default function MyProfile() {
         </p>
       </div>
       { 
-        isWarehouseManager &&
+        isWarehouseManager?
       <div className="mt-4 mb-1 flex justify-between gap-x-2 rounded-md border-[1px] border-richblue-500 bg-llblue p-3 px-8">
       <div className="flex flex-col w-full gap-y-2 ">
         <p className="text-lg font-semibold text-richblue-900">Warehouse Code to link a Yard</p>
@@ -144,7 +145,7 @@ export default function MyProfile() {
           Share
         </button>
       </div>
-      </div>
+    </div>:null
       }
 
       <div className="my-4 flex flex-col gap-y-2 rounded-md border-[1px] border-richblue-500 bg-llblue p-3 px-8">

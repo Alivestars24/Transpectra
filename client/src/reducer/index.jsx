@@ -7,6 +7,7 @@ import companyReducer from "../slices/companySlice"
 import fleetReducer from "../slices/fleetSlice"
 import departedFleetReducer from "../slices/departedFleetSlice"
 import manufacturerReducer from "../slices/manufatcurerSlice"
+import orderReducer from "../slices/orderSlice"
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -16,6 +17,7 @@ const rootReducer = combineReducers({
   fleet: fleetReducer,
   departedFleet:departedFleetReducer,
   manufacturers: manufacturerReducer,
+  order:orderReducer,
 })
 
 export default rootReducer

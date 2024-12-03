@@ -3,11 +3,14 @@ const express = require("express")
 const app = express()
 const database = require("./config/db")
 const dotenv = require("dotenv")
-const path=require("path")
+const path = require("path")
 
 const { CONFIG } = require('./constants/config')
 const { auth } = require('./middleware/auth');
 const forecastRoutes = require('./routes/stockForecast');
+
+const { getCarbonEmission } = require('./UlipAPI/carbonEmissionapi')
+
 
 // Setting up port number
 const PORT = process.env.PORT || 4000
@@ -59,11 +62,13 @@ const storeRoutes = require('./routes/Store');
 const driverRoutes = require('./routes/driver');
 const deliveriesRoutes = require('./routes/delivery')
 const warehouseRoutes = require('./routes/Warehouse')
-const ManufacturingUnitRoutes =require('./routes/ManufacturingUnit')
+const ManufacturingUnitRoutes = require('./routes/ManufacturingUnit')
 const YardManage = require('./routes/YardManage')
 const fleetRoutes = require('./routes/fleet')
 const OrderRoutes = require('./routes/Order');
 const DeliveryRoutes = require('./routes/delivery');
+const inventoryRoutes = require('./routes/inventory');
+
 // const OrderedProductsRoutes = require('./routes/OrderedProductsRoutes')
 // const OrderRequestRoute = require('./routes/OrderRequestRoute')
 const ManufacturerFetchRoute = require('./routes/Manufacturer')
@@ -75,6 +80,18 @@ app.get("/", (req, res) => {
         message: "Your server is up and running",
     })
 })
+
+app.get('/carbon', async (req, res) => {
+    const result = await getCarbonEmission('1823.3', 'Light Commercial Vehicles - Rigid Trucks', 'Diesel', 1);
+
+    console.log("this is result of ", result)
+
+    return res.json({
+        data: result
+    })
+})
+
+
 
 
 // Routes
@@ -88,13 +105,14 @@ app.use(CONFIG.APIS.warehouse, warehouseRoutes)
 app.use(CONFIG.APIS.manufacturingUnit, ManufacturingUnitRoutes)
 app.use(CONFIG.APIS.yard, YardManage)
 app.use(CONFIG.APIS.fleet, fleetRoutes)
-app.use(CONFIG.APIS.delivery,DeliveryRoutes);
+app.use(CONFIG.APIS.delivery, DeliveryRoutes);
 // app.use(CONFIG.APIS.OrderedProducts, OrderedProductsRoutes)
 // app.use(CONFIG.APIS.OrderRequest, OrderRequestRoute)
-app.use(CONFIG.APIS.Order,OrderRoutes);
+app.use(CONFIG.APIS.Order, OrderRoutes);
 app.use(CONFIG.APIS.ManufacturerFetch, ManufacturerFetchRoute)
+app.use(CONFIG.APIS.inventory, inventoryRoutes)
 
-app.use(CONFIG.APIS.forecast, forecastRoutes); 
+app.use(CONFIG.APIS.forecast, forecastRoutes);
 
 // Listening to the server
 app.listen(PORT, () => {

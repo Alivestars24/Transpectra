@@ -23,6 +23,8 @@ export const endpoints = {
   CREATE_ORDER_API:BASE_URL+"/order/create",
   FETCH_ORDER_FOR_MANUFACTURER:BASE_URL+"/order/manufacturer",
   GET_ALL_MANUFACTURERS: BASE_URL+"/manufacturer",
+  //Inventory 
+  FETCH_INVENTORY_FOR_WAREHOUSE:BASE_URL+"/inventory",
 }
 
 export const profileEndpoints = {
