@@ -42,6 +42,7 @@ const isTokenValid = () => {
  */
 const fetchToken = async () => {
     try {
+        console.log("token api called")
         const response = await axios.post(
             AUTH_URL,
             { username: USERNAME, password: PASSWORD },
@@ -53,7 +54,9 @@ const fetchToken = async () => {
             }
         );
 
-        const newToken = response.data.response.id;
+        console.log("this is response token",response.data)
+
+        const newToken = response?.data?.response?.id;
         if (newToken) {
             token = newToken;
             return newToken;

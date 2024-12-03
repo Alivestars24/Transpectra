@@ -27,6 +27,7 @@ const CONFIG = {
         Order: "/api/v1/order",
         ManufacturerFetch: '/api/v1/manufacturer',
         forecast: '/api/v1/forecast',
+        //routeOptimi:'api/v1/route',
     },
     KEYS: {
         CLOUDINARY: {
@@ -70,7 +71,7 @@ const CONFIG = {
         API_KEY : process.env.GEOAPIFY_API_KEY
     },
     GEOAPIFY_ROUTES:{
-
+         
     },
     DJANGO_URL: process.env.DJANGO_SERVER_URL
 };

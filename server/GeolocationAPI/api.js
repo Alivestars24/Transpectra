@@ -4,6 +4,7 @@ const { getCoordinates, getRoute } = require('./comman');
 const DistanceBWAddress = async (startAddress, endAddress) => {
 
     const startCoordinates = await getCoordinates(startAddress);
+    
     if (!startCoordinates.success) {
         console.error("Error fetching start address coordinates:", startCoordinates.message);
         return;
