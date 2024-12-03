@@ -3,8 +3,10 @@ import { HiSparkles } from 'react-icons/hi2';
 import { useLocation } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import { useSelector , useDispatch} from 'react-redux';
+import { CreateDeliveryforOrder } from '../../../services/oparations/CompanyAPI';
 
 function OrderDetails() {
+    const dispatch = useDispatch();
     const { state } = useLocation();
     const orderDetails = state.orderDetails || [];
     const orderId = state.orderId || [];
@@ -16,92 +18,98 @@ function OrderDetails() {
     console.log("received warehouseDetails:",warehouseDetails)
     console.log("Company Details are :", company)
     // Sample delivery routes
-    const routes = [
+    const deliveryRoutes = [
         {
-            id: 1,
-            name: "Route 1",
-            steps: [
-                {
-                    title: "Ship to Chennai Port",
-                    arrivalDate: "10th October 2024",
-                    icon: "📦",
-                },
-                {
-                    title: "Ship from Chennai Port to Mumbai Port",
-                    arrivalDate: "13th October 2024",
-                    icon: "🛳️", // Ship icon
-                },
-                {
-                    title: "Transport by Rail from Mumbai to Delhi",
-                    arrivalDate: "16th October 2024",
-                    icon: "🚆", // Train icon
-                },
-                {
-                    title: "Transport by Truck from Delhi to Warehouse (Gurgaon)",
-                    arrivalDate: "20th October 2024",
-                    icon: "🚚", // Truck icon for final step
-                }
-            ],
-            time: "10 Days",
-            cost: "₹15,000",
-            insight1: "16% less carbon emission",
-            insight2: "7% more Cost Saving",
+          routeId: "route1",
+          steps: [
+            {
+              step: 1,
+              from: "Mumbai",
+              to: "Pune",
+              by: "road",
+              distance: 150,
+              expectedTime: "3 hours",
+              cost: 500,
+              arrivalDate: "2024-12-04",
+            },
+            {
+              step: 2,
+              from: "Pune",
+              to: "Kolhapur",
+              by: "road",
+              distance: 230,
+              expectedTime: "4 hours",
+              cost: 700,
+              arrivalDate: "2024-12-04",
+            },
+          ],
+          totalCarbonEmission: 20,
+          totalTimeTaken: "7 hours",
+          expectedDelivery: "2024-12-04",
+          totalCost: 1200,
         },
         {
-            id: 2,
-            name: "Route 2",
-            steps: [
-                {
-                    title: "Ship to Chennai Airport",
-                    arrivalDate: "10th October 2024",
-                    icon: "📦", // Package icon for starting point
-                },
-                {
-                    title: "Ship by Air Cargo from Chennai to Delhi",
-                    arrivalDate: "10th October 2024",
-                    icon: "✈️", // Plane icon for air cargo
-                },
-                {
-                    title: "Transport by Truck from Delhi to Warehouse (Gurgaon)",
-                    arrivalDate: "12th October 2024",
-                    icon: "🚚", // Truck icon for final step
-                }
-            ],
-            time: "2 Days",
-            cost: "₹25,000",
-            insight1: "22% more carbon emission",
-            insight2: "25% more faster delivery",
+          routeId: "route2",
+          steps: [
+            {
+              step: 1,
+              from: "Delhi",
+              to: "Jaipur",
+              by: "air",
+              distance: 280,
+              expectedTime: "5 hours",
+              cost: 1000,
+              arrivalDate: "2024-12-05",
+            },
+            {
+              step: 2,
+              from: "Jaipur",
+              to: "Udaipur",
+              by: "road",
+              distance: 420,
+              expectedTime: "7 hours",
+              cost: 1400,
+              arrivalDate: "2024-12-05",
+            },
+          ],
+          totalCarbonEmission: 30,
+          totalTimeTaken: "12 hours",
+          expectedDelivery: "2024-12-05",
+          totalCost: 2400,
         },
         {
-            id: 3,
-            name: "Route 3",
-            steps: [
-                {
-                    title: "Ship to Chennai Railway Station",
-                    arrivalDate: "10th October 2024",
-                    icon: "📦", // Package icon for starting point
-                },
-                {
-                    title: "Ship by Rail from Chennai to Delhi",
-                    arrivalDate: "13th October 2024",
-                    icon: "🚆", // Truck icon for road transport
-                },
-                {
-                    title: "Transported by Rail from Delhi to Warehouse (Gurgaon)",
-                    arrivalDate: "15th October 2024",
-                    icon: "🚚", // Train icon
-                }
-            ],
-            time: "5 Days",
-            cost: "₹8,000",
-            insight1: "8% less carbon emission",
-            insight2: "30% more Cost Saving",
-        }
-    ];
+          routeId: "route3",
+          steps: [
+            {
+              step: 1,
+              from: "Chennai",
+              to: "Bangalore",
+              by: "rail",
+              distance: 350,
+              expectedTime: "6 hours",
+              cost: 800,
+              arrivalDate: "2024-12-06",
+            },
+            {
+              step: 2,
+              from: "Bangalore",
+              to: "Hyderabad",
+              by: "road",
+              distance: 570,
+              expectedTime: "10 hours",
+              cost: 1200,
+              arrivalDate: "2024-12-06",
+            },
+          ],
+          totalCarbonEmission: 40,
+          totalTimeTaken: "16 hours",
+          expectedDelivery: "2024-12-06",
+          totalCost: 2000,
+        },
+      ];
     
     const generateInvoicePdf = () => {
         const doc = new jsPDF();
-    
         let startY = 10; // Starting Y position
         const lineSpacing = 10;
     
@@ -147,11 +155,28 @@ function OrderDetails() {
         addLine("Route Details:", 20, startY);
         doc.setFontSize(10);
         if (selectedRoute) {
-            addLine(`Route Name: ${routes.find(route => route.id === selectedRoute).name}`, 20, startY);
-            routes.find(route => route.id === selectedRoute).steps.forEach((step, index) => {
-                addLine(`${index + 1}. ${step.title} (Arrival: ${step.arrivalDate})`, 20, startY);
-            });
-        }
+            // Get the selected route
+            const selectedRouteData = deliveryRoutes.find(route => route.routeId === selectedRoute);
+        
+            if (selectedRouteData) {
+                // Add the Route Summary
+                doc.text(`Expected Delivery Date: ${selectedRouteData.expectedDelivery}`, 20, startY);
+                doc.text(`Total Time Taken: ${selectedRouteData.totalTimeTaken}`, 120, startY );
+                doc.text(`Total Cost: ${selectedRouteData.totalCost} INR`, 20, startY + 10);
+                doc.text(`Carbon Emission: ${selectedRouteData.totalCarbonEmission} kg`, 120, startY + 10);
+        
+                // Iterate through the steps and add concise details
+                selectedRouteData.steps.forEach((step, index) => {
+                    const stepY = startY + 20 + (index * 1); // Adjust vertical spacing for each step
+                    addLine(
+                        `${index + 1}. ${step.from} --> ${step.to} (${step.by}, ${step.distance} km)`,
+                        20,
+                        stepY
+                    );
+                });
+            }
+        } 
+        startY += lineSpacing*3;       
         doc.line(20, startY, 190, startY);
         startY += lineSpacing;
     
@@ -246,9 +271,9 @@ function OrderDetails() {
         startY += lineSpacing*4;
         doc.line(20, startY, 190, startY);
         startY += lineSpacing;
-        doc.text("Authorized Signatory (Saksham Pvt Ltd.):", 20, startY);
-        doc.text("John Smith", 20, startY + lineSpacing);
-        doc.text("(Manager, Sales)", 20, startY + lineSpacing * 2);
+        doc.text(`Authorized Signatory: `, 20, startY);
+        doc.text("Manager, Sales", 20, startY + lineSpacing );
+        doc.text(company.companyName, 20, startY + lineSpacing*2);
         startY += lineSpacing*4;
         const pdfDataUri = doc.output('dataurlstring');
         const newWindow = window.open();
@@ -260,15 +285,34 @@ function OrderDetails() {
     
     const [selectedRoute, setSelectedRoute] = useState(null);
     const [confirmed, setConfirmed] = useState(false);
-
     const handleRouteSelect = (routeId) => {
-        setSelectedRoute(routeId);
+        const selected = deliveryRoutes.find(route => route.routeId === routeId); // Find the full route object by routeId
+        setSelectedRoute(selected); // Store the entire route object
+    };
+    const validByModes = ["rail", "road", "air", "sea"];
+
+    // Utility function to validate a single step
+    const validateStep = (step) => {
+      const isValid =
+        typeof step.step === "number" &&
+        typeof step.from === "string" &&
+        typeof step.to === "string" &&
+        validByModes.includes(step.by) &&
+        typeof step.distance === "number" &&
+        typeof step.expectedTime === "string" &&
+        typeof step.cost === "number";
+    
+      if (!isValid) {
+        console.error("Invalid Step:", step); // Log the problematic step
+      }
+    
+      return isValid;
     };
 
     const handleConfirmOrder = () => {
         if (selectedRoute) {
             setConfirmed(true);
-    
+            console.log("Route selected is displayed as ",selectedRoute)
             // Create JSON object
             const data = {
                 orderId,
@@ -277,23 +321,46 @@ function OrderDetails() {
                 warehouseId: warehouseDetails?._id || "",
                 selectedProducts: orderDetails.map(product => ({
                     productName: product.productName,
-                    quantity: product.providedQuantity,
-                    unitCost: product.unitCost,
+                    quantity: Number(product.providedQuantity), 
+                    unitCost: Number(product.unitCost),
+                    specifications:product.specifications,
+                    _id:product._id,
                 })),
                 estimatedDeliveryTime: "2024-12-05T15:30:00Z", // Replace with dynamic data if needed
-                deliveryRoutes: selectedRoute.steps && selectedRoute.steps.length >= 2 ? [{
-                    step: "1",
-                    from: selectedRoute.steps[0]?.title || "Unknown", // Fallback to "Unknown"
-                    to: selectedRoute.steps[1]?.title || "Unknown",
-                    by: "road", // or based on dynamic route details
-                    distance: selectedRoute?.distance || 0, // Default to 0 if undefined
-                    expectedTI: selectedRoute?.expectedTI || "Unknown", // Default fallback
-                    cost: selectedRoute.cost?.replace("₹", "") || "0", // Default cost to 0
-                }] : [],
-            };
+                deliveryRoutes :
+    selectedRoute && selectedRoute.steps && selectedRoute.steps.length >= 1
+        ?  [
+            {
+              step: 0,
+              from: "Supplier",
+              to: `${String(selectedRoute.steps[0]?.from || "")} ${
+                selectedRoute.steps[0]?.by === "sea"
+                  ? "Port"
+                  : selectedRoute.steps[0]?.by === "rail"
+                  ? "Station"
+                  : selectedRoute.steps[0]?.by === "air"
+                  ? "Airport"
+                  : "Truck Depot"
+              }`,
+              by: "road",
+              distance: 0,
+              expectedTime: "N/A",
+              cost: 0,
+            },
+            ...selectedRoute.steps.map((step, index) => ({
+              step: Number(index + 1), // Ensure step is a number
+              from: String(step.from), // Coerce to string
+              to: String(step.to), // Coerce to string
+              by: validByModes.includes(step.by) ? step.by : "road", // Validate mode
+              distance: Number(step.distance), // Coerce to number
+              expectedTime: String(step.expectedTime), // Coerce to string
+              cost: Number(step.cost), // Coerce to number
+            })).filter(validateStep), // Only include valid steps
+          ]
+        : [] };
     
             console.log("Combined JSON object:", data);
-    
+           
             // Prepare form-data for the backend
             const formData = new FormData();
             formData.append("orderId", data.orderId);
@@ -313,9 +380,7 @@ function OrderDetails() {
             for (const pair of formData.entries()) {
                 console.log(pair[0], pair[1]);
             }
-    
-            // Here you can send the FormData to your backend
-            // Example: axios.post('/your-backend-endpoint', formData);
+            dispatch(CreateDeliveryforOrder(formData));
         } else {
             alert("Please select a route before confirming the order.");
         }
@@ -382,62 +447,144 @@ function OrderDetails() {
             </div>
 
             {/* Route Selection */}
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">Select a Route to Transport the Order</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                 Select a Route to Transport the Order
+            </h3>
             <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-2 mb-8">
-    {routes.map(route => (
+    {deliveryRoutes && deliveryRoutes.map(route => (
         <div
-            key={route.id}
-            className={` border relative rounded-lg shadow-lg p-6 cursor-pointer ${
-                selectedRoute === route.id ? "bg-blue-5" : "bg-white"
-            }`} // Highlight the selected route
-            onClick={() => handleRouteSelect(route.id)}
+            key={route.routeId}
+            className={`border relative rounded-lg shadow-lg p-6 cursor-pointer ${
+                (selectedRoute?.routeId || null) === route.routeId ? "bg-blue-5" : "bg-white"
+            }`}
+            onClick={() => handleRouteSelect(route.routeId)}
         >
-            <h4 className={`text-lg font-semibold ${
-                selectedRoute === route.id ? "text-blue-900" : "text-gray-800"
-            } mb-2`}>{route.name}</h4>
+            <h4
+                className={`text-lg font-semibold ${
+                    selectedRoute?.routeId === route.routeId ? "text-blue-900" : "text-gray-800"
+                } mb-2`}
+            >
+                {route.routeId?.toUpperCase()}
+            </h4>
 
-            <ul className="mb-4 min-h-[340px]">
-                {route.steps.map((step, idx) => (
-                    <li key={idx} className="flex items-start mb-4">
-                        <span className={`text-2xl mr-3 ${
-                            selectedRoute === route.id ? "text-blue-900" : "text-gray-900"
-                        }`}>{step.icon}</span>
-                        <div>
-                            <h5 className={`font-semibold ${
-                                selectedRoute === route.id ? "text-blue-900" : "text-gray-900"
-                            }`}>{step.title}</h5>
-                            <small className={`${
-                                selectedRoute === route.id ? "text-blue-900" : "text-gray-500"
-                            }`}>Arrival: {step.arrivalDate}</small>
-                        </div>
-                    </li>
-                ))}
+            <ul className="mb-4 min-h-[240px]">
+                <li className="flex items-start mb-4">
+                    <span
+                        className={`text-2xl mr-3 ${
+                            selectedRoute?.routeId === route.routeId
+                                ? "text-blue-900"
+                                : "text-gray-900"
+                        }`}
+                    >
+                        📦
+                    </span>
+                    <div>
+                        <h5
+                            className={`font-semibold ${
+                                selectedRoute?.routeId === route.routeId
+                                    ? "text-blue-900"
+                                    : "text-gray-900"
+                            }`}
+                        >
+                            Ship to {route.steps[0]?.from || "Unknown"} {route.steps[0]?.by === 'sea' ? 'Port' : route.steps[0]?.by === 'rail' ? 'Station' : route.steps[0]?.by === 'air' ? 'Airport' : 'Truck Depo'}
+                        </h5>
+                    </div>
+                </li>
+
+                {route.steps.map((step, idx) => {
+                    const modeIcons = {
+                        road: "🚚", 
+                        rail: "🚆", 
+                        air: "✈️", 
+                        sea: "🚢", 
+                        package: "📦" 
+                    };
+
+                    const icon = modeIcons[step.by] || "📍";
+
+                    return (
+                        <li key={idx} className="flex items-start mb-4">
+                            <span
+                                className={`text-2xl mr-3 ${
+                                    selectedRoute?.routeId === route.routeId
+                                        ? "text-blue-900"
+                                        : "text-gray-900"
+                                }`}
+                            >
+                                {icon}
+                            </span>
+                            <div>
+                                <h5
+                                    className={`font-semibold ${
+                                        selectedRoute?.routeId === route.routeId
+                                            ? "text-blue-900"
+                                            : "text-gray-900"
+                                    }`}
+                                >
+                                    {step.from} → {step.to}
+                                </h5>
+                                <small
+                                    className={`${
+                                        selectedRoute?.routeId === route.routeId
+                                            ? "text-blue-900"
+                                            : "text-gray-500"
+                                    }`}
+                                >
+                                    {step.by.toUpperCase()} | Distance: {step.distance} km
+                                </small>
+                            </div>
+                        </li>
+                    );
+                })}
             </ul>
-            <div>
-            <p className={`${
-                selectedRoute === route.id ? "text-blue-900" : "text-gray-800"
-            }`}><strong>Time:</strong> {route.time}</p>
-            <p className={`${
-                selectedRoute === route.id ? "text-blue-900" : "text-gray-800"
-            }`}><strong>Cost:</strong> {route.cost}</p>
 
-            {/* Insights */}
-            <div className={`text-sm mt-4 p-2 rounded-lg  ${
-                selectedRoute === route.id ? "bg-caribbeangreen-100 text-blue-900" : "bg-caribbeangreen-100"
-            } flex items-center`}>
-                <HiSparkles className={`${selectedRoute === route.id ? "text-richblue-800": "text-white"}`}/>
-                <p className='font-semibold ml-2'>{route.insight1}</p>
-            </div>
-            <div className={`text-sm mt-4 p-2 rounded-lg  ${
-                selectedRoute === route.id ? "bg-yellow-5 text-blue-900" : "bg-yellow-5"
-            } flex items-center`}>
-                <HiSparkles className={`${selectedRoute === route.id ? "text-richblue-800": "text-richblue-800"}`}/>
-                <p className='font-semibold ml-2'>{route.insight2}</p>
-            </div>
+            <div>
+                <p
+                    className={`${
+                        selectedRoute?.routeId === route.routeId
+                            ? "text-blue-900"
+                            : "text-gray-800"
+                    }`}
+                >
+                    <strong>Total Time:</strong> {route.totalTimeTaken}
+                </p>
+                <p
+                    className={`${
+                        selectedRoute?.routeId === route.routeId
+                            ? "text-blue-900"
+                            : "text-gray-800"
+                    }`}
+                >
+                    <strong>Total Cost:</strong> ₹{route.totalCost}
+                </p>
+                <p
+                    className={`${
+                        selectedRoute?.routeId === route.routeId
+                            ? "text-blue-900"
+                            : "text-gray-800"
+                    }`}
+                >
+                    <strong>Expected Delivery:</strong> {route.expectedDelivery}
+                </p>
+                <div className='bg-caribbeangreen-50 mt-2 p-1 flex gap-x-2 items-center rounded-md'>
+                    <HiSparkles className='text-white ml-3'/>
+                    <p
+                        className={`${
+                            selectedRoute?.routeId === route.routeId
+                                ? "text-blue-900"
+                                : "text-gray-800"
+                        } `}
+                    >
+                        <strong>Carbon Emission:</strong> {route.totalCarbonEmission} kg
+                    </p>
+                </div>
             </div>
         </div>
     ))}
 </div>
+
+
+
 
             {/* Confirm Button */}
             <div className="flex justify-end">
@@ -459,7 +606,6 @@ function OrderDetails() {
         </button>
     </div>
 )}
-
         </div>
     );
 }

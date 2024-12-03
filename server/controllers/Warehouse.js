@@ -139,6 +139,7 @@ const parseExcelDate = (excelDate) => {
 
 exports.getWarehouseDetailsByManagerId = async (req, res) => {
   const { managerId } = req.params;
+  console.log("In warehouse Details retreiving function")
   console.log(managerId)
   try {
     // Step 1: Find the user by managerId

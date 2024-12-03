@@ -4,6 +4,7 @@ import { toast } from "react-hot-toast";
 import { setLoading, setcompanyDetails } from "../../slices/companySlice";
 import { setManufacturers } from "../../slices/manufatcurerSlice";
 import { setorderDetails } from "../../slices/orderSlice";
+import { setdeliveryDetails } from "../../slices/deliverySlice";
 
 export function fetchCompanyDetails(managerId) {
   return async (dispatch) => {
@@ -74,6 +75,55 @@ export function fetchOrderDetails({ managerId }) {
         throw new Error("Invalid response structure");
       }
       dispatch(setorderDetails(response.data.manufacturerDetails.linkedWarehouses));
+      toast.success("Request Order details fetched successfully");
+    } catch (error) {
+      console.error("Order Fetch API ERROR............", error);
+      toast.error("Could not fetch order details");
+    } finally {
+      toast.dismiss(toastId);
+    }
+  };
+}
+
+
+export function CreateDeliveryforOrder(formData) {
+  return async (dispatch) => {
+    const toastId = toast.loading("Creating a Delivery for Order")
+    try {
+      const response = await apiConnector(
+        "POST",
+        endpoints.CREATE_DELIVERY_FOR_ORDER,
+        formData
+      )
+      console.log(
+        "CREATE_DELIVERY_FOR_ORDER API RESPONSE............",
+        response
+      )
+      if (response?.data?.success) {
+        toast.success("Order Fulfilled successfully!");
+      } else {
+        throw new Error(response?.data?.message || "Unknown error");
+      }
+    } catch (error) {
+      console.error("CREATE_DELIVERY_FOR_ORDER API ERROR............", error);
+      toast.error(error.response?.data?.message || "Could not create order and delivery.");
+    } finally {
+      toast.dismiss(toastId);
+    }
+  };
+}
+
+export function fetchDeliveryDetails({ managerId }) {
+  console.log("fetch Order Details called with managerId:", managerId);
+  return async (dispatch) => {
+    const toastId = toast.loading("Fetching Request Order details for manufacturer...");
+    try {
+      const response = await apiConnector("GET", `${endpoints.FETCH_DELIVERIES_FOR_MANUFACTURER}/${managerId}/orders-with-deliveries`);
+      console.log("Order API response:", response);
+      if (!response?.data) {
+        throw new Error("Invalid response structure");
+      }
+      dispatch(setdeliveryDetails(response.data.manufacturerDetails.linkedWarehouses));
       toast.success("Request Order details fetched successfully");
     } catch (error) {
       console.error("Order Fetch API ERROR............", error);

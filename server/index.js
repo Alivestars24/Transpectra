@@ -71,6 +71,7 @@ const inventoryRoutes = require('./routes/inventory');
 // const OrderedProductsRoutes = require('./routes/OrderedProductsRoutes')
 // const OrderRequestRoute = require('./routes/OrderRequestRoute')
 const ManufacturerFetchRoute = require('./routes/Manufacturer')
+const routeTracking = require('./routes/routeTracking')
 
 
 app.get("/", (req, res) => {
@@ -111,6 +112,7 @@ app.use(CONFIG.APIS.ManufacturerFetch, ManufacturerFetchRoute)
 app.use(CONFIG.APIS.inventory, inventoryRoutes)
 
 app.use(CONFIG.APIS.forecast, forecastRoutes);
+app.use(CONFIG.APIS.routeTracking, routeTracking)
 
 // Listening to the server
 app.listen(PORT, () => {

@@ -3,7 +3,7 @@ const router = express.Router();
 const Joi = require('joi');
 const validateWith = require('../middleware/validation')
 
-const { FetchDelivery, CreateDelivery, getWarehouseDetails, generateRoutesForDelivery } = require('../controllers/delivery')
+const { FetchDelivery, CreateDelivery, getWarehouseDetails, generateRoutesForDelivery , getManufacturingUnitOrdersWithDeliveries} = require('../controllers/delivery')
 
 
 
@@ -28,6 +28,8 @@ router.post(endpoints.GET_DELIVERIES, FetchDelivery)
 
 
 router.get("/warehouse/:warehouseId/details", getWarehouseDetails);
+
+router.get("/manufacturing-unit/:manufacturingUnitId/orders-with-deliveries", getManufacturingUnitOrdersWithDeliveries);
 
 
 /***

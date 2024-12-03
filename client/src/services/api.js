@@ -26,7 +26,8 @@ export const endpoints = {
   //Inventory 
   FETCH_INVENTORY_FOR_WAREHOUSE:BASE_URL+"/inventory",
   //Delivery
-  CREATE_DELIVERY_FOR_ORDER:BASE_URL+"delivery/create",
+  CREATE_DELIVERY_FOR_ORDER:BASE_URL+"/delivery/create",
+  FETCH_DELIVERIES_FOR_MANUFACTURER:BASE_URL+"/manufacturing-unit"
 }
 
 export const profileEndpoints = {
