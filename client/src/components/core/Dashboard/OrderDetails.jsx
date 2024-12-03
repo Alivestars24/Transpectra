@@ -24,7 +24,7 @@ function OrderDetails() {
                 {
                     title: "Ship to Chennai Port",
                     arrivalDate: "10th October 2024",
-                    icon: "📦", // A package icon for the starting point
+                    icon: "📦",
                 },
                 {
                     title: "Ship from Chennai Port to Mumbai Port",
