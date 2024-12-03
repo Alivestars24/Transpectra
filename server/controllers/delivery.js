@@ -1,147 +1,236 @@
-const Delivery = require('../models/Delivery');
-const { msgFunction } = require('../utils/msgFunction');
-const { CONFIG } = require('../constants/config')
-const mongoose = require('mongoose');
-const ManufacturingUnit = require('../models/ManufacturingUnit');
-const Warehouse = require('../models/Warehouse');
+const Delivery = require("../models/Delivery");
+const { msgFunction } = require("../utils/msgFunction");
+const { CONFIG } = require("../constants/config");
+const mongoose = require("mongoose");
+const ManufacturingUnit = require("../models/ManufacturingUnit");
+const Warehouse = require("../models/Warehouse");
 const Order = require("../models/Order");
 const { uploadPdfToCloudinary } = require("../utils/pdfUploader");
+const User = require("../models/User");
+const Profile = require("../models/Profile");
 const multer = require("multer");
-
-
-
-
-
+const path = require("path");
+const fs = require("fs");
+const { DistanceBWAddress } = require("../GeolocationAPI/api");
+const { getCarbonEmissionDetails } = require("../UlipAPI/carbonEmissionapi");
+const { getCoordinates } = require('../GeolocationAPI/comman')
 
 exports.generateRoutesForDelivery = async (req, res) => {
-    try {
+  try {
+    const { orderId } = req.body;
 
-        const {orderId} = req.body;
-        
-        if (!orderId) {
-            return res.status(401).json(msgFunction(false, "please provided the orderId"));
-        }
-
-        //find the orderId 
-
-        //from this order take manufactorId and warehouseId and from this take address like 
-        
-        /***
-         *  // Fetch Manufacturing Unit and Warehouse details
-            const manufacturingUnit = await ManufacturingUnit.findById(ManufactureId);
-            if (!manufacturingUnit) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Manufacturing unit not found.",
-                });
-            }
-
-            const warehouse = await Warehouse.findById(warehouseId);
-            if (!warehouse) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Warehouse not found.",
-                });
-            }
-
-            // Extract pickup and dropoff locations
-            const pickupLocation = {
-                address: manufacturingUnit.address,
-                contactPerson: manufacturingUnit.contactPerson,
-                contactNumber: manufacturingUnit.contactNumber,
-            };
-
-            const dropoffLocation = {
-                address: warehouse.address,
-                contactPerson: warehouse.contactPerson,
-                contactNumber: warehouse.contactNumber,
-            };
-         */
-
-
-        // distance btw to location 
-        // cost for this traveling 
-        // time required for this routes
-        // by train , by road , by truck
-        // kab tak delivery chhaiye 
-        // fuel price 
-        // carbon emmision details
-        //
-
-
-        // frontend se data ayega 
-        //  do city ke address 
-        //  kaya kaya products hai and aur bill kitne ka ban raha 
-
-
-    } catch {
-
+    // Step 1: Input Validation
+    if (!orderId) {
+      return res
+        .status(400)
+        .json(msgFunction(false, "Please provide the orderId"));
     }
+
+    // Step 2: Fetch Order Details
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json(msgFunction(false, "Order not found."));
+    }
+
+    // Extract manufacturerId and warehouseId
+    const { manufacturerId, warehouseId } = order;
+
+    // Step 3: Retrieve Manufacturing Unit and Warehouse Details
+    const manufacturingUnit = await ManufacturingUnit.findById(manufacturerId);
+    if (!manufacturingUnit) {
+      return res
+        .status(404)
+        .json(msgFunction(false, "Manufacturing unit not found."));
+    }
+
+    const warehouse = await Warehouse.findById(warehouseId);
+    if (!warehouse) {
+      return res.status(404).json(msgFunction(false, "Warehouse not found."));
+    }
+
+    // Step 4: Extract Pickup and Dropoff Locations
+    const pickupLocation = {
+      name: manufacturingUnit.companyName,
+      address: manufacturingUnit.companyAddress,
+      contactPerson: manufacturingUnit.contactPerson,
+      contactNumber: manufacturingUnit.contactNumber,
+    };
+
+    const dropoffLocation = {
+      name: warehouse.warehouseName,
+      address: warehouse.warehouseAddress,
+      contactPerson: warehouse.contactPerson,
+      contactNumber: warehouse.contactNumber,
+    };
+
+    // Step 5: Calculate Distance and Time
+    const { distance, time } = await DistanceBWAddress(
+      pickupLocation.address,
+      dropoffLocation.address
+    );
+
+    // Step 6: Get Carbon Emission Details
+    const carbonEmissionObject = await getCarbonEmissionDetails(distance);
+
+    // Step 7: Construct Response Object
+    const responseObj = {
+      expectedDeliveryDate: order.estimatedDeliveryDate,
+      sourceAddress: pickupLocation,
+      destinationAddress: dropoffLocation,
+      distance,
+      time,
+      routeObj: {
+        ...carbonEmissionObject,
+      },
+    };
+
+    // Step 8: Send Response
+    return res.status(200).json({
+      success: true,
+      data: responseObj,
+    });
+  } catch (error) {
+    console.error("Error in generateRoutesForDelivery:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while generating routes.",
+      error: error.message,
+    });
+  }
 }
 
-exports.FetchDelivery = async (req, res) => {
-    try {
-        const { id: userId, account_type: accountType } = req.user;
-        const { id: storeId } = req.store;
-        const { delivery_id: deliveryId } = req.params;
+exports.realTimeTrackingOfDelivery = async (req, res) => {
+  try {
+    const { deliveryId } = req.body;
 
+    const deliveryObj = await Delivery.findOne({ uniqueDeliveryId: deliveryId });
 
-        if (!userId) {
-            return res.status(401).json(msgFunction(false, "You are not authenticated!"));
-        }
+    if (!deliveryObj) {
+      return res.status(404).json({ message: "Delivery not found" });
+    }
 
-        if (deliveryId && !mongoose.Types.ObjectId.isValid(deliveryId)) {
-            return res.status(400).json(
-                msgFunction(false, "Incorrect delivery ID. Please provide a valid ID.")
-            );
-        }
+    const deliveryRoutes = deliveryObj.deliveryRoutes.map(route => ({
+      step: route.step,
+      from: route.from,
+      to: route.to,
+      transportMode: route.by,
+      distance: route.distance,
+      expectedTime: route.expectedTime,
+      cost: route.cost,
+      remarks: route.remarks,
+      status: route.status
+    }));
 
-        let query = {};
+    const ongoingRoute = deliveryRoutes.find(route => route.status === "Ongoing");
 
+    let routeDetails = null;
+    if (ongoingRoute) {
+      const fromCoordinatesResponse = await getCoordinates(ongoingRoute.from);
+      const toCoordinatesResponse = await getCoordinates(ongoingRoute.to);
 
-        if (accountType === CONFIG.ACCOUNT_TYPE.DRIVER) {
-            query.assignedDriver = userId;
-        }
-        else if (accountType === CONFIG.ACCOUNT_TYPE.DISTRIBUTION_CENTER || accountType === CONFIG.ACCOUNT_TYPE.STORE) {
-            if (!storeId) {
-                return res.status(400).json(
-                    msgFunction(false, "Your Store is Not Found! Please log in again.")
-                );
-            }
-
-            query = accountType === CONFIG.ACCOUNT_TYPE.DISTRIBUTION_CENTER
-                ? { DistributionCenterId: storeId }
-                : { storeId: storeId };
-        }
-        else {
-            return res.status(403).json(
-                msgFunction(false, "You are not permitted to fetch deliveries!")
-            );
-        }
-
-        if (deliveryId) {
-            query._id = deliveryId;
-        }
-
-        const deliveries = await Delivery.find(query);
-
-        if (!deliveries || deliveries.length === 0) {
-            return res.status(404).json(
-                msgFunction(false, "No Delivery Items are found!")
-            );
-        }
-
-        return res.json({
-            success: true,
-            data: deliveries
+      if (fromCoordinatesResponse.success && toCoordinatesResponse.success) {
+        routeDetails = await getRoute(fromCoordinatesResponse.data, toCoordinatesResponse.data);
+      } else {
+        return res.status(400).json({
+          message: "Unable to fetch coordinates for the ongoing route."
         });
+      }
+    }
 
-    } catch (error) {
-        console.error("Error in FetchDelivery:", error);
-        return res.status(500).json(
-            msgFunction(false, "An error occurred while fetching the delivery.", error.message)
+    return res.status(200).json({
+      deliveryId: deliveryObj.uniqueDeliveryId,
+      currentLocation: deliveryObj.currentLocation,
+      status: deliveryObj.status,
+      routes: deliveryRoutes,
+      ongoingStep: ongoingRoute || null,
+      routeDetails: routeDetails?.data || null
+    });
+  } catch (error) {
+    console.error("Error tracking delivery:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+
+
+exports.FetchDelivery = async (req, res) => {
+  try {
+    const { id: userId, account_type: accountType } = req.user;
+    const { id: storeId } = req.store;
+    const { delivery_id: deliveryId } = req.params;
+
+    if (!userId) {
+      return res
+        .status(401)
+        .json(msgFunction(false, "You are not authenticated!"));
+    }
+
+    if (deliveryId && !mongoose.Types.ObjectId.isValid(deliveryId)) {
+      return res
+        .status(400)
+        .json(
+          msgFunction(
+            false,
+            "Incorrect delivery ID. Please provide a valid ID."
+          )
         );
     }
+
+    let query = {};
+
+    if (accountType === CONFIG.ACCOUNT_TYPE.DRIVER) {
+      query.assignedDriver = userId;
+    } else if (
+      accountType === CONFIG.ACCOUNT_TYPE.DISTRIBUTION_CENTER ||
+      accountType === CONFIG.ACCOUNT_TYPE.STORE
+    ) {
+      if (!storeId) {
+        return res
+          .status(400)
+          .json(
+            msgFunction(false, "Your Store is Not Found! Please log in again.")
+          );
+      }
+
+      query =
+        accountType === CONFIG.ACCOUNT_TYPE.DISTRIBUTION_CENTER
+          ? { DistributionCenterId: storeId }
+          : { storeId: storeId };
+    } else {
+      return res
+        .status(403)
+        .json(msgFunction(false, "You are not permitted to fetch deliveries!"));
+    }
+
+    if (deliveryId) {
+      query._id = deliveryId;
+    }
+
+    const deliveries = await Delivery.find(query);
+
+    if (!deliveries || deliveries.length === 0) {
+      return res
+        .status(404)
+        .json(msgFunction(false, "No Delivery Items are found!"));
+    }
+
+    return res.json({
+      success: true,
+      data: deliveries,
+    });
+  } catch (error) {
+    console.error("Error in FetchDelivery:", error);
+    return res
+      .status(500)
+      .json(
+        msgFunction(
+          false,
+          "An error occurred while fetching the delivery.",
+          error.message
+        )
+      );
+  }
 };
 
 
@@ -149,34 +238,50 @@ exports.FetchDelivery = async (req, res) => {
 
 /**
  * @url : api/v1/delivery/create
- * 
- * purpose : create delivery for particular order 
+ *
+ * purpose : create delivery for particular order
  */
 // Configure multer for file uploads
+// Ensure uploads directory exists
+const uploadDir = "uploads/";
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Configure multer for PDF uploads
 const upload = multer({
     storage: multer.diskStorage({
         destination: (req, file, cb) => {
-            cb(null, "uploads/"); // Temporary upload directory
+            cb(null, uploadDir);
         },
         filename: (req, file, cb) => {
             cb(null, `${Date.now()}-${file.originalname}`);
         },
     }),
     fileFilter: (req, file, cb) => {
-        const ext = path.extname(file.originalname);
+        const ext = path.extname(file.originalname).toLowerCase();
         if (ext !== ".pdf") {
             return cb(new Error("Only PDF files are allowed."), false);
         }
         cb(null, true);
     },
-}).single("invoicePdf"); // Expect 'invoicePdf' as the key for the file upload
+    limits: { fileSize: 5 * 1024 * 1024 },
+}).single("invoicePdf");
 
 exports.CreateDelivery = async (req, res) => {
     upload(req, res, async (err) => {
         if (err) {
+            console.error("Multer Error:", err.message);
             return res.status(400).json({
                 success: false,
                 message: err.message,
+            });
+        }
+
+        if (!req.file || !req.file.path) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid file input: Please upload a PDF.",
             });
         }
 
@@ -190,15 +295,13 @@ exports.CreateDelivery = async (req, res) => {
                 estimatedDeliveryTime,
             } = req.body;
 
-            // Validate required fields
             if (
                 !orderId ||
                 !uniqueOrderId ||
                 !warehouseId ||
                 !ManufactureId ||
                 !selectedProducts ||
-                !estimatedDeliveryTime ||
-                !req.file // Validate that the PDF file is uploaded
+                !estimatedDeliveryTime
             ) {
                 return res.status(400).json({
                     success: false,
@@ -206,8 +309,16 @@ exports.CreateDelivery = async (req, res) => {
                 });
             }
 
-            // Parse and validate the products array
-            const parsedProducts = JSON.parse(selectedProducts);
+            let parsedProducts;
+            try {
+                parsedProducts = JSON.parse(selectedProducts);
+            } catch (parseError) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid JSON format for selectedProducts.",
+                });
+            }
+
             if (!Array.isArray(parsedProducts) || parsedProducts.length === 0) {
                 return res.status(400).json({
                     success: false,
@@ -215,8 +326,8 @@ exports.CreateDelivery = async (req, res) => {
                 });
             }
 
-            const isProductValid = parsedProducts.every(
-                (product) =>
+            const isProductValid = parsedProducts.every((product) => {
+                return (
                     product.productName &&
                     typeof product.productName === "string" &&
                     product.quantity &&
@@ -226,18 +337,25 @@ exports.CreateDelivery = async (req, res) => {
                     product.unitCost &&
                     typeof product.unitCost === "number" &&
                     product._id &&
-                    typeof product._id === "string"
-            );
+                    typeof product._id === "string" &&
+                    mongoose.Types.ObjectId.isValid(product._id)
+                );
+            });
 
             if (!isProductValid) {
                 return res.status(400).json({
                     success: false,
                     message:
-                        "Invalid product structure. Each product must have 'productName' (string), 'quantity' (number), 'specifications' (string), 'unitCost' (number), and '_id' (string).",
+                        "Invalid product structure. Ensure 'productName' (string), 'quantity' (number), 'specifications' (string), 'unitCost' (number), and '_id' (valid ObjectId string) are provided for each product.",
                 });
             }
 
-            // Fetch Manufacturing Unit and Warehouse details
+            const convertedProducts = parsedProducts.map((product) => ({
+                ...product,
+                _id: new mongoose.Types.ObjectId(product._id),
+            }));
+
+            // Fetch manufacturing unit
             const manufacturingUnit = await ManufacturingUnit.findById(ManufactureId);
             if (!manufacturingUnit) {
                 return res.status(404).json({
@@ -246,6 +364,7 @@ exports.CreateDelivery = async (req, res) => {
                 });
             }
 
+            // Fetch warehouse
             const warehouse = await Warehouse.findById(warehouseId);
             if (!warehouse) {
                 return res.status(404).json({
@@ -254,21 +373,57 @@ exports.CreateDelivery = async (req, res) => {
                 });
             }
 
-            // Extract pickup and dropoff locations
+            // Fetch manager and manufacturer contact details
+            const manufacturerUser = await User.findById(manufacturingUnit.manufacturerId).populate('additionalDetails');
+            const warehouseManager = await User.findById(warehouse.managerId).populate('additionalDetails');
+
+            if (!manufacturerUser || !manufacturerUser.additionalDetails) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Manufacturer's profile not found.",
+                });
+            }
+
+            if (!warehouseManager || !warehouseManager.additionalDetails) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Warehouse manager's profile not found.",
+                });
+            }
+
+            const manufacturerProfile = await Profile.findById(manufacturerUser.additionalDetails._id);
+            const warehouseProfile = await Profile.findById(warehouseManager.additionalDetails._id);
+
+            if (!manufacturerProfile || !warehouseProfile) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Profile details for manager or manufacturer not found.",
+                });
+            }
+
+            // Construct pickup and drop-off locations
             const pickupLocation = {
-                address: manufacturingUnit.address,
-                contactPerson: manufacturingUnit.contactPerson,
-                contactNumber: manufacturingUnit.contactNumber,
+                address: manufacturingUnit.companyAddress,
+                contactPerson: `${manufacturerUser.firstName} ${manufacturerUser.lastName}`,
+                contactNumber: manufacturerProfile.contactNumber,
             };
 
             const dropoffLocation = {
-                address: warehouse.address,
-                contactPerson: warehouse.contactPerson,
-                contactNumber: warehouse.contactNumber,
+                address: warehouse.warehouseAddress,
+                contactPerson: `${warehouseManager.firstName} ${warehouseManager.lastName}`,
+                contactNumber: warehouseProfile.contactNumber,
             };
 
-            // Upload the PDF to Cloudinary
-            const uploadedPdf = await uploadPdfToCloudinary(req.file.path, "invoices");
+            if (!pickupLocation.address || !dropoffLocation.address) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Manufacturing unit or warehouse does not have an address.",
+                });
+            }
+
+            const filePath = req.file.path.replace(/\\/g, "/");
+            const uploadedPdf = await uploadPdfToCloudinary(filePath, "invoices");
+
             if (!uploadedPdf || !uploadedPdf.secure_url) {
                 return res.status(500).json({
                     success: false,
@@ -276,7 +431,6 @@ exports.CreateDelivery = async (req, res) => {
                 });
             }
 
-            // Create a new delivery document
             const newDelivery = new Delivery({
                 orderId,
                 uniqueOrderId,
@@ -284,30 +438,25 @@ exports.CreateDelivery = async (req, res) => {
                 ManufactureId,
                 pickupLocation,
                 dropoffLocation,
-                products: parsedProducts,
+                products: convertedProducts,
                 packageDetails: {
                     weight: `${parsedProducts.length * 10}kg`,
                     dimensions: "Varied",
                     fragile: false,
                     description: "Delivery of selected products",
                 },
-                invoicePdf: uploadedPdf.secure_url, // Save Cloudinary URL
+                invoicePdf: uploadedPdf.secure_url,
                 estimatedDeliveryTime,
                 createdAt: new Date(),
                 status: "Pending",
             });
 
-            // Save the delivery to the database
             const savedDelivery = await newDelivery.save();
 
-            // Update the corresponding order's deliveries array and status
             const updatedOrder = await Order.findByIdAndUpdate(
                 orderId,
-                {
-                    $push: { deliveries: savedDelivery._id },
-                    orderStatus: "Processing",
-                },
-                { new: true } // Return the updated document
+                { $push: { deliveries: savedDelivery._id }, orderStatus: "Processing" },
+                { new: true }
             );
 
             if (!updatedOrder) {
@@ -317,19 +466,93 @@ exports.CreateDelivery = async (req, res) => {
                 });
             }
 
-            // Respond with success
-            return res.status(200).json({
+            res.status(200).json({
                 success: true,
-                message: "Delivery created, associated with the order, and order status updated to 'Processing' successfully.",
+                message: "Delivery created successfully.",
                 data: savedDelivery,
             });
         } catch (error) {
             console.error("Error creating delivery:", error);
-            return res.status(500).json({
+            res.status(500).json({
                 success: false,
                 message: "Internal server error.",
                 error: error.message,
             });
         }
     });
+};
+
+/**
+ * @url : api/v1/delivery/warehouse/:warehouseId/details
+ *
+ * purpose : fetch all the delivery details on the warehouse side 
+ */
+exports.getWarehouseDetails = async (req, res) => {
+  try {
+    const { warehouseId } = req.params;
+
+    // Find the warehouse by ID and ensure it exists
+    const warehouse = await Warehouse.findById(warehouseId).populate("linkedOrders");
+    if (!warehouse) {
+      return res.status(404).json({
+        success: false,
+        message: "Warehouse not found.",
+      });
+    }
+
+    // Extract linked orders
+    const linkedOrders = warehouse.linkedOrders;
+    if (!linkedOrders || linkedOrders.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No linked orders found for this warehouse.",
+      });
+    }
+
+    // Fetch all order details along with their deliveries
+    const ordersWithDetails = await Promise.all(
+      linkedOrders.map(async (orderId) => {
+        const order = await Order.findById(orderId).populate("deliveries");
+        if (!order) {
+          return null;
+        }
+
+        // Fetch delivery details for each order
+        const deliveriesDetails = await Promise.all(
+          order.deliveries.map(async (deliveryId) => {
+            const delivery = await Delivery.findById(deliveryId);
+            return delivery;
+          })
+        );
+
+        return {
+          ...order.toObject(),
+          deliveriesDetails,
+        };
+      })
+    );
+
+    // Remove any null records from the results
+    const populatedOrders = ordersWithDetails.filter((order) => order !== null);
+
+    // Exclude `linkedOrders` from the warehouse object to avoid duplication
+    const warehouseDetails = warehouse.toObject();
+    delete warehouseDetails.linkedOrders;
+
+    res.status(200).json({
+      success: true,
+      message: "Warehouse details fetched successfully.",
+      data: {
+        warehouseDetails,
+        linkedOrders: populatedOrders, // Include only the populated orders
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching warehouse details:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error.",
+      error: error.message,
+    });
+  }
 };

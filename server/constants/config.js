@@ -27,6 +27,7 @@ const CONFIG = {
         Order: "/api/v1/order",
         ManufacturerFetch: '/api/v1/manufacturer',
         forecast: '/api/v1/forecast',
+        //routeOptimi:'api/v1/route',
     },
     KEYS: {
         CLOUDINARY: {
@@ -61,7 +62,16 @@ const CONFIG = {
     },
     ULIP_API: {
         CARBON_EMISSION: process.env.CARBON_EMISSION_URL,
-        EWAY_BILL : process.env.EWAY_BILL_URL
+        EWAY_BILL : process.env.EWAY_BILL_URL,
+        SARTHI : process.env.SARTHI_URL,
+        VAHAN : process.env.VAHAN_URL,
+    },
+    GEOAPIFY :{
+        BASE_URL : process.env.GEOAPIFY_BASE_URL,
+        API_KEY : process.env.GEOAPIFY_API_KEY
+    },
+    GEOAPIFY_ROUTES:{
+         
     },
     DJANGO_URL: process.env.DJANGO_SERVER_URL
 };
