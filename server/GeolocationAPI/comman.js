@@ -6,18 +6,20 @@ const URL = CONFIG.GEOAPIFY.BASE_URL
 
 
 const getCoordinates = async (address) => {
+
     const url = `${URL}/v1/geocode/search`;
 
     const params = {
         apiKey: API_KEY,
-        text: address, 
+        text: address,
     };
 
     try {
         const response = await axios.get(url, { params });
 
         if (response.data.features && response.data.features.length > 0) {
-            const { lat, lon } = response.data.features[0].geometry.coordinates; // Extract coordinates
+            const { lon, lat } = response.data.features[0].properties;
+
             return {
                 success: true,
                 data: { lat, lon }
@@ -43,7 +45,7 @@ const getRoute = async (startAddress, endAddress) => {
     const params = {
         apiKey: CONFIG.GEOAPIFY.API_KEY,
         waypoints: `${startAddress}|${endAddress}`, // waypoints format: "lat1,lon1|lat2,lon2"
-        mode: 'truck', 
+        mode: 'truck',
         units: 'imperial',
     };
 
@@ -64,7 +66,7 @@ const getRoute = async (startAddress, endAddress) => {
 
 
 
-module.exports ={
+module.exports = {
     getCoordinates,
     getRoute
 }

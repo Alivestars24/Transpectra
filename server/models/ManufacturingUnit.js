@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const generateUniqueId = require("generate-unique-id");
 
 const ManufacturingUnitSchema = new mongoose.Schema(
   {
@@ -24,13 +25,32 @@ const ManufacturingUnitSchema = new mongoose.Schema(
         ref: "Order",
       },
     ],
+    linkedDrivers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Driver", 
+      },
+    ],
+    uniqueUnitCode: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
   },
   { timestamps: true }
 );
 
-const ManufacturingUnit = mongoose.model(
-  "manufacturingUnit",
-  ManufacturingUnitSchema
-);
+// Pre-save middleware to generate a 6-digit unique code
+ManufacturingUnitSchema.pre("save", async function (next) {
+  if (!this.uniqueUnitCode) {
+    this.uniqueUnitCode = generateUniqueId({
+      length: 6,
+      useLetters: false, // Ensures only numbers
+    });
+  }
+  next();
+});
+
+const ManufacturingUnit = mongoose.model("manufacturingUnit", ManufacturingUnitSchema);
 
 module.exports = ManufacturingUnit;

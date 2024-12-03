@@ -68,5 +68,6 @@ const getCarbonEmissionDetails = async (distance) => {
 };
 
 module.exports = {
+    getCarbonEmission,
     getCarbonEmissionDetails
 };

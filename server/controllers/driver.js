@@ -9,6 +9,9 @@ const { getVahanDetails } = require('../UlipAPI/vahan');
 const { getSarthiDetails } = require('../UlipAPI/sarathi');
 // const { User } = require('../models/user');
 
+const ManufacturingUnit = require("../models/ManufacturingUnit");
+// const Driver = require("../models/Driver");
+
 
 const { CONFIG } = require('../constants/config');
 
@@ -154,19 +157,11 @@ exports.DRIVER_TRUCK = async (req, res) => {
             const responseXml = vahanResponse.data.response[0].response;
             const rcOwnerName = extractXmlValue(responseXml, "rc_owner_name");
             const rcChassisNumber = extractXmlValue(responseXml, "rc_chasi_no");
-
-            if (rcChassisNumber !== chassisNumber) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Chassis number does not match the registered record",
-                });
-            }
-
-            if (rcOwnerName !== ownerName) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Owner name does not match the registered record",
-                });
+            const rcEngineNumber = extractXmlValue(responseXml, "enginenumber");
+            if (rcChassisNumber !== chassisNumber || rcOwnerName !== ownerName || rcEngineNumber !== engineNumber) {
+                return res.status(400).json(
+                    msgFunction(false, "Truck details do not match registered records")
+                );
             }
         }
 
@@ -181,22 +176,20 @@ exports.DRIVER_TRUCK = async (req, res) => {
                 });
             }
 
-            const driverName = sarathiResponse.data.response?.driverName;
-            if (!driverName || driverName !== "Verified") {
-                return res.status(404).json({
-                    success: false,
-                    message: "Driving license verification failed: Driver name not verified",
-                });
+            const bioFullName = sarathiResponse.data.response?.bioFullName;
+            if (!bioFullName || bioFullName !== req.user.name) {
+                return res.status(404).json(
+                    msgFunction(false, "Driving license verification failed: Name mismatch")
+                );
             }
         }
 
         // Driver verification in the database
-        let driver = await User.findOne({ id: driverId, accountType: CONFIG.ACCOUNT_TYPE.DRIVER });
+        const driver = await User.findOne({ id: driverId, accountType: CONFIG.ACCOUNT_TYPE.DRIVER });
         if (!driver) {
-            return res.status(404).json(
-                msgFunction(false, "Driver not found in the database")
-            );
+            return res.status(404).json(msgFunction(false, "Driver not found in the database"));
         }
+
 
         driver.isVerified = true;
         await driver.save();
@@ -207,7 +200,7 @@ exports.DRIVER_TRUCK = async (req, res) => {
             data: {
                 verified: true,
                 driverName: driver.name,
-                truckNumber: driver.truckNumber,
+                truckNumber: truckNumber || null,
             },
         });
     } catch (error) {
@@ -258,5 +251,140 @@ exports.VerifyQRAndCompleteDelivery = async (req, res) => {
         return res.status(500).json(msgFunction(false, "An error occurred while completing the delivery", error.message));
     }
 };
+
+/*
+ * @url : api/v1/delivery/warehouse/:warehouseId/details
+ *
+ * purpose : fetch all the available drivers 
+ */
+
+exports.getAvailableDrivers = async (req, res) => {
+    try {
+        const { manufacturingUnitId } = req.params;
+
+        // Validate the manufacturingUnitId
+        if (!manufacturingUnitId) {
+            return res.status(400).json({
+                success: false,
+                message: "Manufacturing unit ID is required.",
+            });
+        }
+
+        // Find the manufacturing unit by ID
+        const manufacturingUnit = await ManufacturingUnit.findById(manufacturingUnitId);
+        if (!manufacturingUnit) {
+            return res.status(404).json({
+                success: false,
+                message: "Manufacturing unit not found.",
+            });
+        }
+
+        // Extract linked driver IDs from the manufacturing unit
+        const linkedDriverIds = manufacturingUnit.linkedDrivers || [];
+
+        if (linkedDriverIds.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No drivers are linked to this manufacturing unit.",
+            });
+        }
+
+        // Fetch details of drivers whose status is "available"
+        const availableDrivers = await Driver.find({
+            _id: { $in: linkedDriverIds },
+            status: "available",
+        });
+
+        if (availableDrivers.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No available drivers found for the given manufacturing unit.",
+            });
+        }
+
+        // Respond with the list of available drivers
+        return res.status(200).json({
+            success: true,
+            message: "Available drivers fetched successfully.",
+            drivers: availableDrivers,
+        });
+    } catch (error) {
+        console.error("Error fetching available drivers:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error.",
+            error: error.message,
+        });
+    }
+};
+/*
+ * @url : api/v1/delivery/warehouse/:warehouseId/details
+ *
+ * purpose : assign the delivery to drivers
+ */
+
+exports.assignDriverToManufacturingUnit = async (req, res) => {
+    try {
+        const { uniqueUnitCode, driverId } = req.body;
+
+        // Validate request body
+        if (!uniqueUnitCode || !driverId) {
+            return res.status(400).json({
+                success: false,
+                message: "Unique Unit Code and Driver ID are required.",
+            });
+        }
+
+        // Find the manufacturing unit by unique unit code
+        const manufacturingUnit = await ManufacturingUnit.findOne({ uniqueUnitCode });
+        if (!manufacturingUnit) {
+            return res.status(404).json({
+                success: false,
+                message: "Manufacturing unit not found.",
+            });
+        }
+
+        // Check if the driver is already linked
+        if (manufacturingUnit.linkedDrivers.includes(driverId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Driver is already linked to this manufacturing unit.",
+            });
+        }
+
+        // Append the driver ID to the linkedDrivers array
+        manufacturingUnit.linkedDrivers.push(driverId);
+        await manufacturingUnit.save();
+
+        // Update the driver's status to "assigned"
+        const updatedDriver = await Driver.findByIdAndUpdate(
+            driverId,
+            { status: "assigned", linkedManufacturingUnit: manufacturingUnit._id },
+            { new: true }
+        );
+
+        if (!updatedDriver) {
+            return res.status(404).json({
+                success: false,
+                message: "Driver not found.",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Driver assigned to manufacturing unit successfully.",
+            manufacturingUnit,
+            driver: updatedDriver,
+        });
+    } catch (error) {
+        console.error("Error assigning driver to manufacturing unit:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error.",
+            error: error.message,
+        });
+    }
+};
+
 
 
