@@ -19,6 +19,7 @@ const endpoints = {
 
 router.post(endpoints.ACCEPT_REJECT_DELIVERY, isDriver, ChooseDelivery);
 router.post(endpoints.VERIFY_DRIVER_TRUCK, isDriver, DRIVER_TRUCK);
+
 router.get("/manufacturing-unit/:manufacturingUnitId/drivers", getAvailableDrivers);
 router.post("/manufacturing-unit/assign-driver", assignDriverToManufacturingUnit);
 

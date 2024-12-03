@@ -268,11 +268,60 @@ function OrderDetails() {
     const handleConfirmOrder = () => {
         if (selectedRoute) {
             setConfirmed(true);
-            //generateInvoicePdf();
+    
+            // Create JSON object
+            const data = {
+                orderId,
+                uniqueOrderId: uniqueId,
+                ManufactureId: company?._id || "",
+                warehouseId: warehouseDetails?._id || "",
+                selectedProducts: orderDetails.map(product => ({
+                    productName: product.productName,
+                    quantity: product.providedQuantity,
+                    unitCost: product.unitCost,
+                })),
+                estimatedDeliveryTime: "2024-12-05T15:30:00Z", // Replace with dynamic data if needed
+                deliveryRoutes: selectedRoute.steps && selectedRoute.steps.length >= 2 ? [{
+                    step: "1",
+                    from: selectedRoute.steps[0]?.title || "Unknown", // Fallback to "Unknown"
+                    to: selectedRoute.steps[1]?.title || "Unknown",
+                    by: "road", // or based on dynamic route details
+                    distance: selectedRoute?.distance || 0, // Default to 0 if undefined
+                    expectedTI: selectedRoute?.expectedTI || "Unknown", // Default fallback
+                    cost: selectedRoute.cost?.replace("₹", "") || "0", // Default cost to 0
+                }] : [],
+            };
+    
+            console.log("Combined JSON object:", data);
+    
+            // Prepare form-data for the backend
+            const formData = new FormData();
+            formData.append("orderId", data.orderId);
+            formData.append("uniqueOrderId", data.uniqueOrderId);
+            formData.append("ManufactureId", data.ManufactureId);
+            formData.append("warehouseId", data.warehouseId);
+            formData.append("selectedProducts", JSON.stringify(data.selectedProducts));
+            formData.append("estimatedDeliveryTime", data.estimatedDeliveryTime);
+            formData.append("deliveryRoutes", JSON.stringify(data.deliveryRoutes));
+            // Append a dummy file as invoice (replace with dynamic file)
+            const dummyFile = new File(["dummy content"], "dummyInvoice.pdf", { type: "application/pdf" });
+            formData.append("invoicePdf", dummyFile);
+    
+            console.log("FormData ready for backend:");
+    
+            // Debugging the FormData (prints only key-value pairs)
+            for (const pair of formData.entries()) {
+                console.log(pair[0], pair[1]);
+            }
+    
+            // Here you can send the FormData to your backend
+            // Example: axios.post('/your-backend-endpoint', formData);
         } else {
             alert("Please select a route before confirming the order.");
         }
     };
+    
+    
 
     const totalQuantity = orderDetails.reduce((total, item) => total + Number(item.providedQuantity), 0);
     const totalBill = orderDetails.reduce((total, item) => total + Number(item.providedQuantity) * Number(item.unitCost), 0);
@@ -389,7 +438,6 @@ function OrderDetails() {
         </div>
     ))}
 </div>
-
 
             {/* Confirm Button */}
             <div className="flex justify-end">

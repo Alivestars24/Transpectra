@@ -243,6 +243,7 @@ exports.FetchDelivery = async (req, res) => {
  */
 // Configure multer for file uploads
 // Ensure uploads directory exists
+
 const uploadDir = "uploads/";
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
@@ -269,219 +270,266 @@ const upload = multer({
 }).single("invoicePdf");
 
 exports.CreateDelivery = async (req, res) => {
-    upload(req, res, async (err) => {
-        if (err) {
-            console.error("Multer Error:", err.message);
-            return res.status(400).json({
-                success: false,
-                message: err.message,
-            });
-        }
+  upload(req, res, async (err) => {
+      if (err) {
+          console.error("Multer Error:", err.message);
+          return res.status(400).json({
+              success: false,
+              message: err.message,
+          });
+      }
 
-        if (!req.file || !req.file.path) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid file input: Please upload a PDF.",
-            });
-        }
+      if (!req.file || !req.file.path) {
+          return res.status(400).json({
+              success: false,
+              message: "Invalid file input: Please upload a PDF.",
+          });
+      }
 
-        try {
-            const {
-                orderId,
-                uniqueOrderId,
-                warehouseId,
-                ManufactureId,
-                selectedProducts,
-                estimatedDeliveryTime,
-            } = req.body;
+      try {
+          const {
+              orderId,
+              uniqueOrderId,
+              warehouseId,
+              ManufactureId,
+              selectedProducts,
+              estimatedDeliveryTime,
+              deliveryRoutes // Accept deliveryRoutes from the request body
+          } = req.body;
 
-            if (
-                !orderId ||
-                !uniqueOrderId ||
-                !warehouseId ||
-                !ManufactureId ||
-                !selectedProducts ||
-                !estimatedDeliveryTime
-            ) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Missing required fields.",
-                });
-            }
+          if (
+              !orderId ||
+              !uniqueOrderId ||
+              !warehouseId ||
+              !ManufactureId ||
+              !selectedProducts ||
+              !estimatedDeliveryTime ||
+              !deliveryRoutes 
+          ) {
+              return res.status(400).json({
+                  success: false,
+                  message: "Missing required fields.",
+              });
+          }
+          // Parse and validate selectedProducts
+          let parsedProducts;
+          try {
+              parsedProducts = JSON.parse(selectedProducts);
+          } catch (parseError) {
+              return res.status(400).json({
+                  success: false,
+                  message: "Invalid JSON format for selectedProducts.",
+              });
+          }
 
-            let parsedProducts;
-            try {
-                parsedProducts = JSON.parse(selectedProducts);
-            } catch (parseError) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Invalid JSON format for selectedProducts.",
-                });
-            }
+          if (!Array.isArray(parsedProducts) || parsedProducts.length === 0) {
+              return res.status(400).json({
+                  success: false,
+                  message: "Selected products must be a non-empty array.",
+              });
+          }
 
-            if (!Array.isArray(parsedProducts) || parsedProducts.length === 0) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Selected products must be a non-empty array.",
-                });
-            }
+          const isProductValid = parsedProducts.every((product) => {
+              return (
+                  product.productName &&
+                  typeof product.productName === "string" &&
+                  product.quantity &&
+                  typeof product.quantity === "number" &&
+                  product.specifications &&
+                  typeof product.specifications === "string" &&
+                  product.unitCost &&
+                  typeof product.unitCost === "number" &&
+                  product._id &&
+                  typeof product._id === "string" &&
+                  mongoose.Types.ObjectId.isValid(product._id)
+              );
+          });
 
-            const isProductValid = parsedProducts.every((product) => {
-                return (
-                    product.productName &&
-                    typeof product.productName === "string" &&
-                    product.quantity &&
-                    typeof product.quantity === "number" &&
-                    product.specifications &&
-                    typeof product.specifications === "string" &&
-                    product.unitCost &&
-                    typeof product.unitCost === "number" &&
-                    product._id &&
-                    typeof product._id === "string" &&
-                    mongoose.Types.ObjectId.isValid(product._id)
-                );
-            });
+          if (!isProductValid) {
+              return res.status(400).json({
+                  success: false,
+                  message:
+                      "Invalid product structure. Ensure 'productName' (string), 'quantity' (number), 'specifications' (string), 'unitCost' (number), and '_id' (valid ObjectId string) are provided for each product.",
+              });
+          }
 
-            if (!isProductValid) {
-                return res.status(400).json({
-                    success: false,
-                    message:
-                        "Invalid product structure. Ensure 'productName' (string), 'quantity' (number), 'specifications' (string), 'unitCost' (number), and '_id' (valid ObjectId string) are provided for each product.",
-                });
-            }
+          const convertedProducts = parsedProducts.map((product) => ({
+              ...product,
+              _id: new mongoose.Types.ObjectId(product._id),
+          }));
 
-            const convertedProducts = parsedProducts.map((product) => ({
-                ...product,
-                _id: new mongoose.Types.ObjectId(product._id),
-            }));
+          // Parse and validate deliveryRoutes
+          let parsedRoutes;
+          try {
+              parsedRoutes = JSON.parse(deliveryRoutes);
+          } catch (parseError) {
+              return res.status(400).json({
+                  success: false,
+                  message: "Invalid JSON format for deliveryRoutes.",
+              });
+          }
 
-            // Fetch manufacturing unit
-            const manufacturingUnit = await ManufacturingUnit.findById(ManufactureId);
-            if (!manufacturingUnit) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Manufacturing unit not found.",
-                });
-            }
+          if (!Array.isArray(parsedRoutes) || parsedRoutes.length === 0) {
+              return res.status(400).json({
+                  success: false,
+                  message: "Delivery routes must be a non-empty array.",
+              });
+          }
 
-            // Fetch warehouse
-            const warehouse = await Warehouse.findById(warehouseId);
-            if (!warehouse) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Warehouse not found.",
-                });
-            }
+          const isRouteValid = parsedRoutes.every((route) => {
+              return (
+                  route.step &&
+                  typeof route.step === "number" &&
+                  route.from &&
+                  typeof route.from === "string" &&
+                  route.to &&
+                  typeof route.to === "string" &&
+                  route.by &&
+                  ["rail", "road", "air", "sea"].includes(route.by) &&
+                  route.distance &&
+                  typeof route.distance === "number" &&
+                  route.expectedTime &&
+                  typeof route.expectedTime === "string" &&
+                  route.cost &&
+                  typeof route.cost === "number"
+              );
+          });
 
-            // Fetch manager and manufacturer contact details
-            const manufacturerUser = await User.findById(manufacturingUnit.manufacturerId).populate('additionalDetails');
-            const warehouseManager = await User.findById(warehouse.managerId).populate('additionalDetails');
+          if (!isRouteValid) {
+              return res.status(400).json({
+                  success: false,
+                  message:
+                      "Invalid delivery route structure. Ensure 'step' (number), 'from' (string), 'to' (string), 'by' (valid mode), 'distance' (number), 'expectedTime' (string), and 'cost' (number) are provided for each route.",
+              });
+          }
 
-            if (!manufacturerUser || !manufacturerUser.additionalDetails) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Manufacturer's profile not found.",
-                });
-            }
+          // Fetch manufacturing unit
+          const manufacturingUnit = await ManufacturingUnit.findById(ManufactureId);
+          if (!manufacturingUnit) {
+              return res.status(404).json({
+                  success: false,
+                  message: "Manufacturing unit not found.",
+              });
+          }
 
-            if (!warehouseManager || !warehouseManager.additionalDetails) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Warehouse manager's profile not found.",
-                });
-            }
+          // Fetch warehouse
+          const warehouse = await Warehouse.findById(warehouseId);
+          if (!warehouse) {
+              return res.status(404).json({
+                  success: false,
+                  message: "Warehouse not found.",
+              });
+          }
 
-            const manufacturerProfile = await Profile.findById(manufacturerUser.additionalDetails._id);
-            const warehouseProfile = await Profile.findById(warehouseManager.additionalDetails._id);
+          // Fetch manager and manufacturer contact details
+          const manufacturerUser = await User.findById(manufacturingUnit.manufacturerId).populate('additionalDetails');
+          const warehouseManager = await User.findById(warehouse.managerId).populate('additionalDetails');
 
-            if (!manufacturerProfile || !warehouseProfile) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Profile details for manager or manufacturer not found.",
-                });
-            }
+          if (!manufacturerUser || !manufacturerUser.additionalDetails) {
+              return res.status(404).json({
+                  success: false,
+                  message: "Manufacturer's profile not found.",
+              });
+          }
 
-            // Construct pickup and drop-off locations
-            const pickupLocation = {
-                address: manufacturingUnit.companyAddress,
-                contactPerson: `${manufacturerUser.firstName} ${manufacturerUser.lastName}`,
-                contactNumber: manufacturerProfile.contactNumber,
-            };
+          if (!warehouseManager || !warehouseManager.additionalDetails) {
+              return res.status(404).json({
+                  success: false,
+                  message: "Warehouse manager's profile not found.",
+              });
+          }
 
-            const dropoffLocation = {
-                address: warehouse.warehouseAddress,
-                contactPerson: `${warehouseManager.firstName} ${warehouseManager.lastName}`,
-                contactNumber: warehouseProfile.contactNumber,
-            };
+          const manufacturerProfile = await Profile.findById(manufacturerUser.additionalDetails._id);
+          const warehouseProfile = await Profile.findById(warehouseManager.additionalDetails._id);
+          if (!manufacturerProfile || !warehouseProfile) {
+              return res.status(404).json({
+                  success: false,
+                  message: "Profile details for manager or manufacturer not found.",
+              });
+          }
 
-            if (!pickupLocation.address || !dropoffLocation.address) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Manufacturing unit or warehouse does not have an address.",
-                });
-            }
+          // Construct pickup and drop-off locations
+          const pickupLocation = {
+              address: manufacturingUnit.companyAddress,
+              contactPerson: `${manufacturerUser.firstName} ${manufacturerUser.lastName}`,
+              contactNumber: manufacturerProfile.contactNumber,
+          };
 
-            const filePath = req.file.path.replace(/\\/g, "/");
-            const uploadedPdf = await uploadPdfToCloudinary(filePath, "invoices");
+          const dropoffLocation = {
+              address: warehouse.warehouseAddress,
+              contactPerson: `${warehouseManager.firstName} ${warehouseManager.lastName}`,
+              contactNumber: warehouseProfile.contactNumber,
+          };
 
-            if (!uploadedPdf || !uploadedPdf.secure_url) {
-                return res.status(500).json({
-                    success: false,
-                    message: "Failed to upload PDF to Cloudinary.",
-                });
-            }
+          if (!pickupLocation.address || !dropoffLocation.address) {
+              return res.status(400).json({
+                  success: false,
+                  message: "Manufacturing unit or warehouse does not have an address.",
+              });
+          }
 
-            const newDelivery = new Delivery({
-                orderId,
-                uniqueOrderId,
-                warehouseId,
-                ManufactureId,
-                pickupLocation,
-                dropoffLocation,
-                products: convertedProducts,
-                packageDetails: {
-                    weight: `${parsedProducts.length * 10}kg`,
-                    dimensions: "Varied",
-                    fragile: false,
-                    description: "Delivery of selected products",
-                },
-                invoicePdf: uploadedPdf.secure_url,
-                estimatedDeliveryTime,
-                createdAt: new Date(),
-                status: "Pending",
-            });
+          const filePath = req.file.path.replace(/\\/g, "/");
+          const uploadedPdf = await uploadPdfToCloudinary(filePath, "invoices");
 
-            const savedDelivery = await newDelivery.save();
+          if (!uploadedPdf || !uploadedPdf.secure_url) {
+              return res.status(500).json({
+                  success: false,
+                  message: "Failed to upload PDF to Cloudinary.",
+              });
+          }
 
-            const updatedOrder = await Order.findByIdAndUpdate(
-                orderId,
-                { $push: { deliveries: savedDelivery._id }, orderStatus: "Processing" },
-                { new: true }
-            );
+          const newDelivery = new Delivery({
+              orderId,
+              uniqueOrderId,
+              warehouseId,
+              ManufactureId,
+              pickupLocation,
+              dropoffLocation,
+              products: convertedProducts,
+              deliveryRoutes: parsedRoutes, // Save delivery routes
+              packageDetails: {
+                  weight: `${parsedProducts.length * 10}kg`,
+                  dimensions: "Varied",
+                  fragile: false,
+                  description: "Delivery of selected products",
+              },
+              invoicePdf: uploadedPdf.secure_url,
+              estimatedDeliveryTime,
+              createdAt: new Date(),
+              status: "Pending",
+              assignedDrivers: [],
+          });
 
-            if (!updatedOrder) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Order not found. Could not associate delivery.",
-                });
-            }
+          const savedDelivery = await newDelivery.save();
 
-            res.status(200).json({
-                success: true,
-                message: "Delivery created successfully.",
-                data: savedDelivery,
-            });
-        } catch (error) {
-            console.error("Error creating delivery:", error);
-            res.status(500).json({
-                success: false,
-                message: "Internal server error.",
-                error: error.message,
-            });
-        }
-    });
+          const updatedOrder = await Order.findByIdAndUpdate(
+              orderId,
+              { $push: { deliveries: savedDelivery._id }, orderStatus: "Processing" },
+              { new: true }
+          );
+
+          if (!updatedOrder) {
+              return res.status(404).json({
+                  success: false,
+                  message: "Order not found. Could not associate delivery.",
+              });
+          }
+
+          res.status(200).json({
+              success: true,
+              message: "Delivery created successfully.",
+              data: savedDelivery,
+          });
+      } catch (error) {
+          console.error("Error creating delivery:", error);
+          res.status(500).json({
+              success: false,
+              message: "Internal server error.",
+              error: error.message,
+          });
+      }
+  });
 };
-
 /**
  * @url : api/v1/delivery/warehouse/:warehouseId/details
  *

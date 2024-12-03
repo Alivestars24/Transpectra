@@ -68,7 +68,8 @@ const DeliverySchema = new mongoose.Schema({
     },
     assignedDriver: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        default: [],
     },
     estimatedDeliveryTime: { type: Date },
     actualDeliveryDate: { type: Date },
