@@ -12,6 +12,8 @@ const DistributionCenter = require('../models/DistributionCenter')
 const { msgFunction } = require('../utils/msgFunction')
 require("dotenv").config();
 const { CONFIG } = require('../constants/config')
+const ManufacturingUnit = require("../models/ManufacturingUnit");
+
 
 // Signup Controller for Registering USers
 exports.signup = async (req, res) => {
@@ -28,8 +30,11 @@ exports.signup = async (req, res) => {
             contactNumber,
             otp,
             platform,
-            storeId,
+            uniqueUnitCode,
+            dateOfBirth
         } = req.body;
+
+        console.log(req.body);
 
         // Check if All Details are there or not
         if (
@@ -99,11 +104,40 @@ exports.signup = async (req, res) => {
             image: `https://api.dicebear.com/5.x/initials/svg?seed=${firstName} ${lastName}`,
         })
 
-        if (accountType === 'Drivers') {
+        if (accountType === CONFIG.ACCOUNT_TYPE.DRIVER) {
+
+            const driverId = user._id;
+
+            if (!uniqueUnitCode) {
+                return res.status(403).json(
+                    msgFunction(false, "uniqueUnitCode is required")
+                )
+            }
+
+            const manufacturingUnit = await ManufacturingUnit.findOne({ uniqueUnitCode });
+
+            if (manufacturingUnit.linkedDrivers.includes(driverId)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Driver is already linked to this manufacturing unit.",
+                });
+            }
+
+            if (!manufacturingUnit) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Manufacturing unit not found.",
+                });
+            }
+
+            manufacturingUnit.linkedDrivers.push(driverId);
+            await manufacturingUnit.save();
+
             const availability_status = await AvailabilityStatus.create({
                 driver_id: user._id,
-                store_id: storeId
+                ManufacturingUnitID: manufacturingUnit._id
             })
+
         }
 
         let store;

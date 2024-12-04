@@ -67,7 +67,14 @@ const UserSchema = new mongoose.Schema(
             type: String,
             enum: ["web", "android", "ios"],
             required: true
-        }
+        },
+        verifiedDriver: {
+            type: Boolean,
+            default: false, // Default to false for all new driver accounts
+            required: function () {
+                return this.accountType === "Driver";
+            },
+        },
     },
     { timestamps: true }
 )

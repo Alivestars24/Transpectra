@@ -42,7 +42,7 @@ router.post("/available", availableFleetInYard);
  * use : used in the Overview Fleet in the client side
  * 
 */
-router.get("/departed", getFleetDeparted);
+router.get("/departed",auth, getFleetDeparted);
 
 
 router.post("/trucks/departed/:fleetId", markTruckAsDeparted);
