@@ -133,3 +133,31 @@ export function fetchDeliveryDetails({ managerId }) {
     }
   };
 }
+
+
+export function RouteDetailsCreation(dataToSend) {
+  return async (dispatch) => {
+    const toastId = toast.loading("Updating the Route Details...")
+    try {
+      const response = await apiConnector(
+        "POST",
+        endpoints.ROUTE_DETAILS,
+        dataToSend
+      )
+      console.log(
+        "ROUTE_DETAILSAPI RESPONSE............",
+        response
+      )
+      if (response?.data?.success) {
+        toast.success("Route updated successfully!");
+      } else {
+        throw new Error(response?.data?.message || "Unknown error");
+      }
+    } catch (error) {
+      console.error("ROUTE_DETAILS API ERROR............", error);
+      toast.error(error.response?.data?.message || "Could not update Route Details");
+    } finally {
+      toast.dismiss(toastId);
+    }
+  };
+}

@@ -92,13 +92,13 @@ const Orders = () => {
                     <div className={`rounded-lg px-6 py-1 ${
               order.orderStatus === 'Processing'
                 ? 'bg-caribbeangreen-100'
-                : 'bg-yellow-100'
+                : 'bg-yellow-50'
             }`}>{order.orderStatus}</div>
                   </div>
                 </div>
               </div>
 
-              <div className="flex flex-col gap-y-5 max-w-md justify-center">
+              <div className="flex flex-col gap-y-5 w-1/3 mr-14 justify-center">
                 
               {order.orderStatus === 'pending' && (
                 <div className='flex flex-col gap-y-5'>

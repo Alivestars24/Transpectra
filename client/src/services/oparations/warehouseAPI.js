@@ -68,7 +68,7 @@ export function fetchWarehouseDetails(managerId) {
         } else {
           throw new Error(response?.data?.message || "Unknown error");
         }
-        navigate('/dashboard/inventory', { state: { category:category }})
+        navigate('/dashboard/orders', { state: { category:category }})
       } catch (error) {
         console.error("CREATE_ORDER_API API ERROR............", error);
         toast.error("Could not create Order");

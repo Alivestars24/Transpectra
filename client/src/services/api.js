@@ -29,6 +29,8 @@ export const endpoints = {
   CREATE_DELIVERY_FOR_ORDER:BASE_URL+"/delivery/create",
   FETCH_DELIVERIES_FOR_MANUFACTURER:BASE_URL+"/delivery/manufacturing-unit",
   FETCH_DELIVERIES_FOR_WAREHOUSE:BASE_URL+"/delivery/warehouse",
+  //Give out the route Details
+  ROUTE_DETAILS:BASE_URL+"/routeTracking/route-tracking",
 }
 
 export const profileEndpoints = {

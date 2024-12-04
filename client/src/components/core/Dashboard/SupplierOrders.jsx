@@ -36,7 +36,7 @@ function SupplierOrders() {
 
             {/* Display all orders */}
             <div className="flex flex-col gap-y-4 w-full mt-6">
-                {order.map(({ warehouseDetails, orders }, warehouseIndex) => {
+                {order.map(({ warehouseDetails, orders =[]}, warehouseIndex) => {
                     const pendingOrders = orders.filter((singleOrder) => singleOrder.orderStatus === "pending");
                     return pendingOrders.map((singleOrder, orderIndex) => (
                         <div 

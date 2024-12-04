@@ -29,6 +29,8 @@ function Inventory() {
             quantity: item.productQuantity,
             category: item.productCategory,
             threshold: item.productThreshold,
+            month:item.month,
+            Id:item._id,
             stockStatus: getStockStatus(item.productQuantity, item.productThreshold),
           }))
         );
@@ -42,28 +44,49 @@ function Inventory() {
     if (quantity < threshold + 10) return "Limited Stock";
     return "In Stock";
   }
-
-  const filteredInventory = inventory.filter(
-    (item) =>
+  const currentMonth = new Date().toLocaleString("en-US", { month: "long" });
+  console.log(currentMonth)
+  
+  const filteredInventory = inventory.filter((item) => {
+    console.log("Checking item:", item.productName, "Month:", item.month); // Debug logs
+    return (
       item.productName.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      (category === "All" || item.category === category)
-  );
-
+      (category === "All" || item.category === category) &&
+      item.month && // Ensure item.month is defined
+      item.month.trim().toLowerCase() === currentMonth.trim().toLowerCase()
+    );
+  });
+  
+  console.log("Filtered Inventory:", filteredInventory);
+  
   const getRestockDetails = () => {
     const restockInfo = {};
+    const currentMonth = new Date().toLocaleString("en-US", { month: "long" });
+  
     inventory.forEach((item) => {
-      if (item.quantity < item.threshold) {
+      // Ensure item has valid properties and matches conditions
+      if (
+        item.month &&
+        item.category &&
+        item.quantity !== undefined &&
+        item.threshold !== undefined &&
+        item.month.trim().toLowerCase() === currentMonth.trim().toLowerCase() &&
+        item.quantity < item.threshold
+      ) {
+        // Initialize the category array if it doesn't exist
         if (!restockInfo[item.category]) {
           restockInfo[item.category] = [];
         }
+        // Push the entire item object to the category
         restockInfo[item.category].push(item);
       }
     });
+  
     return restockInfo;
   };
-
+  
   const restockInfo = getRestockDetails();
-
+  console.log("Restock recieved as:",restockInfo) 
   const handleOrder = (category) => {
     console.log("Category is ",category);
     const productsToOrder = restockInfo[category];
