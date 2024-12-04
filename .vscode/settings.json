@@ -6,6 +6,7 @@
     "enginenumber",
     "GEOAPIFY",
     "manufacturingunit",
+<<<<<<< Updated upstream
     "ownername",
     "perticular",
     "Sarthi",
@@ -13,5 +14,9 @@
     "Vahan",
     "vehiclenumber",
     "Vehiclewith"
+=======
+    "perticular",
+    "ulip"
+>>>>>>> Stashed changes
   ]
 }
