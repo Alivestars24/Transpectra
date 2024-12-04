@@ -57,7 +57,8 @@ const DeliverySchema = new mongoose.Schema({
             by: { type: String, required: true, enum: ['rail', 'road', 'air', 'sea'] }, // Mode of transport
             distance: { type: Number, required: true }, // Distance in kilometers
             expectedTime: { type: String, required: true }, // Expected time in hours
-            cost: { type: Number, required: true } // Cost for this step
+            cost: { type: Number, required: true },
+            remarks: { type: String }
         }
     ],
     overallTripCost: { type: Number, default: 0 }, // Total cost of the trip

@@ -11,6 +11,7 @@ import authapi from '../apis/AuthApi';
 import authStore from '../auth/authStore';
 import AuthContext from '../auth/context';
 import { showToast } from '../components/ToastMessage';
+import useProfileStore from '../hooks/useUserStore';
 
 const validationSchema = Yup.object().shape({
     email: Yup.string()
@@ -20,7 +21,7 @@ const validationSchema = Yup.object().shape({
     password: Yup.string().required().min(6).label('Password')
 })
 
-const LoginScreen = ({ navigation }) => {
+const sendOtpScreen = ({ navigation }) => {
 
     const [loginFailed, setLoginFailed] = useState(false);
     const [errMsg, setErrMsg] = useState('');
@@ -30,17 +31,11 @@ const LoginScreen = ({ navigation }) => {
 
     const handleSubmit = async ({ email, password }) => {
         try {
-            console.log(email, password)
             const result = await authapi.login({ email, password });
-
-            console.log(result.data.token);
-
             if (!result || result.status !== 200) throw new Error(result.problem || 'Login failed');
-
-
             setLoginFailed(false);
-            const token = result.data.token
-
+            await useProfileStore.getState().setUserProfile(result.data);
+            const token = result?.data?.token;
             await authStore.storeToken(token);
             authContext.setToken(token);
             showToast("success", `${result.data.message}`);
@@ -48,16 +43,17 @@ const LoginScreen = ({ navigation }) => {
             console.log(error);
             setLoginFailed(true);
             setErrMsg(error.response?.data?.message || 'An unexpected error occurred');
-            authStore.removeToken();
+            useProfileStore.getState().clearUserProfile();
+            await authStore.storeAuthData(token);
+            await authStore.removeToken();
         }
     };
-
 
     return (
         <Screen style={styles.container}>
             <Image
                 style={styles.logo}
-                source={require('../assets/logo.jpeg')} />
+                source={require('../assets/logo.png')} />
             <AppText style={styles.title}>Welcome back</AppText>
 
             <View style={styles.register}>
@@ -149,4 +145,4 @@ const styles = StyleSheet.create({
     },
 })
 
-export default LoginScreen;
+export default sendOtpScreen;

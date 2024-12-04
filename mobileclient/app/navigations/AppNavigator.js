@@ -40,6 +40,17 @@ function AppNavigator({ navigation }) {
             />
 
             <Tab.Screen
+                name="Verification"
+                component={AccountNavigator}
+                options={{
+                    tabBarIcon: ({ size, color }) => <MaterialCommunityIcons name="check-decagram" size={size} color={color} />,
+                    title: 'verification',
+                    headerLeft: () => <DrawerButton navigation={navigation} />,
+                    headerShown: false,
+                }}
+            />
+
+            <Tab.Screen
                 name="Account"
                 component={AccountNavigator}
                 options={{
@@ -49,6 +60,7 @@ function AppNavigator({ navigation }) {
                     headerShown: false,
                 }}
             />
+
         </Tab.Navigator>
     );
 }

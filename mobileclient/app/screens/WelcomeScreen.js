@@ -11,7 +11,7 @@ const WelcomeScreen = ({navigation}) => {
     return (
         <View style={styles.backGround}>
             <View style={styles.logoContainer}>
-                <Image style={styles.logo} source={require('../assets/logo.jpeg')} />
+                <Image style={styles.logo} source={require('../assets/logo.png')} />
             </View>
             <View style={styles.buttonContainer}>
                 <AppButton title={'Login'} onPress={()=>navigation.navigate(routes.LOGIN)} />
@@ -34,7 +34,9 @@ const styles = StyleSheet.create({
     },
     logo: {
         width: 350,
-        height: 100,
+        height: 150,
+        resizeMode:"contain"
+        
     },
     logoContainer: {
         position: 'absolute',

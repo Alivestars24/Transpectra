@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Image, RefreshControl, TouchableWit
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import routes from '../navigations/routes';
 
-const HomeScreen = ({ navigation }) => {
+const verificationScreen = ({ navigation }) => {
 
 
     return (
@@ -11,7 +11,7 @@ const HomeScreen = ({ navigation }) => {
             style={styles.container}
         >
             <View style={styles.header}>
-                <Image source={require('../assets/logo.jpeg')} style={styles.headerImage} />
+                <Image source={require('../assets/home.png')} style={styles.headerImage} />
             </View>
 
             <Text style={styles.headerText}>Welcome back </Text>
@@ -61,19 +61,20 @@ const styles = StyleSheet.create({
     },
     headerImage: {
         width: '100%',
-        height: 140,
+        height: 200,
         borderRadius: 10,
-        resizeMode: 'contain',
+        resizeMode: 'cover',
     },
     headerText: {
         fontSize: 25,
         marginTop: 10,
-        paddingLeft: 10,
+        paddingLeft: 20,
         fontWeight: 'bold',
     },
     box: {
         paddingTop: 10,
-        paddingHorizontal: 10
+        paddingHorizontal: 10,
+        marginRight : 10
     },
     card: {
         width: '100%',
@@ -98,4 +99,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default HomeScreen;
+export default verificationScreen;

@@ -45,7 +45,6 @@ ManufacturingUnitSchema.pre("save", async function (next) {
   if (!this.uniqueUnitCode) {
     this.uniqueUnitCode = generateUniqueId({
       length: 6,
-      useLetters: false, // Ensures only numbers
     });
   }
   next();

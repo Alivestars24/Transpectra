@@ -11,11 +11,10 @@ const getToken = async () => {
 };
 
 const apiClient = axios.create({
-    baseURL: 'http://127.0.0.1:4000/api/v1',
+    baseURL: 'https://4294-2409-40c1-2c-ad2d-aded-4b52-4d75-cdd4.ngrok-free.app/api/v1',
     headers: { "Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json" },
     timeout: 3000
 });
-
 
 
 // Add request interceptor

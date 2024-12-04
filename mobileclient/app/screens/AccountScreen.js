@@ -9,6 +9,8 @@ import authStore from '../auth/authStore';
 import AuthContext from '../auth/context';
 import routes from '../navigations/routes';
 import { showToast } from '../components/ToastMessage';
+import useProfileStore from '../hooks/useUserStore';
+
 
 const menuItems = [
     {
@@ -49,11 +51,8 @@ const AccountScreen = ({ navigation }) => {
 
     const logout = async () => {
         try {
-            const result = await AuthApi.logout();
-            if (!result) throw new Error(result.problem);
-            // showToast('success', `${result.data.message}`);
-            console.log('Logout result:', result);
             await authStore.removeToken();
+            await useProfileStore.getState().clearUserProfile();
             setToken(null);
         } catch (error) {
             // console.error('Logout failed', error.response?.data.message || error.message);

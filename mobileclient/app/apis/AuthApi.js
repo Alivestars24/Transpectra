@@ -22,6 +22,9 @@ const forgotPassword = (email) => apiClient.post('/auth/customer/forgot-password
 const logout = () => apiClient.post('/auth/customer/logout');
 
 
+// @sendotp
+const sendotp = (email) => apiClient.post('/auth/sendotp',{email});
+
 
 // @getCustomer 
 const fetchCustomer = () => apiClient.post('/get-customer')
@@ -37,5 +40,6 @@ export default {
     register,
     logout,
     forgotPassword,
-    updateCustomer
+    updateCustomer,
+    sendotp
 }

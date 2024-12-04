@@ -81,9 +81,9 @@ app.get("/", (req, res) => {
 })
 
 app.get('/carbon', async (req, res) => {
-    const result = await getCarbonEmission('1823.3', 'Light Commercial Vehicles - Rigid Trucks', 'Diesel', 1);
+    const result = await getCarbonEmission('1823.3',100);
 
-    console.log("this is result of ", result)
+    console.log("this is result of ", result.data)
 
     return res.json({
         data: result

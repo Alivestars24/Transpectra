@@ -3,35 +3,34 @@ import { View, FlatList, StyleSheet, Text, TouchableOpacity, Alert } from 'react
 import { ActivityIndicator } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import cartApi from '../apis/cartApi';
 // import useCartStore from '../hooks/useCartStore';
 import color from '../config/color';
 import ProductItem from '../components/ProductItem';
 import { showToast } from '../components/ToastMessage';
 
 const AcceptNewDelivery = () => {
-    const products = useCartStore(state => state.products);
-    const removeProduct = useCartStore(state => state.removeProduct);
-    const clearCart = useCartStore(state => state.clearCart);
-    const setProducts = useCartStore(state => state.setProducts);
+    // const products = useCartStore(state => state.products);
+    // const removeProduct = useCartStore(state => state.removeProduct);
+    // const clearCart = useCartStore(state => state.clearCart);
+    // const setProducts = useCartStore(state => state.setProducts);
     const navigation = useNavigation();
 
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
 
-    const handleCartProducts = async () => {
-        setLoading(true);
-        try {
-            const result = await cartApi.GetCartProducts();
-            setProducts(result.data.data.products);
-            console.log("Fetched cart products", result.data.data.products);
-            setLoading(false);
-        } catch (error) {
-            // showToast("error", `${error.response?.data}`);
-            console.log("Failed to fetch product from server", error?.response?.data);
-            setLoading(false);
-        }
-    };
+    // const handleCartProducts = async () => {
+    //     setLoading(true);
+    //     try {
+    //         const result = await cartApi.GetCartProducts();
+    //         setProducts(result.data.data.products);
+    //         console.log("Fetched cart products", result.data.data.products);
+    //         setLoading(false);
+    //     } catch (error) {
+    //         // showToast("error", `${error.response?.data}`);
+    //         console.log("Failed to fetch product from server", error?.response?.data);
+    //         setLoading(false);
+    //     }
+    // };
 
     const removeAllProductFromCart = async () => {
         const originalProducts = [...products];
@@ -46,9 +45,9 @@ const AcceptNewDelivery = () => {
         }
     };
 
-    useEffect(() => {
-        handleCartProducts();
-    }, []);
+    // useEffect(() => {
+    //     handleCartProducts();
+    // }, []);
 
     const handleRemoveProduct = async (cart_id) => {
         const originalProducts = [...products];
@@ -76,7 +75,7 @@ const AcceptNewDelivery = () => {
         }
     };
 
-    let displayedProducts = products;
+    // let displayedProducts = products;
 
     displayedProducts = [
         {
@@ -169,7 +168,7 @@ const AcceptNewDelivery = () => {
                         data={displayedProducts}
                         keyExtractor={item => item.id ? item.id.toString() : Math.random().toString()}
                         refreshing={refreshing}
-                        onRefresh={handleCartProducts}
+                        // onRefresh={handleCartProducts}
                         renderItem={({ item }) => (
                             <ProductItem
                                 item={item}

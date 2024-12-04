@@ -19,8 +19,7 @@ SplashScreen.preventAutoHideAsync();
 
 export default function App() {
   const [isReady, setReady] = useState(false);
-  // const [token, setToken] = useState(null);
-  const [token, setToken] = useState();
+  const [token, setToken] = useState(null);
 
   const restoreToken = async () => {
     const authToken = await authStorage.getToken();

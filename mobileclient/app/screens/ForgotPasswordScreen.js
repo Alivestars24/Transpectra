@@ -55,7 +55,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
             <View style={styles.header}>
                 <Image
                     style={styles.logo}
-                    source={require('../assets/logo.jpeg')}
+                    source={require('../assets/logo.png')}
                 />
                 <TouchableWithoutFeedback onPress={() => navigation.goBack()}>
 
