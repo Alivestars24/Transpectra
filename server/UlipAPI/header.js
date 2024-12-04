@@ -24,6 +24,7 @@ const isTokenValid = () => {
 
         const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
 
+        // Validate 'iat' (issued at) and ensure it's not in the future
         if (!decoded.iat || decoded.iat > currentTime) {
             console.error("Invalid 'iat' in token.");
             return false;
