@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
-const {CONFIG} = require('../constants/config')
-
+const { CONFIG } = require('../constants/config');
 
 const profileSchema = new mongoose.Schema({
     gender: {
@@ -41,10 +40,19 @@ const profileSchema = new mongoose.Schema({
     },
     experienceYears: {
         type: Number,
-    }
+    },
+    dlnumber: {
+        type: String,
+        trim: true,
+    },
+    chasisnumber: {
+        type: String,
+        trim: true,
+    },
+    enginenumber: {
+        type: String,
+        trim: true,
+    },
 });
-
-
-
 
 module.exports = mongoose.model("Profile", profileSchema);

@@ -10,12 +10,12 @@ const availabilityStatusSchema = new mongoose.Schema({
         enum: ['assigned', 'onDelivery', 'available'],
         default: "available"
     },
-    store_id: {
+    ManufacturingUnitID: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "store"
+        ref: "manufacturingUnit"
     }
 });
 
-const availableDrivers = mongoose.model('availability_status', availabilityStatusSchema);
+const availabilityStatus = mongoose.model('availability_status', availabilityStatusSchema);
 
-module.exports = availableDrivers;
+module.exports = availabilityStatus;

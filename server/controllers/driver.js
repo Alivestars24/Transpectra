@@ -320,7 +320,8 @@ exports.getAvailableDrivers = async (req, res) => {
 /*
  * @url : api/v1/delivery/warehouse/:warehouseId/details
  *
- * purpose : assign the delivery to drivers
+ * purpose : add driver into the manufacture
+ * 
  */
 
 exports.assignDriverToManufacturingUnit = async (req, res) => {
@@ -331,7 +332,7 @@ exports.assignDriverToManufacturingUnit = async (req, res) => {
         if (!uniqueUnitCode || !driverId) {
             return res.status(400).json({
                 success: false,
-                message: "Unique Unit Code and Driver ID are required.",
+                message: "Unique Manufacture Unit Code and Driver ID are required.",
             });
         }
 
@@ -355,20 +356,6 @@ exports.assignDriverToManufacturingUnit = async (req, res) => {
         // Append the driver ID to the linkedDrivers array
         manufacturingUnit.linkedDrivers.push(driverId);
         await manufacturingUnit.save();
-
-        // Update the driver's status to "assigned"
-        const updatedDriver = await Driver.findByIdAndUpdate(
-            driverId,
-            { status: "assigned", linkedManufacturingUnit: manufacturingUnit._id },
-            { new: true }
-        );
-
-        if (!updatedDriver) {
-            return res.status(404).json({
-                success: false,
-                message: "Driver not found.",
-            });
-        }
 
         return res.status(200).json({
             success: true,

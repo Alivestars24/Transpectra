@@ -13,7 +13,7 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const { DistanceBWAddress } = require("../GeolocationAPI/api");
-const { getCarbonEmissionDetails } = require("../UlipAPI/carbonEmissionapi");
+const { getCarbonEmissionDetails,getCarbonEmission } = require("../UlipAPI/carbonEmissionapi");
 const { getCoordinates } = require('../GeolocationAPI/comman')
 
 exports.generateRoutesForDelivery = async (req, res) => {
@@ -71,7 +71,7 @@ exports.generateRoutesForDelivery = async (req, res) => {
     );
 
     // Step 6: Get Carbon Emission Details
-    const carbonEmissionObject = await getCarbonEmissionDetails(distance);
+    const carbonEmissionObject = await getCarbonEmission(distance,weight,1);
 
     // Step 7: Construct Response Object
     const responseObj = {
@@ -80,9 +80,7 @@ exports.generateRoutesForDelivery = async (req, res) => {
       destinationAddress: dropoffLocation,
       distance,
       time,
-      routeObj: {
-        ...carbonEmissionObject,
-      },
+      carbonEmission
     };
 
     // Step 8: Send Response

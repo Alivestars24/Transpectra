@@ -17,7 +17,8 @@ const {
 
 export function updateDisplayPicture(isWarehouseManager,formData) {
   return async (dispatch) => {
-    const toastId = toast.loading("Loading...")
+    const toastId = toast.loading("Updating profile picture...");
+
     try {
       const response = await apiConnector(
         "POST",

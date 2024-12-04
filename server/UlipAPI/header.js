@@ -30,8 +30,15 @@ const isTokenValid = () => {
             return false;
         }
 
+        const oneHourInSeconds = 60 * 60 * 24;
+        if (currentTime > decoded.iat + oneHourInSeconds) {
+            console.error("Token expired: 'iat' is more than 1 hour ago.");
+            return false;
+        }
+
         return true;
     } catch (err) {
+        console.error("Error decoding token:", err);
         return false;
     }
 };
@@ -42,7 +49,6 @@ const isTokenValid = () => {
  */
 const fetchToken = async () => {
     try {
-        console.log("token api called")
         const response = await axios.post(
             AUTH_URL,
             { username: USERNAME, password: PASSWORD },
@@ -53,8 +59,6 @@ const fetchToken = async () => {
                 },
             }
         );
-
-        console.log("this is response token",response.data)
 
         const newToken = response?.data?.response?.id;
         if (newToken) {
