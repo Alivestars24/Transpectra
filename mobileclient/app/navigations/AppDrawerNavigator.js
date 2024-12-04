@@ -3,7 +3,7 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import AppNavigator from './AppNavigator';
 import LoginScreen from '../screens/LoginScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
-import DeliveryHistoryScreen from '../screens/DeliveryHistoryScreen'
+import HistoryScreen from '../screens/HistoryScreen'
 
 const Drawer = createDrawerNavigator();
 
@@ -12,7 +12,7 @@ function AppDrawerNavigator() {
     <>
       <Drawer.Navigator screenOptions={{ headerShown: false }} >
         <Drawer.Screen name="Home" component={AppNavigator} />
-        <Drawer.Screen name="History" component={DeliveryHistoryScreen} />
+        <Drawer.Screen name="History" component={HistoryScreen} />
       </Drawer.Navigator>
     </>
   );

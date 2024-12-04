@@ -5,7 +5,7 @@ const DeliverySchema = new mongoose.Schema({
     orderId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: "order"
+        ref: "Order"
     },
     uniqueOrderId: {
         type: String,
@@ -40,7 +40,7 @@ const DeliverySchema = new mongoose.Schema({
             quantity: { type: Number, required: true },
             specifications: { type: String, required: true },
             unitCost: { type: Number, required: true },
-            _id: { type: mongoose.Schema.Types.ObjectId, required: true }
+            productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true }
         }
     ],
     packageDetails: {
@@ -69,17 +69,17 @@ const DeliverySchema = new mongoose.Schema({
     },
     assignedDriver: [
         {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        default: [], 
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'user',
+            default: [],
         }
-     ],
+    ],
     routeTrackingid:
-        {
+    {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'routeTracking',
         default: null,
-        },
+    },
     estimatedDeliveryTime: { type: Date },
     actualDeliveryDate: { type: Date },
     invoicePdf: { type: String }, // Stores the Cloudinary URL of the uploaded PDF

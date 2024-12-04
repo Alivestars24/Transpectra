@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { Text, View, Button, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import routes from '../navigations/routes';
+import DeliveryApi from '../apis/delivery'; // Import the DeliveryApi module
+import AppButton from '../components/AppButton';
 
-const QRCodeScanner = ({ navigation }) => {
+const QRCodeScanner = ({ navigation, route }) => {
+    // const { deliveryId } = route.params || "67503358471007d9f0829883"; // Retrieve deliveryId passed from navigation
+    const deliveryId = "67503358471007d9f0829883"; // Retrieve deliveryId passed from navigation
     const [hasPermission, setHasPermission] = useState(null);
     const [scanned, setScanned] = useState(false);
-    const [data, setData] = useState('');
     const [isScannerActive, setIsScannerActive] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -16,11 +20,43 @@ const QRCodeScanner = ({ navigation }) => {
         })();
     }, []);
 
-    const handleBarCodeScanned = ({ type, data }) => {
+    const handleBarCodeScanned = async ({ type, data }) => {
         setScanned(true);
-        setData(data);
-        console.log(`Scanned QR Code Data: ${data}`);
-        setIsScannerActive(false); // Automatically close the scanner after successful scan
+        setIsScannerActive(false);
+
+        // Parse QR code data (example assumes it's a JSON string)
+        try {
+            const parsedData = JSON.parse(data);
+            const { uniqueOrderId, warehouseId } = parsedData;
+
+            setLoading(true);
+            const response = await DeliveryApi.CompleteDelivery({
+                uniqueOrderId,
+                deliveryId,
+                warehouseId,
+            });
+
+
+            setLoading(false);
+
+            if (response.data.success) {
+                Alert.alert(
+                    'Success',
+                    'Delivery completed successfully!',
+                    [
+                        {
+                            text: 'OK',
+                            onPress: () => navigation.navigate(routes.HOME),
+                        },
+                    ]
+                );
+            } else {
+                Alert.alert('Error', 'Failed to complete the delivery. Please try again.');
+            }
+        } catch (error) {
+            setLoading(false);
+            Alert.alert('Error', 'Invalid QR code data or delivery failed.');
+        }
     };
 
     if (hasPermission === null) {
@@ -49,13 +85,20 @@ const QRCodeScanner = ({ navigation }) => {
             )}
 
             {!isScannerActive && (
-                <View style={styles.scanResultContainer}>
-                    <Text style={styles.scanResult}>You make the successful Delivery!</Text>
-                    {scanned && (
-                        <Button title="Delivered Successfully!" onPress={() => {
-                            navigation.navigate(routes.HOME)
-                        }} />
-                    )}
+                <View style={styles.optionsContainer}>
+                    <Text style={styles.readyText}>Ready to scan again?</Text>
+                    <AppButton
+                        title={"Resume Scanning"}
+                        onPress={() => {
+                            setScanned(false);
+                            setIsScannerActive(true);
+                        }}
+                    />
+                    <AppButton
+                        title={"Back to Home"}
+                        onPress={() => navigation.navigate(routes.HOME)}
+                        color="red"
+                    />
                 </View>
             )}
         </View>
@@ -80,16 +123,14 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: 'bold',
     },
-    scanResultContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+    optionsContainer: {
+        padding: 20,
+        width: '100%'
     },
-    scanResult: {
-        marginTop: 20,
-        fontSize: 16,
+    readyText: {
+        fontSize: 18,
+        marginBottom: 20,
         textAlign: 'center',
-        marginBottom: 20
     },
 });
 

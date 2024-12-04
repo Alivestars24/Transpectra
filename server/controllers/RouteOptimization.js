@@ -1,27 +1,31 @@
-const axios = require("axios");
-const { CONFIG } = require("../constants/config");
+const { getOptimizedRoutes } = require("/server/AIModelAPI/api");
 
-// Route Optimization Controller
+/**
+ * Handles the route optimization request.
+ * @param {object} req - The request object from the client.
+ * @param {object} res - The response object to the client.
+ */
 exports.getRoutes = async (req, res) => {
   try {
-    const inputData = req.body; // Retrieve JSON data from the request body
-    console.log("Forwarding to Django URL:", CONFIG.DJANGO_URL);
+    const inputData = req.body; // Retrieve data from the request body
 
-    const djangoResponse = await axios.post(
-      `${CONFIG.DJANGO_URL}/routes/`,
-      inputData,
-      {
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    // Call the service to fetch optimized routes
+    const result = await getOptimizedRoutes(inputData);
 
-    // Send the Django response back to the client
-    res.status(200).json(djangoResponse.data);
+    if (result.success) {
+      res.status(200).json(result.data);
+    } else {
+      res.status(500).json({
+        success: false,
+        message: "Failed to process the route optimization request",
+        error: result.message,
+      });
+    }
   } catch (error) {
     console.error("Error in Route Optimization Controller:", error.message);
     res.status(500).json({
       success: false,
-      message: "Failed to process the route optimization request",
+      message: "An unexpected error occurred",
       error: error.message,
     });
   }

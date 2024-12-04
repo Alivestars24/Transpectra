@@ -27,7 +27,7 @@ const HomeScreen = ({ navigation }) => {
 
                 <TouchableWithoutFeedback onPress={() => navigation.navigate(routes.ACCEPTNEWDELIVERY)}>
                     <View style={styles.card}>
-                        <Text style={styles.cardText}>Accepts New Deliveries</Text>
+                        <Text style={styles.cardText}>Assigned Deliveries</Text>
                         <FontAwesome5 name="greater-than" size={25} color="gray" />
                     </View>
                 </TouchableWithoutFeedback>

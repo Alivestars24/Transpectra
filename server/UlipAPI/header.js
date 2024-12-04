@@ -12,7 +12,6 @@ let token = null;
 
 /**
  * Validate the token's properties based on the payload.
- * @param {string} token - The JWT token to validate.
  * @returns {boolean} - True if the token is valid; otherwise, false.
  */
 const isTokenValid = () => {
@@ -30,9 +29,9 @@ const isTokenValid = () => {
             return false;
         }
 
-        const oneHourInSeconds = 60 * 60 * 24;
-        if (currentTime > decoded.iat + oneHourInSeconds) {
-            console.error("Token expired: 'iat' is more than 1 hour ago.");
+        const oneDayInSeconds = 60 * 60 * 24;
+        if (currentTime > decoded.iat + oneDayInSeconds) {
+            console.error("Token expired: 'iat' is more than 1 day ago.");
             return false;
         }
 
@@ -60,15 +59,12 @@ const fetchToken = async () => {
             }
         );
 
-        const newToken = response?.data?.response?.id;
-        if (newToken) {
-            token = newToken;
-            return newToken;
-        } else {
-            return "";
-        }
+        const newToken = response?.data?.response?.id || "";
+        token = newToken; // Update the global token
+        return newToken;
     } catch (error) {
-        return "";
+        console.error("Error fetching token:", error.message);
+        return ""; // Return an empty string on failure
     }
 };
 
@@ -84,18 +80,20 @@ const getHeaders = async (isTokenRequired = true) => {
     };
 
     if (isTokenRequired) {
-        if (!isTokenValid()) {
-            console.log("Token is invalid or expired. Fetching a new token...");
-            await fetchToken();
-        }
-        if (token) {
-            headers["Authorization"] = `Bearer ${token}`;
-        } else {
-            console.warn("Authorization token is unavailable.");
+        try {
+            if (!isTokenValid()) {
+                console.log("Token is invalid or expired. Attempting to fetch a new token...");
+                await fetchToken(); // Fetch a new token if invalid
+            }
+
+            headers["Authorization"] = token ? `Bearer ${token}` : ""; // Add token or empty string
+        } catch (error) {
+            console.error("Error handling token fetch:", error.message);
+            headers["Authorization"] = ""; // Ensure Authorization is an empty string if an error occurs
         }
     }
 
-    return headers;
+    return headers; // Return headers regardless of token fetch status
 };
 
 module.exports = {

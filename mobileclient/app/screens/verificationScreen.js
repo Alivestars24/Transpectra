@@ -3,31 +3,26 @@ import { View, Text, StyleSheet, ScrollView, Image, RefreshControl, TouchableWit
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import routes from '../navigations/routes';
 
-const verificationScreen = ({ navigation }) => {
+const VerificationScreen = ({ navigation }) => {
 
 
     return (
         <ScrollView
             style={styles.container}
         >
-            <View style={styles.header}>
-                <Image source={require('../assets/home.png')} style={styles.headerImage} />
-            </View>
-
-            <Text style={styles.headerText}>Welcome back </Text>
-
+            
             <View style={styles.box}>
 
-                <TouchableWithoutFeedback onPress={() => navigation.navigate(routes.CURRENT_DELIVERY)}>
+                <TouchableWithoutFeedback onPress={() => navigation.navigate(routes.SARTHI)}>
                     <View style={styles.card}>
-                        <Text style={styles.cardText}>Ongoing delivery</Text>
+                        <Text style={styles.cardText}>Verify With Sarthi</Text>
                         <FontAwesome5 name="greater-than" size={25} color="gray" />
                     </View>
                 </TouchableWithoutFeedback>
 
-                <TouchableWithoutFeedback onPress={() => navigation.navigate(routes.ACCEPTNEWDELIVERY)}>
+                <TouchableWithoutFeedback onPress={() => navigation.navigate(routes.VAHAN)}>
                     <View style={styles.card}>
-                        <Text style={styles.cardText}>Accepts New Deliveries</Text>
+                        <Text style={styles.cardText}>Verify With Vahan</Text>
                         <FontAwesome5 name="greater-than" size={25} color="gray" />
                     </View>
                 </TouchableWithoutFeedback>
@@ -99,4 +94,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default verificationScreen;
+export default VerificationScreen;

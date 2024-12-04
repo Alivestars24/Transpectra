@@ -1,8 +1,18 @@
+
 // import React from 'react';
 // import { View, StyleSheet } from 'react-native';
 // import { DataTable, Text } from 'react-native-paper';
 
 // const AppTable = ({ title, data }) => {
+//   if (!data || data.length === 0) {
+//     return (
+//       <View style={styles.tableContainer}>
+//         <Text style={styles.tableTitle}>{title}</Text>
+//         <Text style={styles.emptyMessage}>No data available</Text>
+//       </View>
+//     );
+//   }
+
 //   const filterData = (data) => {
 //     return data.map((item) => {
 //       const filteredItem = { ...item };
@@ -50,8 +60,13 @@
 //   },
 //   cell: {
 //     justifyContent: 'center',
-//     textAlign: 'center'
-//   }
+//     textAlign: 'center',
+//   },
+//   emptyMessage: {
+//     padding: 10,
+//     textAlign: 'center',
+//     color: '#999',
+//   },
 // });
 
 // export default AppTable;
@@ -80,19 +95,20 @@ const AppTable = ({ title, data }) => {
   };
 
   const filteredData = filterData(data);
-  const keys = Object.keys(filteredData[0]);
 
   return (
     <View style={styles.tableContainer}>
       <Text style={styles.tableTitle}>{title}</Text>
       <DataTable>
-        {keys.map((key) => (
-          <DataTable.Row key={key}>
-            <DataTable.Cell>{key}</DataTable.Cell>
-            {filteredData.map((item, index) => (
-              <DataTable.Cell key={`${key}-${index}`} style={styles.cell}>{item[key]}</DataTable.Cell>
+        {filteredData.map((item, index) => (
+          <View key={index} style={styles.rowContainer}>
+            {Object.keys(item).map((key) => (
+              <DataTable.Row key={key}>
+                <DataTable.Cell style={styles.cellKey}>{key}</DataTable.Cell>
+                <DataTable.Cell style={styles.cellValue}>{item[key]}</DataTable.Cell>
+              </DataTable.Row>
             ))}
-          </DataTable.Row>
+          </View>
         ))}
       </DataTable>
     </View>
@@ -116,9 +132,16 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: '#ccc',
   },
-  cell: {
-    justifyContent: 'center',
-    textAlign: 'center',
+  rowContainer: {
+    marginBottom: 5,
+  },
+  cellKey: {
+    flex: 1,
+    fontWeight: 'bold',
+  },
+  cellValue: {
+    flex: 2,
+    textAlign: 'right',
   },
   emptyMessage: {
     padding: 10,

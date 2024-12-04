@@ -99,7 +99,7 @@ app.use(CONFIG.APIS.auth, userRoutes);
 app.use(CONFIG.APIS.profile, profileRoutes);
 app.use(CONFIG.APIS.distribution_center, auth, DistributionStoreRoutes);
 app.use(CONFIG.APIS.store, auth, storeRoutes);
-app.use(CONFIG.APIS.driver, auth, driverRoutes);
+app.use(CONFIG.APIS.driver, driverRoutes);
 app.use(CONFIG.APIS.warehouse, warehouseRoutes)
 app.use(CONFIG.APIS.manufacturingUnit, ManufacturingUnitRoutes)
 app.use(CONFIG.APIS.yard, YardManage)

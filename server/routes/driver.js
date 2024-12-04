@@ -1,26 +1,60 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
 const {
     ChooseDelivery,
     GetDelivery,
-    getAvailableDrivers,
-    assignDriverToManufacturingUnit
-} = require('../controllers/driver');
-const { isDriver } = require('../middleware/auth');
-const { DRIVER_TRUCK } = require('../controllers/driver'); 
+    getAvailableDriversDetailsByManufacturingUnit,
+    assignDriverToDelivery,
+    fetchPendingDeliveriesByDriver,
+    fetchCompletedDeliveriesByDriver,
+    fetchInProgressDeliveriesByDriver,
+    VerifyQRAndCompleteDelivery,
+    startDelivery,
+} = require("../controllers/driver");
+const { isDriver } = require("../middleware/auth");
+const { verifyDriver, verifyVehicle } = require("../controllers/driver");
+const { auth } = require("../middleware/auth");
+
 const endpoints = {
-    ACCEPT_REJECT_DELIVERY: '/delivery/:deliveryId/respond',
-    TRACK_DELIVERY_POINTS: '/driver/:driverId/delivery/:deliveryId/track',
-    CONFIRM_ARRIVAL_CHECKPOINT: "/driver/:driverId/delivery/:deliveryId/checkpoint/:pointId/arrive",
+    ACCEPT_REJECT_DELIVERY: "/delivery/:deliveryId/respond",
+    TRACK_DELIVERY_POINTS: "/driver/:driverId/delivery/:deliveryId/track",
+    CONFIRM_ARRIVAL_CHECKPOINT:
+        "/driver/:driverId/delivery/:deliveryId/checkpoint/:pointId/arrive",
     SCAN_QR: "/driver/:drziverId/delivery/:deliveryId/checkpoint/:pointId/scan",
-    VERIFY_DRIVER_TRUCK: '/driver/verify-truck',
+    VERIFY_DRIVER_TRUCK: "/driver/verify-truck",
 };
 
 router.post(endpoints.ACCEPT_REJECT_DELIVERY, isDriver, ChooseDelivery);
-router.post(endpoints.VERIFY_DRIVER_TRUCK, isDriver, DRIVER_TRUCK);
 
-router.get("/manufacturing-unit/:manufacturingUnitId/drivers", getAvailableDrivers);
-router.post("/manufacturing-unit/assign-driver", assignDriverToManufacturingUnit);
+router.post("/verify/sarthi", auth, verifyDriver);
+router.post("/verify/vahan", auth, verifyVehicle);
+router.post("/complete/delivery", auth, VerifyQRAndCompleteDelivery);
+
+/**
+ * 
+ * url : api/v1/driver/delivery/start
+ * 
+ * input : {
+        "deliveryId": "67502bce65f4a226cbd3d332"
+    }
+ * 
+ */
+router.post("/delivery/start", auth, startDelivery);
+
+router.get(
+    "/manufacturingUnit/:manufacturingUnitId/availableDrivers",
+    getAvailableDriversDetailsByManufacturingUnit
+);
+
+router.post('/assign-driver', assignDriverToDelivery);
+
+router.get("/delivery", auth, fetchPendingDeliveriesByDriver);
+
+router.get("/delivery/completed", auth, fetchCompletedDeliveriesByDriver);
+
+router.get("/delivery/inprogress", auth, fetchInProgressDeliveriesByDriver);
+
+
 
 module.exports = router;
