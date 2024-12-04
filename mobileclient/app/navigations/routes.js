@@ -11,6 +11,10 @@ export default Object.freeze({
     SPOTLIGHT_PRODUCT_LIST: "SpotLightProductList",
     FORGET_PASSWORD: "forgetPassword",
     CATEGORY_LIST: "CategoryList",
-    CURRENT_DELIVERY : "CurrentDelivery",
-    ACCEPTNEWDELIVERY : "AcceptDelivery"
+    CURRENT_DELIVERY: "CurrentDelivery",
+    ACCEPTNEWDELIVERY: "AcceptDelivery",
+    VAHAN: "VerifyVahan",
+    SARTHI: "VerifySarthi",
+    DeliveryDetails: "DeliveryDetails",
+    History : "History"
 })

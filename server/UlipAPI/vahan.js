@@ -1,5 +1,7 @@
 const { CONFIG } = require('../constants/config');
 const axios = require('axios');
+const { getHeaders } = require('./header')
+
 /**
  * Fetch vehicle registration details from Vahan.
  * @param {string} vehiclenumber - The vehicle number (registration number).
@@ -8,29 +10,55 @@ const axios = require('axios');
  * @param {string} enginenumber - The vehicle's engine number.
  * @returns {Promise<object>} - Vehicle registration details response.
  */
-const getVahanDetails = async (vehiclenumber, ownername, chasisnumber, enginenumber) => {
-    const url = CONFIG.VAHAN_API.REGISTRATION_DETAILS; // Set this in your config
-    const data = { 
-        vehiclenumber: vehiclenumber.toString(), 
-        ownername: ownername, 
-        chasisnumber: chasisnumber, 
-        enginenumber: enginenumber 
+const verifyVehiclewithVahan = async (vehiclenumber, ownername, chasisnumber, enginenumber) => {
+    const url = CONFIG.ULIP_API.VAHAN; 
+    const data = {
+        vehiclenumber: vehiclenumber.toString(),
+        ownername: ownername,
+        chasisnumber: chasisnumber,
+        enginenumber: enginenumber,
     };
 
     try {
-        const headers = await getHeaders(true); // Get headers with token
+        const headers = await getHeaders(true);
         const response = await axios.post(url, data, { headers });
 
-        return {
-            success: true,
-            data: response.data
-        };
+        const responseData = response.data;
+        if (responseData.code === "200" && responseData.error === "false" && responseData.responseStatus === "SUCCESS") {
+            const verificationResult = responseData.response[0].response;
+            const failedFields = [];
+
+            if (verificationResult.enginenumber !== "Verified") {
+                failedFields.push("enginenumber");
+            }
+            if (verificationResult.chasisnumber !== "Verified") {
+                failedFields.push("chasisnumber");
+            }
+            if (verificationResult.ownername !== "Verified") {
+                failedFields.push("ownername");
+            }
+
+            if (failedFields.length === 0) {
+                return { success: true, verified: true };
+            } else {
+                return {
+                    success: true,
+                    verified: false,
+                    failedFields,
+                };
+            }
+        } else {
+            return {
+                success: false,
+                message: responseData.message || "Unknown error occurred",
+            };
+        }
     } catch (error) {
         return {
             success: false,
-            message: error.response ? error.response.data : error.message
+            message: error.response ? error.response.data : error.message,
         };
     }
 };
 
-module.exports = { getVahanDetails };
+module.exports = { verifyVehiclewithVahan };

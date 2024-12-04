@@ -2,16 +2,19 @@ const available_driver = require('../models/AvailabilityStatus')
 const { msgFunction } = require('../utils/msgFunction')
 const distribution_center = require('../models/DistributionCenter');
 const delivery = require('../models/Delivery');
+const Delivery = require('../models/Delivery');
 const availability_status = require('../models/AvailabilityStatus');
+const RouteTracking = require('../models/routeTracking'); // Adjust path as needed
 const mongoose = require('mongoose');
 const axios = require('axios');
-const { getVahanDetails } = require('../UlipAPI/vahan');
-const { getSarthiDetails } = require('../UlipAPI/sarathi');
-// const { User } = require('../models/user');
-
+const { verifyVehiclewithVahan } = require('../UlipAPI/vahan');
+const { verifyDriverwithSarthi } = require('../UlipAPI/sarathi');
+const User = require('../models/User');
 const ManufacturingUnit = require("../models/ManufacturingUnit");
-// const Driver = require("../models/Driver");
-
+const Product = require('../models/Products');
+const AvailabilityStatus = require('../models/AvailabilityStatus');
+const Warehouse = require("../models/Warehouse");
+const Order = require("../models/Order");
 
 const { CONFIG } = require('../constants/config');
 
@@ -38,12 +41,12 @@ exports.FetchDriver = async (req, res) => {
 
         const statusOrder = ['assigned', 'onDelivery', 'available'];
 
-        let filter = { _id : dsId };
+        let filter = { _id: dsId };
         if (status && statusOrder.includes(status)) {
             filter.status = status;
         }
 
-        console.log("filter",filter);
+        console.log("filter", filter);
 
         const allAvailableDriver = available_driver.find(filter);
 
@@ -132,146 +135,284 @@ exports.ChooseDelivery = async (req, res) => {
     }
 };
 
-exports.DRIVER_TRUCK = async (req, res) => {
+
+exports.verifyVehicle = async (req, res) => {
     try {
         const { id: driverId } = req.user;
-        const { truckNumber, permit , chassisNumber, drivingLicense, dob, ownerName, engineNumber } = req.body;
+        const { truckNumber, chassisNumber, ownerName, engineNumber } = req.body;
 
-        // Check if either truck details or driving license with DOB is provided
-        if ((!truckNumber || !chassisNumber) && (!drivingLicense || !dob)) {
-            return res.status(400).json(
-                msgFunction(false, "Provide either truck details or driving license with DOB")
+        // Validate input
+        if (!truckNumber || !chassisNumber || !ownerName || !engineNumber) {
+            return res.status(400).json(msgFunction(false, "Incomplete vehicle details provided."));
+        }
+
+        // Call the verification function
+        const vahanResponse = await verifyVehiclewithVahan(truckNumber, ownerName, chassisNumber, engineNumber);
+
+        if (!vahanResponse.success) {
+            return res.status(500).json(
+                msgFunction(false, "Vehicle verification failed with VAHAN API.", vahanResponse.message)
             );
         }
 
-        // Truck details verification
-        if (truckNumber && chassisNumber && ownerName && engineNumber) {
-            const vahanResponse = await getVahanDetails(truckNumber, ownerName, chassisNumber, engineNumber);
-
-            if (!vahanResponse.success || !vahanResponse.data.valid) {
-                return res.status(400).json(
-                    msgFunction(false, "Truck verification failed with VAHAN API")
-                );
-            }
-
-            const responseXml = vahanResponse.data.response[0].response;
-            const rcOwnerName = extractXmlValue(responseXml, "rc_owner_name");
-            const rcChassisNumber = extractXmlValue(responseXml, "rc_chasi_no");
-            const rcEngineNumber = extractXmlValue(responseXml, "enginenumber");
-            if (rcChassisNumber !== chassisNumber || rcOwnerName !== ownerName || rcEngineNumber !== engineNumber) {
-                return res.status(400).json(
-                    msgFunction(false, "Truck details do not match registered records")
-                );
-            }
+        if (!vahanResponse.verified) {
+            return res.status(400).json(
+                msgFunction(false, "Vehicle verification failed. Issues found with:", vahanResponse.failedFields)
+            );
         }
 
-        // Driving License verification
-        if (drivingLicense && dob) {
-            const sarathiResponse = await getSarthiDetails(drivingLicense, dob);
-
-            if (!sarathiResponse.success || sarathiResponse.data.responseStatus !== "SUCCESS") {
-                return res.status(404).json({
-                    success: false,
-                    message: "Driving license verification failed with SARATHI API",
-                });
-            }
-
-            const bioFullName = sarathiResponse.data.response?.bioFullName;
-            if (!bioFullName || bioFullName !== req.user.name) {
-                return res.status(404).json(
-                    msgFunction(false, "Driving license verification failed: Name mismatch")
-                );
-            }
-        }
-
-        // Driver verification in the database
-        const driver = await User.findOne({ id: driverId, accountType: CONFIG.ACCOUNT_TYPE.DRIVER });
+        // Update the user's verifiedVahan status in the database
+        const driver = await User.findOne({ _id: driverId, accountType: "Driver" });
         if (!driver) {
-            return res.status(404).json(msgFunction(false, "Driver not found in the database"));
+            return res.status(404).json(msgFunction(false, "Driver not found in the database."));
         }
 
-
-        driver.isVerified = true;
+        driver.verifiedVahan = true;
         await driver.save();
 
         return res.status(200).json({
             success: true,
-            message: "Driver successfully verified",
-            data: {
-                verified: true,
-                driverName: driver.name,
-                truckNumber: truckNumber || null,
-            },
+            message: "Vehicle successfully verified.",
         });
     } catch (error) {
-        console.error("Error during driver verification:", error);
+        console.error("Error during vehicle verification:", error);
         return res.status(500).json(
-            msgFunction(false, "An error occurred during verification", error.message)
+            msgFunction(false, "An error occurred during vehicle verification.", error.message)
         );
     }
 };
 
 
-const QRCode = require('qrcode');
-
-exports.VerifyQRAndCompleteDelivery = async (req, res) => {
+exports.verifyDriver = async (req, res) => {
     try {
         const { id: driverId } = req.user;
-        const { qrData } = req.body;
+        const { drivingLicense, dob, name } = req.body;
 
+        // Validate input
+        if (!drivingLicense || !dob || !name) {
+            return res.status(400).json(
+                msgFunction(false, "Driving license, date of birth, and name are required.")
+            );
+        }
+
+        // Call Sarthi API to verify the driver
+        const sarthiResponse = await verifyDriverwithSarthi(drivingLicense, dob, name);
+
+        if (!sarthiResponse.success) {
+            return res.status(400).json(
+                msgFunction(false, "Driver verification failed with SARATHI API.", sarthiResponse.message)
+            );
+        }
+
+        if (!sarthiResponse.verified) {
+            return res.status(400).json(
+                msgFunction(false, "Name mismatch during driver verification.", {
+                    expected: name,
+                    found: sarthiResponse.bioFullName,
+                })
+            );
+        }
+
+        // Update the user's verifiedDriver status in the database
+        const driver = await User.findOne({ _id: driverId, accountType: "Driver" });
+        if (!driver) {
+            return res.status(404).json(msgFunction(false, "Driver not found in the database."));
+        }
+
+        driver.verifiedDriver = true;
+        await driver.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Driver successfully verified.",
+        });
+    } catch (error) {
+        console.error("Error during driver verification:", error);
+        return res.status(500).json(
+            msgFunction(false, "An error occurred during driver verification.", error.message)
+        );
+    }
+};
+
+
+// uniqueOrderId
+// deliveryId 
+// warehouseId 
+// driverId 
+exports.VerifyQRAndCompleteDelivery = async (req, res) => {
+
+    console.log(req.body);
+
+    try {
+        const { id: driverId } = req.user; // Extract driver ID from authenticated user
+        const { uniqueOrderId, deliveryId, warehouseId } = req.body; // Extract input from the request body
+
+        // Validate required inputs
         if (!driverId) {
-            return res.status(401).json(msgFunction(false, "You are not authenticated!"));
+            return res.status(401).json({
+                success: false,
+                message: "You are not authenticated!"
+            });
         }
 
-        if (!qrData) {
-            return res.status(400).json(msgFunction(false, "QR data is required!"));
+        console.log(driverId);
+
+        if (!deliveryId || !uniqueOrderId || !warehouseId) {
+            return res.status(400).json({
+                success: false,
+                message: "Delivery ID, Unique Order ID, and Warehouse ID are required!"
+            });
         }
 
+        // Find the delivery using the delivery ID and check assigned driver and status
         const deliveryDetails = await delivery.findOne({
-            qrCode: qrData,
-            assignedDriver: driverId,
+            _id: deliveryId,
+            // assignedDriver: { $in: [driverId] },
             status: "In Progress"
         });
 
         if (!deliveryDetails) {
-            return res.status(404).json(msgFunction(false, "No matching delivery found or invalid QR code!"));
+            return res.status(404).json({
+                success: false,
+                message: "No matching delivery found or unauthorized driver!"
+            });
         }
 
+        // Process products in the delivery
+        for (const deliveredProduct of deliveryDetails.products) {
+            const { productId, quantity } = deliveredProduct;
+
+            // Find the product in the Product model
+            const product = await Product.findOne({
+                _id: productId,
+                warehouse: warehouseId
+            });
+
+            if (!product) {
+                return res.status(404).json({
+                    success: false,
+                    message: `Product with ID ${productId} not found in warehouse ${warehouseId}.`
+                });
+            }
+
+            // Increment the product quantity in the Product model
+            product.productQuantity += quantity; // Increment product quantity by delivered quantity
+            await product.save();
+        }
+
+        // Update delivery details
         deliveryDetails.status = "Completed";
-        deliveryDetails.completedAt = new Date();
+        deliveryDetails.actualDeliveryDate = new Date();
         await deliveryDetails.save();
+
+        // Update driver's availability status
+        const driverAvailability = await AvailabilityStatus.findOne({ driver_id: driverId });
+        if (driverAvailability) {
+            driverAvailability.status = "available"; // Set status to available
+            await driverAvailability.save();
+        }
 
         return res.status(200).json({
             success: true,
-            message: "Delivery successfully completed",
+            message: "Delivery successfully completed, product quantities updated, and driver marked as available",
             data: deliveryDetails
         });
     } catch (error) {
         console.error("Error in VerifyQRAndCompleteDelivery:", error);
-        return res.status(500).json(msgFunction(false, "An error occurred while completing the delivery", error.message));
+        return res.status(500).json({
+            success: false,
+            message: "An error occurred while completing the delivery",
+            error: error.message
+        });
     }
 };
 
+
+// driverId
+// deliveryId
+
+exports.startDelivery = async (req, res) => {
+    try {
+        const { id: driverId } = req.user;
+        const { deliveryId } = req.body;
+
+        if (!driverId) {
+            return res.status(401).json({
+                success: false,
+                message: "You are not authenticated!"
+            });
+        }
+
+        if (!deliveryId) {
+            return res.status(400).json({
+                success: false,
+                message: "Delivery ID is required!"
+            });
+        }
+
+        // Find the delivery using the delivery ID
+        const deliveryDetails = await delivery.findOne({
+            _id: deliveryId,
+        });
+
+        if (!deliveryDetails) {
+            return res.status(404).json({
+                success: false,
+                message: "No delivery found with the provided ID!"
+            });
+        }
+
+        // Check if the status is already "In Progress"
+        if (deliveryDetails.status === "In Progress") {
+            return res.status(400).json({
+                success: false,
+                message: "This delivery is already in progress!"
+            });
+        }
+
+        // Check if the status is not "Pending"
+        if (deliveryDetails.status !== "Pending") {
+            return res.status(400).json({
+                success: false,
+                message: `Cannot start delivery. Current status is: ${deliveryDetails.status}`
+            });
+        }
+
+        // Update the delivery status to "In Progress" and assign the driver
+        deliveryDetails.status = "In Progress";
+        if (!deliveryDetails.assignedDriver.includes(driverId)) {
+            deliveryDetails.assignedDriver.push(driverId); // Add driver if not already assigned
+        }
+        await deliveryDetails.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Delivery successfully started!",
+            data: deliveryDetails
+        });
+    } catch (error) {
+        console.error("Error in startDelivery:", error);
+        return res.status(500).json({
+            success: false,
+            message: "An error occurred while starting the delivery",
+            error: error.message
+        });
+    }
+};
+
+
 /*
- * @url : api/v1/delivery/warehouse/:warehouseId/details
+ * @url : api/v1/delivery/manufacturingUnit/:manufacturingUnitId/availableDrivers
  *
  * purpose : fetch all the available drivers 
  */
-
-exports.getAvailableDrivers = async (req, res) => {
+exports.getAvailableDriversDetailsByManufacturingUnit = async (req, res) => {
     try {
         const { manufacturingUnitId } = req.params;
 
-        // Validate the manufacturingUnitId
-        if (!manufacturingUnitId) {
-            return res.status(400).json({
-                success: false,
-                message: "Manufacturing unit ID is required.",
-            });
-        }
-
-        // Find the manufacturing unit by ID
+        // Fetch the manufacturing unit to get linked driver IDs
         const manufacturingUnit = await ManufacturingUnit.findById(manufacturingUnitId);
+
         if (!manufacturingUnit) {
             return res.status(404).json({
                 success: false,
@@ -279,37 +420,213 @@ exports.getAvailableDrivers = async (req, res) => {
             });
         }
 
-        // Extract linked driver IDs from the manufacturing unit
-        const linkedDriverIds = manufacturingUnit.linkedDrivers || [];
+        const linkedDriverIds = manufacturingUnit.linkedDrivers; // Array of driver IDs
 
-        if (linkedDriverIds.length === 0) {
+        if (!linkedDriverIds || linkedDriverIds.length === 0) {
             return res.status(404).json({
                 success: false,
-                message: "No drivers are linked to this manufacturing unit.",
+                message: "No drivers linked to this manufacturing unit.",
             });
         }
 
-        // Fetch details of drivers whose status is "available"
-        const availableDrivers = await Driver.find({
-            _id: { $in: linkedDriverIds },
-            status: "available",
+        // Find available drivers in the AvailabilityStatus schema
+        const availableDrivers = await AvailabilityStatus.find({
+            driver_id: { $in: linkedDriverIds },
+            status: "available", // Filter only available drivers
         });
 
-        if (availableDrivers.length === 0) {
+        const availableDriverIds = availableDrivers.map((driver) => driver.driver_id);
+
+        if (!availableDriverIds || availableDriverIds.length === 0) {
             return res.status(404).json({
                 success: false,
-                message: "No available drivers found for the given manufacturing unit.",
+                message: "No available drivers found for this manufacturing unit.",
             });
         }
 
-        // Respond with the list of available drivers
-        return res.status(200).json({
+        // Fetch details of available drivers from the User schema
+        const driverDetails = await User.find({
+            _id: { $in: availableDriverIds },
+            accountType: "Driver", // Ensure only drivers are fetched
+        });
+
+        if (!driverDetails || driverDetails.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No driver details found for the available drivers.",
+            });
+        }
+
+        // Return driver details
+        res.status(200).json({
             success: true,
-            message: "Available drivers fetched successfully.",
-            drivers: availableDrivers,
+            message: "Available driver details fetched successfully.",
+            data: driverDetails,
         });
     } catch (error) {
         console.error("Error fetching available drivers:", error);
+        res.status(500).json({
+            success: false,
+            message: "Internal server error.",
+            error: error.message,
+        });
+    }
+};
+/*
+ * @url : api/v1/delivery/assign-driver
+ *
+ * purpose : assign the deliver to the driver
+ * 
+ */
+exports.assignDriverToDelivery = async (req, res) => {
+    try {
+
+        const { deliveryId, driverId } = req.body;
+
+        // Validate request body
+        if (!deliveryId || !driverId) {
+            return res.status(400).json({
+                success: false,
+                message: "Delivery ID and Driver ID are required.",
+            });
+        }
+
+        // Fetch the delivery by ID
+        const delivery = await Delivery.findById(deliveryId);
+        if (!delivery) {
+            return res.status(404).json({
+                success: false,
+                message: "Delivery not found.",
+            });
+        }
+
+        // Check if driver is already assigned
+        if (delivery.assignedDriver.includes(driverId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Driver is already assigned to this delivery.",
+            });
+        }
+
+        // Append driver ID to the assignedDriver array
+        delivery.assignedDriver.push(driverId);
+        await delivery.save();
+
+        // Update driver status in the AvailabilityStatus schema
+        const driverStatus = await AvailabilityStatus.findOne({ driver_id: driverId });
+        if (!driverStatus) {
+            return res.status(404).json({
+                success: false,
+                message: "Driver not found in availability status.",
+            });
+        }
+
+        driverStatus.status = "assigned";
+        await driverStatus.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Driver assigned to delivery successfully.",
+        });
+    } catch (error) {
+        console.error("Error assigning driver:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error.",
+        });
+    }
+};
+/*
+ * @url : api/v1/delivery/deliveries/pending-by-driver
+ *
+ * purpose : fetch all the pending deliveries on the driver side
+ * 
+ */
+exports.fetchPendingDeliveriesByDriver = async (req, res) => {
+    try {
+        const { id: driverId } = req.user;
+
+        // Validate driverId
+        if (!driverId) {
+            return res.status(400).json({
+                success: false,
+                message: "Driver ID is required.",
+            });
+        }
+
+        // Fetch deliveries
+        const deliveries = await Delivery.find({
+            assignedDriver: driverId,
+            status: "Pending",
+        }).populate("orderId warehouseId ManufactureId assignedDriver");
+
+        // Check if deliveries exist
+        if (!deliveries || deliveries.length === 0) {
+            return res.status(200).json({
+                success: true,
+                message: "No pending deliveries found for the given driver ID.",
+                data: []
+            });
+        }
+
+        // Respond with the delivery details
+        return res.status(200).json({
+            success: true,
+            message: "Pending deliveries fetched successfully.",
+            data: deliveries,
+        });
+    } catch (error) {
+        console.error("Error fetching pending deliveries:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error.",
+            error: error.message,
+        });
+    }
+};
+
+
+/*
+ * @url : api/v1/delivery/deliveries/completed-by-driver
+ *
+ * purpose : fetch all the completed deliveries(past deliveries) on the driver side
+ * 
+ */
+exports.fetchCompletedDeliveriesByDriver = async (req, res) => {
+    try {
+        const { id: driverId } = req.user;
+
+        // Validate driverId
+        if (!driverId) {
+            return res.status(400).json({
+                success: false,
+                message: "Driver ID is required.",
+            });
+        }
+
+        // Fetch deliveries without populating related fields
+        const deliveries = await Delivery.find({
+            assignedDriver: driverId,
+            status: "Completed",
+        });
+
+        // Check if deliveries exist
+        if (!deliveries || deliveries.length === 0) {
+            return res.status(200).json({
+                success: true,
+                message: "No completed deliveries found for the given driver ID.",
+                data: []
+            });
+        }
+
+        // Respond with the delivery details
+        return res.status(200).json({
+            success: true,
+            message: "Completed deliveries fetched successfully.",
+            data: deliveries,
+        });
+    } catch (error) {
+        console.error("Error fetching completed deliveries:", error);
         return res.status(500).json({
             success: false,
             message: "Internal server error.",
@@ -318,53 +635,46 @@ exports.getAvailableDrivers = async (req, res) => {
     }
 };
 /*
- * @url : api/v1/delivery/warehouse/:warehouseId/details
+ * @url : api/v1/delivery/deliveries/InProgress-by-driver
  *
- * purpose : add driver into the manufacture
+ * purpose : fetch all the InProgress on the driver side
  * 
  */
-
-exports.assignDriverToManufacturingUnit = async (req, res) => {
+exports.fetchInProgressDeliveriesByDriver = async (req, res) => {
     try {
-        const { uniqueUnitCode, driverId } = req.body;
+        const { id: driverId } = req.user;
 
-        // Validate request body
-        if (!uniqueUnitCode || !driverId) {
+        // Validate driverId
+        if (!driverId) {
             return res.status(400).json({
                 success: false,
-                message: "Unique Manufacture Unit Code and Driver ID are required.",
+                message: "Driver ID is required.",
             });
         }
 
-        // Find the manufacturing unit by unique unit code
-        const manufacturingUnit = await ManufacturingUnit.findOne({ uniqueUnitCode });
-        if (!manufacturingUnit) {
-            return res.status(404).json({
-                success: false,
-                message: "Manufacturing unit not found.",
+        // Fetch deliveries without populating related fields
+        const deliveries = await Delivery.find({
+            assignedDriver: driverId,
+            status: "In Progress",
+        });
+
+        // Check if deliveries exist
+        if (!deliveries || deliveries.length === 0) {
+            return res.status(200).json({
+                success: true,
+                message: "No InProgress deliveries found for the given driver ID.",
+                data: []
             });
         }
 
-        // Check if the driver is already linked
-        if (manufacturingUnit.linkedDrivers.includes(driverId)) {
-            return res.status(400).json({
-                success: false,
-                message: "Driver is already linked to this manufacturing unit.",
-            });
-        }
-
-        // Append the driver ID to the linkedDrivers array
-        manufacturingUnit.linkedDrivers.push(driverId);
-        await manufacturingUnit.save();
-
+        // Respond with the delivery details
         return res.status(200).json({
             success: true,
-            message: "Driver assigned to manufacturing unit successfully.",
-            manufacturingUnit,
-            driver: updatedDriver,
+            message: "In Progress deliveries fetched successfully.",
+            data: deliveries,
         });
     } catch (error) {
-        console.error("Error assigning driver to manufacturing unit:", error);
+        console.error("Error fetching InProgress deliveries:", error);
         return res.status(500).json({
             success: false,
             message: "Internal server error.",
@@ -372,6 +682,3 @@ exports.assignDriverToManufacturingUnit = async (req, res) => {
         });
     }
 };
-
-
-

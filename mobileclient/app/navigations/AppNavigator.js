@@ -4,8 +4,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { TouchableOpacity } from 'react-native';
 
 import HomeNavigator from './HomeNavigator';
-import DeliveryHistoryScreen from '../screens/DeliveryHistoryScreen';
+import DeliveryHistoryScreen from '../screens/HistoryScreen';
 import AccountNavigator from './AccountNavigator';
+import VerificationNavigator from './verificationNavigator'
 
 const Tab = createBottomTabNavigator();
 
@@ -41,12 +42,12 @@ function AppNavigator({ navigation }) {
 
             <Tab.Screen
                 name="Verification"
-                component={AccountNavigator}
+                component={VerificationNavigator}
                 options={{
                     tabBarIcon: ({ size, color }) => <MaterialCommunityIcons name="check-decagram" size={size} color={color} />,
                     title: 'verification',
                     headerLeft: () => <DrawerButton navigation={navigation} />,
-                    headerShown: false,
+                    headerShown: true,
                 }}
             />
 

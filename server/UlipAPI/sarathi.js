@@ -1,35 +1,50 @@
-//const { apiHandler } = require('./apiHandler');
 const { CONFIG } = require('../constants/config');
 const axios = require('axios');
+const { getHeaders } = require('./header');
+
 /**
- * Fetch driver’s license details from Sarthi.
- * @param {string} licenseNo - The license number.
+ * Fetch driver's license details from Sarthi.
+ * @param {string} dlnumber - The driver's license number.
+ * @param {string} dob - The date of birth of the driver (YYYY-MM-DD format).
  * @param {string} driverName - The name of the driver.
- * @param {string} permit - The permit associated with the driver.
  * @returns {Promise<object>} - License details response.
  */
-const getSarthiDetails = async (licenseNo,driverName,permit) => {
-    const url = CONFIG.SARTHI_API.LICENSE_DETAILS; // Set this in your config
-    const data = { licenseNo: licenseNo.toString(), driverName: driverName, permit: permit };
-    
-        try {
-            const headers = await getHeaders(true); // Get headers with token
-            const response = await axios.post(url, data, { headers });
-    
+const verifyDriverwithSarthi = async (dlnumber, dob, driverName) => {
+    const url = CONFIG.ULIP_API.SARTHI; 
+    const data = {
+        dlnumber: dlnumber.toString(),
+        dob: dob,
+        driverName: driverName,
+    };
+
+    try {
+        const headers = await getHeaders(true);
+        console.log(headers);
+        const response = await axios.post(url, data, { headers });
+        console.log(response);
+
+        const responseData = response.data;
+        if (responseData.responseStatus === "SUCCESS") {
+            const { bioFullName } = responseData.response || {};
             return {
                 success: true,
-                data: response.data
+                verified: bioFullName === driverName,
+                bioFullName,
             };
-        } catch (error) {
+        } else {
             return {
                 success: false,
-                message: error.response ? error.response.data : error.message
+                message: "Verification failed. Response status is not SUCCESS.",
             };
         }
-    };
-    
+    } catch (error) {
+        return {
+            success: false,
+            message: error.response ? error.response.data : error.message,
+        };
+    }
+};
 
-    module.exports = {
-        getSarthiDetails
-    };
-    
+module.exports = {
+    verifyDriverwithSarthi,
+};

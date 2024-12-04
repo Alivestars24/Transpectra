@@ -7,6 +7,7 @@ import HomeScreen from '../screens/HomeScreen';
 import CurrentDeliveryScreen from '../screens/CurrentDeliveryScreen';
 import QRCodeScanner from '../screens/QrCodeScanner';
 import AcceptNewDelivery from '../screens/AcceptNewDeliveries';
+import DeliveryDetailsScreen from '../screens/DeliveryDetailsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -17,6 +18,7 @@ function HomeNavigator() {
             <Stack.Screen name="CurrentDelivery" component={CurrentDeliveryScreen} />
             <Stack.Screen name="QRCode" component={QRCodeScanner} />
             <Stack.Screen name="AcceptDelivery" component={AcceptNewDelivery} />
+            <Stack.Screen name="DeliveryDetails" component={DeliveryDetailsScreen} />
         </Stack.Navigator>
     );
 }

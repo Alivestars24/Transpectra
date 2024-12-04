@@ -75,6 +75,13 @@ const UserSchema = new mongoose.Schema(
                 return this.accountType === "Driver";
             },
         },
+        verifiedVahan: {
+            type: Boolean,
+            default: false, // Default to false for all new driver accounts
+            required: function () {
+                return this.accountType === "Driver";
+            },
+        },
     },
     { timestamps: true }
 )

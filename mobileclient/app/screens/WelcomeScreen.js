@@ -36,7 +36,6 @@ const styles = StyleSheet.create({
         width: 350,
         height: 150,
         resizeMode:"contain"
-        
     },
     logoContainer: {
         position: 'absolute',
