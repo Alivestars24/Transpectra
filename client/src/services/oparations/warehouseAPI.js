@@ -2,6 +2,7 @@ import { apiConnector } from "../apiConnector"; // Assuming you have this utilit
 import { endpoints } from "../api"
 import { toast } from "react-hot-toast";
 import { setLoading, setWarehouseDetails } from "../../slices/warehouseSlice"
+import { setorderDetails } from "../../slices/orderSlice";
 
 export function fetchWarehouseDetails(managerId) {
     return async (dispatch) => {
@@ -67,10 +68,33 @@ export function fetchWarehouseDetails(managerId) {
         } else {
           throw new Error(response?.data?.message || "Unknown error");
         }
-        navigate('/dashboard/inventory', { state: { category:category }})
+        navigate('/dashboard/orders', { state: { category:category }})
       } catch (error) {
         console.error("CREATE_ORDER_API API ERROR............", error);
         toast.error("Could not create Order");
+      } finally {
+        toast.dismiss(toastId);
+      }
+    };
+  }
+
+  export function fetchWarehouseOrdersDetails(managerId) {
+    return async (dispatch) => {
+      console.log("In warehouse Orders Fetching function :",managerId.managerId)
+      const toastId = toast.loading("Fetching warehouse orders...");
+      try {
+        // Send GET request with managerId as a query parameter
+        const response = await apiConnector("GET", `${endpoints.FETCH_DELIVERIES_FOR_WAREHOUSE}/${managerId.managerId}/details`);
+        console.log("FETCH_WAREHOUSE_ORDERS API RESPONSE............", response);
+
+        // Check if the response is successful and handle data
+        if (!response.data || !response.data.data.linkedOrders) {
+          throw new Error("Invalid response structure");
+        }
+        dispatch(setorderDetails(response.data.data.linkedOrders)); // Save in Redux store
+        toast.success("Warehouse Orders fetched successfully");
+      } catch (error) {
+        console.error("FETCH_WAREHOUSE_ORDER API ERROR............", error);
       } finally {
         toast.dismiss(toastId);
       }

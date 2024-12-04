@@ -1,43 +1,54 @@
-import React, { useState } from 'react';
-import truckImage from '../../../assets/Images/Truck.jpg'; // Truck image path
+import React, { useState } from "react";
 
-const TruckCard = ({ truck, truckType }) => {
+const TruckCard = ({ truck, isAlternate }) => {
   const [showProducts, setShowProducts] = useState(false);
 
   return (
-    <div className="p-4 bg-white shadow-lg border rounded-lg">
+    <div
+      className={`p-4 shadow-lg border rounded-lg ${
+        isAlternate ? "bg-[#f0f8ff]" : "bg-white"
+      }`}
+    >
       <div className="flex">
-        <div className="ml-10 flex-1 pr-4">
-          <div className="flex justify-between ">
-            <div className='flex flex-col gap-y-2 justify-evenly'>
-              <h3 className="text-xl font-semibold text-blue-700">
-                {truck.id}
-              </h3>
-              <p className="text-md text-richblue-600">Model: {truck.truckModel}</p>
-              <p className="text-md text-gray-600 text-richblue-600">Driver: {truck.driverName}</p>
-              <p className="text-md text-gray-600 text-richblue-600">Arrival: {truck.arrivalTime}</p>
+        {/* Truck Details */}
+        <div className="flex-1 pr-4">
+          <div className="flex justify-between">
+            {/* Left Section */}
+            <div className="flex flex-col gap-y-2 ml-6">
+              <h3 className="text-xl font-semibold text-blue-700">{truck.id}</h3>
+              <p className="text-md text-richblue-600">
+                Model: {truck.truckModel}
+              </p>
+              <p className="text-md text-gray-600 text-richblue-600">
+                Driver: {truck.driverName}
+              </p>
+              <p className="text-md text-gray-600 text-richblue-600">
+                Arrival: {truck.arrivalTime}
+              </p>
             </div>
-            <div className='flex flex-col gap-y-2 justify-between mr-12'>
-              <p className="text-md text-richblue-600">Dock: {truck.dock}</p>
-              <p className="text-md text-richblue-600">Contact: {truck.driverContact}</p>
-              <p className="text-md text-richblue-600">Purpose: {truck.status}</p>
+
+            {/* Right Section */}
+            <div className="flex flex-col gap-y-2 items-start  ">
+              <p className="text-md text-richblue-600">
+                Contact: {truck.driverContact}
+              </p>
+              <p className="text-md text-richblue-600 flex flex-row gap-x-2 items-center"><p>Purpose: </p> 
+                <div className={`rounded-lg px-12 ml-3 py-1 z-2 bg-caribbeangreen-50`}><p>{truck.status}</p></div>
+              </p>
               <button
-                className="px-4 py-2 bg-blu text-white font-semibold rounded-lg mt-2"
+                onClick={() => setShowProducts(!showProducts)}
+                className="px-16 py-2 bg-blu text-white font-semibold rounded-lg mt-2"
               >
-                Mark as Departed
+                {showProducts ? "Hide Products" : "Show Products"}
               </button>
             </div>
+
           </div>
         </div>
       </div>
 
-      <div className="mt-4">
-        <button
-          onClick={() => setShowProducts(!showProducts)}
-          className="underline text-ddblue"
-        >
-          {showProducts ? 'Hide' : 'Show'} Products List
-        </button>
+      {/* Product List Toggle */}
+      <div className="mt-2">
         {showProducts && (
           <div className="mt-2 border-t pt-2">
             <table className="w-full text-sm text-left">
@@ -49,11 +60,13 @@ const TruckCard = ({ truck, truckType }) => {
                 </tr>
               </thead>
               <tbody>
-                {truck.productList.map((product,index) => (
-                  <tr key={product.id}
-                  className={`${
-                    index % 2 === 0 ? "bg-[#dcecff]" : "bg-blue-5"
-                  } text-richblue-600 text-xs font-inter`}>
+                {truck.productList.map((product, index) => (
+                  <tr
+                    key={product.id}
+                    className={`${
+                      index % 2 === 0 ? "bg-[#dcecff]" : "bg-blue-5"
+                    } text-richblue-600`}
+                  >
                     <td className="border px-2 py-1">{product.id}</td>
                     <td className="border px-2 py-1">{product.name}</td>
                     <td className="border px-2 py-1">{product.quantity}</td>

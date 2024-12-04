@@ -12,6 +12,7 @@ const ProductSelectionPage = () => {
   const restockProducts = location.state?.restockProducts || [];
   const category = location.state?.category || "Uncategorized";
   const product=location.state?.product || [];
+  console.log(restockProducts)
   const navigate=useNavigate();
   const transformedProducts = restockProducts.map((product, index) => ({
     id: index + 1,
@@ -21,6 +22,7 @@ const ProductSelectionPage = () => {
     specifications: "",
     isSelected: false,
     category: product.category,
+    productId:product.Id,
   }));
 
   const [products, setProducts] = useState(transformedProducts);
@@ -96,7 +98,9 @@ const ProductSelectionPage = () => {
       productName: product.name,
       quantity: product.orderQuantity,
       specifications: product.specifications,
+      productId:product.productId,
     }));
+    console.log("Products to be snet in form are:",products)
     const formData = {
       manufacturerId: selectedManufacturer?._id,
       selectedProducts: selectedProducts,

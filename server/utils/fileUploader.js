@@ -2,17 +2,23 @@ const cloudinary = require("cloudinary").v2;
 
 exports.uploadFileToCloudinary = async (file, folder) => {
   try {
-    // Check if the file has the required path property
     if (!file || !file.path) {
       throw new Error("Invalid file input: file or file.path is missing");
     }
 
-    const options = { folder, resource_type: "raw" }; // Set resource_type to "raw" for non-image files
+    const options = {
+      folder,
+      resource_type: "raw", // Keep resource type as "raw" for non-image files
+      type: "authenticated", // Mark the file as private
+    };
+
     console.log("Uploading file with options:", options);
 
-    // Upload the file to Cloudinary using the file's path
     const result = await cloudinary.uploader.upload(file.path, options);
-    return result;
+    console.log("Upload Successful:", result);
+
+    // Return the public_id for signed URL generation
+    return { public_id: result.public_id };
   } catch (error) {
     console.error("Cloudinary Upload Error:", error);
     throw error;

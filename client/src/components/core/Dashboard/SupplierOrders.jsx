@@ -11,25 +11,19 @@ function SupplierOrders() {
     const company = useSelector((state) => state.company?.company || null);
     const managerId = company?._id;
     const order = useSelector((state) => state.order?.order || []);
+    console.log("Orders fetched are:", order);
 
     useEffect(() => {
         dispatch(fetchOrderDetails({ managerId }));
     }, [dispatch, company]);
 
-    // Search term state
     const [searchTerm, setSearchTerm] = useState('');
-
-    // Filter warehouse orders based on the search term and order status
-    const filteredOrders = order.filter(({ warehouseDetails, orders }) => {
-        // Only include warehouses if all orders have a "pending" status
-        const allPending = orders.every(order => order.orderStatus === 'pending');
-        return allPending && warehouseDetails?.warehouseName.toLowerCase().includes(searchTerm.toLowerCase());
-    });
 
     return (
         <div className="px-6">
             <h1 className="text-2xl font-bold mb-4">Request Orders Received</h1>
-            
+
+            {/* Search Bar */}
             <div className="mb-4">
                 <input
                     type="text"
@@ -40,43 +34,59 @@ function SupplierOrders() {
                 />
             </div>
 
-            {/* Warehouse Orders List */}
+            {/* Display all orders */}
             <div className="flex flex-col gap-y-4 w-full mt-6">
-                {filteredOrders.map(({ warehouseDetails, orders }, index) => {
-                    const firstOrder = orders[0] || {};
-                    const pendingOrders = orders.filter(order => order.orderStatus === 'pending');
+                {order.map(({ warehouseDetails, orders =[]}, warehouseIndex) => {
+                    const pendingOrders = orders.filter((singleOrder) => singleOrder.orderStatus === "pending");
+                    return pendingOrders.map((singleOrder, orderIndex) => (
+                        <div 
+                            key={`${warehouseIndex}-${orderIndex}`} 
+                            className="bg-white border border-gray-200 shadow-lg rounded-lg p-4 flex flex-col gap-y-4"
+                        >
+                            {/* Warehouse Information */}
+                            <div className="flex">
+                                {/* Warehouse Image */}
+                                <div className="w-1/3">
+                                    <img
+                                        src={warehouseDetails?.warehouseImage || ''}
+                                        alt="Warehouse"
+                                        className="w-full h-full object-cover rounded-md"
+                                    />
+                                </div>
 
-                    return (
-                        <div key={index} className="bg-white border border-gray-200 shadow-lg rounded-lg p-4 flex">
-                            {/* Warehouse Image */}
-                            <div className="w-2/6">
-                                <img
-                                    src={warehouseDetails?.warehouseImage || ''}
-                                    alt="Warehouse"
-                                    className="w-full h-full object-cover rounded-md"
-                                />
-                            </div>
+                                {/* Warehouse Details */}
+                                <div className='flex flex-col'>
+                                    <div className='flex gap-x-3 '>
+                                    <div className="flex flex-col w-2/3 pl-4 pt-4 max-w-xs gap-y-3">
+                                    <h3 className="text-lg font-bold text-richblue-600">{warehouseDetails?.warehouseName}</h3>
+                                    <p className="text-md text-richblue-600"><strong>Address:</strong> {warehouseDetails?.warehouseAddress}</p>
+                                    <p className="text-md text-richblue-600"><strong>Area:</strong> {warehouseDetails?.warehouseArea} sq. ft.</p>
+                                </div>
 
-                            {/* Order Details - Left Side */}
-                            <div className='flex w-1/3 flex-col gap-y-2 pl-4 justify-between'>
-                                <h3 className="text-md text-richblue-600">{warehouseDetails?.warehouseName}</h3>
-                                <p className="text-md text-richblue-600"><strong>Order Date:</strong> {new Date(firstOrder.orderCreatedDate).toLocaleDateString()}</p>
-                                <p className="text-md text-richblue-600"><strong>Expected Delivery:</strong> {new Date(firstOrder.estimatedDeliveryDate).toLocaleDateString()}</p>
-                            </div>
-
-                            {/* Order Details - Right Side */}
-                            <div className="flex ml-44 flex-col justify-between">
-                                <p className="text-md text-richblue-600"><strong>Warehouse Address:</strong> {warehouseDetails?.warehouseAddress}</p>
-                                {/* Fulfill Order Button */}
+                                <div className="pt-4 flex flex-col gap-y-3">
+                                <p className="text-md text-richblue-600"><strong>Order ID:</strong> {singleOrder.uniqueOrderId}</p>
+                                <p className="text-md text-richblue-600"><strong>Order Date:</strong> {new Date(singleOrder.orderCreatedDate).toLocaleDateString()}</p>
+                                <p className="text-md text-richblue-600"><strong>Expected Delivery:</strong> {new Date(singleOrder.estimatedDeliveryDate).toLocaleDateString()}</p>
+                                </div>
+                                    </div>
+                                    <div className="mt-4">
                                 <button
-                                    onClick={() => navigate(`/dashboard/fulfill-order`, { state: { pendingOrders, warehouseDetails:warehouseDetails,uniqueId:orders[0].uniqueOrderId } })}
-                                    className="mt-2 p-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 transition-colors"
+                                    onClick={() => navigate(`/dashboard/fulfill-order`, { 
+                                        state: { 
+                                            pendingOrders: singleOrder, 
+                                            warehouseDetails: warehouseDetails ,
+                                            uniqueId:singleOrder.uniqueOrderId
+                                        } 
+                                    })}
+                                    className="w-full mt-1 p-2 mx-2 bg-blu text-white rounded-md hover:bg-blue-800 transition-colors"
                                 >
                                     Fulfill the Order
                                 </button>
                             </div>
+                                </div>
+                            </div>
                         </div>
-                    );
+                    ));
                 })}
             </div>
         </div>

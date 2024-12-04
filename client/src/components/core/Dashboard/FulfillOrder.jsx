@@ -10,8 +10,8 @@ function FulfillOrder() {
     const orders = location.state?.pendingOrders || [];
     const warehouseDetails = location.state?.warehouseDetails || [];
     const uniqueId = location.state?.uniqueId || [];
-    const products = orders.flatMap(order => order.selectedProducts);
-    console.log("Orders Id to be passed in the next round ",orders[0]._id)
+    const products = orders.selectedProducts;
+    console.log("Orders Id to be passed in the next round ",orders._id)
     console.log("Warehouse Details to be passed in the next round ",warehouseDetails)
     console.log("UniqueId to be passed in the next round ",uniqueId)
     // State to store quantities, unit costs, and if a product has been added to the bill
@@ -62,7 +62,7 @@ function FulfillOrder() {
 
     // Handle the proceed with the order button
     const proceedWithOrder = () => {
-        navigate('/dashboard/order-details', { state: { orderId:orders[0]._id,orderDetails,warehouseDetails:warehouseDetails,uniqueId:uniqueId } });
+        navigate('/dashboard/order-details', { state: { orderId:orders._id,orderDetails,warehouseDetails:warehouseDetails,uniqueId:uniqueId } });
     };
 
     return (
