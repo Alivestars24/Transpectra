@@ -1,55 +1,57 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom'; // For navigating to the delivery tracking page
-import img from '../../../assets/Images/invimg.png'
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchWarehouseOrdersDetails } from '../../../services/oparations/warehouseAPI';
+import img from '../../../assets/Images/invimg.png';
 import QRModal from "../../Common/QrModal";
-import ConfirmationModal from "../../Common/ConfirmationModal";
-import Qrimg from "../../../assets/Images/QRcode.jpg"
-import { useState } from 'react';
 import PastDeliveryTable from './PastDeliveryTable';
-
-const orders = [
-  {
-    id: 1,
-    orderNumber: 'ORD-1001',
-    supplier: 'Saksham Pvt Ltd',
-    deliveryDate: '2024-10-20',
-    status: 'In Transit',
-    totalValue: '₹7,50,000',
-    paymentStatus: 'Unpaid',
-    invoicePDF: '/Invoice1.pdf.docx' // PDF in the public folder
-  },
-  {
-    id: 2,
-    orderNumber: 'ORD-1002',
-    supplier: 'Akash Electronics',
-    deliveryDate: '2024-10-22',
-    status: 'In Transit',
-    totalValue: '₹1,50,000',
-    paymentStatus: 'Paid',
-    invoicePDF: '/Invoice1.pdf.docx'
-  }
-];
+import {apiConnector} from "../../../services/apiConnector";
+import {toast} from "react-hot-toast";
 
 const Orders = () => {
   const navigate = useNavigate();
-
-  // Function to handle opening the PDF
-  const handleOpenPDF = (pdfPath) => {
-    window.open(pdfPath, '_blank'); // Opens PDF in a new tab
-  };
-
-  // Function to navigate to delivery tracking
-  const handleTrackDelivery = (orderId) => {
-    // navigate(`/track-delivery/${orderId}`);
-    navigate(`/dashboard/track-delivery`);
-  };
+  const dispatch = useDispatch();
   const [qrModal, setQRModal] = useState(null);
-  const [confirmationModal, setConfirmationModal] = useState(null);
+
+  const warehouse = useSelector((state) => state.warehouse?.warehouse || null);
+  const managerId = warehouse?._id;
+  const orderList = useSelector((state) => state.order?.order || []);
+
+  useEffect(() => {
+    if (managerId) {
+      dispatch(fetchWarehouseOrdersDetails({ managerId }));
+    }
+  }, [dispatch, managerId]);
+
+  const handleOpenPDF = async (filePath) => {
+    try {
+      const response = await apiConnector(
+        "POST",                        // HTTP method
+        "http://localhost:4000/api/v1/pdf/generate-signed-url",     // Backend endpoint
+        { filePath },
+      );
+  
+      const { url } = response.data;
+      if (url) {
+        window.open(url, "_blank", "noopener,noreferrer"); // Open the signed URL
+      } else {
+        alert("Failed to fetch the signed URL.");
+      }
+    } catch (error) {
+      console.error("Error fetching signed URL:", error);
+    }
+  };
+  
+  const handleTrackDelivery = (orderId) => navigate(`/dashboard/track-delivery`);
+  const handleRemindManufacturer = (orderId) => {
+    // Logic to remind manufacturer
+    toast.success("Reminder Sent Successfully for Order!")
+  };
 
   return (
     <div className="px-6">
       <h1 className="text-2xl font-bold mb-4">Ongoing Orders</h1>
-      
+
       <div className="mb-4">
         <input
           type="text"
@@ -58,69 +60,100 @@ const Orders = () => {
         />
       </div>
 
-      <div className="flex flex-col justify-center gap-y-3">
-        {orders.map((order) => (
+      <div className="flex flex-col gap-y-4">
+        {orderList.map((order) => (
           <div
-            key={order.id}
-            className="relative border p-4 rounded-lg shadow-md flex justify-between items-center"
+            key={order._id}
+            className={`border p-4 rounded-lg shadow-md`}
           >
-            {/* Left-hand side: PDF Thumbnail and Invoice Button */}
-            <div className="flex items-center">
-              {/* Placeholder for PDF Thumbnail */}
-              <div className='relative'>
-              <img src={img} className='h-36 w-32'/>
-              <div className="py-5 w-full bg-gray-300 absolute bottom-0  rounded-sm">
-                {/* Button overlay for opening the invoice */}
-                <button
-                  className="absolute bottom-0 left-0 w-full py-1 bg-black text-white text-sm text-center"
-                  onClick={() => handleOpenPDF(order.invoicePDF)}
-                >
-                  Open Invoice
-                </button>
-              </div>
+            <div className="flex gap-x-3 justify-between">
+              <div className="flex items-center">
+                {order.orderStatus === 'Processing' && (
+                  <div className="relative">
+                    <img src={img} className="h-36 w-32" />
+                    <div className="absolute bottom-0 w-full bg-gray-300 py-5 rounded-sm">
+                    <button
+                    className="absolute bottom-0 left-0 w-full py-1 bg-black text-white text-sm"
+                    onClick={() => handleOpenPDF(order.deliveriesDetails[0]?.invoicePdf)}
+                    >
+                    Open Invoice
+                    </button>
+
+                    </div>
+                  </div>
+                )}
+
+                <div className="ml-12 flex flex-col justify-center gap-y-2">
+                  <p className="text-lg font-semibold">Unique Order Id: {order.uniqueOrderId}</p>
+                  <p className="text-blue-800">Manufacturer: {order.manufacturerName}</p>
+                  <p className="text-blue-800">Expected Delivery Date: {new Date(order.estimatedDeliveryDate).toLocaleDateString()}</p>
+                  <div className="text-md flex flex-row gap-x-2 items-center">
+                    <p>Status:</p> 
+                    <div className={`rounded-lg px-6 py-1 ${
+              order.orderStatus === 'Processing'
+                ? 'bg-caribbeangreen-100'
+                : 'bg-yellow-100'
+            }`}>{order.orderStatus}</div>
+                  </div>
+                </div>
               </div>
 
-              {/* Order Information */}
-              <div className="ml-4 flex flex-col justify-center gap-y-2 pl-6">
-                <p className="text-lg font-semibold">{order.orderNumber}</p>
-                <p className="text-blue-800">Manufacturer: {order.supplier}</p>
-                <p className="text-blue-800">Delivery Date: {order.deliveryDate}</p>
-                <p className={`text-md ${order.status === 'In Transit' ? 'text-blue-900' : 'text-green-500'}`}>
-                  Status : {order.status}
+              <div className="flex flex-col gap-y-5 max-w-md justify-center">
+                
+              {order.orderStatus === 'pending' && (
+                <div className='flex flex-col gap-y-5'>
+                <p className="text-sm">
+                  Products:{" "}
+                  {order.selectedProducts
+                    .map(
+                      (product) =>
+                        `${product.productName} -> ${product.specifications}, Qty: ${product.quantity}`
+                    )
+                  .join(", ")}
                 </p>
-              </div>
-            </div>
+                <p className="text-blue-800">Order Created On: {new Date(order.orderCreatedDate).toLocaleDateString()}</p>
+                  </div>
+                )}
+                {order.orderStatus === 'Processing' ? (
+                  <>
+                    <button
+                      className="px-12 py-2 bg-blu text-white font-semibold rounded-lg"
+                      onClick={() => handleTrackDelivery(order._id)}
+                    >
+                      Track Order
+                    </button>
+                    <button
+                    className="px-12 py-2 bg-richblue-800 text-white font-semibold rounded-lg"
+                    onClick={() =>
+                    setQRModal({
+                        text1: "Scan the QR Code",
+                        btn2Handler: () => setQRModal(null),
+                        qrImage: order.qrCodeImageUrl, // Pass the specific order's QR code
+                    })
+                    }
+                    >
+                    View QR Code
+                    </button>
 
-            {/* Right-hand side: Track Delivery Button */}
-            <div className='flex flex-col gap-y-1 w-64 pr-20 justify-between'>
-              
-            
-              <button
-                className="px-4 py-2 bg-blu text-white font-semibold rounded-lg mt-2"
-                onClick={() => handleTrackDelivery(order.id)}
-              >
-                Track Order
-              </button>
-              <button
-                className="px-4 py-2 bg-richblue-800 text-white font-semibold rounded-lg mt-2"
-                onClick={() =>
-                          setQRModal({
-                            text1: "Scan the QR Code",
-                            btn2Handler: () => setQRModal(null),
-                          })
-                  }
-              >
-                View QR Code
-              </button>
+                  </>
+                ) : (
+                  <button
+                    className="px-4 py-2 bg-blu text-white font-semibold rounded-lg"
+                    onClick={() => handleRemindManufacturer(order.uniqueOrderId)}
+                  >
+                    Remind Manufacturer
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         ))}
       </div>
-      <div>
-        <PastDeliveryTable/>
+
+      <PastDeliveryTable />
+
+      {qrModal && <QRModal modalData={qrModal} qrImage={qrModal.qrImage} />}
       </div>
-      {qrModal && <QRModal modalData={qrModal} qrImage={Qrimg} />}
-    </div>
   );
 };
 

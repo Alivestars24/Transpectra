@@ -27,13 +27,13 @@ export const endpoints = {
   FETCH_INVENTORY_FOR_WAREHOUSE:BASE_URL+"/inventory",
   //Delivery
   CREATE_DELIVERY_FOR_ORDER:BASE_URL+"/delivery/create",
-  FETCH_DELIVERIES_FOR_MANUFACTURER:BASE_URL+"/manufacturing-unit"
+  FETCH_DELIVERIES_FOR_MANUFACTURER:BASE_URL+"/delivery/manufacturing-unit",
+  FETCH_DELIVERIES_FOR_WAREHOUSE:BASE_URL+"/delivery/warehouse",
 }
 
 export const profileEndpoints = {
   GET_USER_DETAILS_API: BASE_URL + "/profile/details",
 }
-
 // SETTINGS PAGE API
 export const settingsEndpoints = {
   UPDATE_DISPLAY_PICTURE_API: BASE_URL + "/profile/update-picture",

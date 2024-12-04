@@ -11,7 +11,7 @@ const deliverySlice = createSlice({
   initialState,
   reducers: {
     // Action to set fleet details in the state
-    setorderDetails(state, action) {
+    setdeliveryDetails(state, action) {
       state.delivery = action.payload;
     },
     // Action to update the loading state

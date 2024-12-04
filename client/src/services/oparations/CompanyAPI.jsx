@@ -123,7 +123,7 @@ export function fetchDeliveryDetails({ managerId }) {
       if (!response?.data) {
         throw new Error("Invalid response structure");
       }
-      dispatch(setdeliveryDetails(response.data.manufacturerDetails.linkedWarehouses));
+      dispatch(setdeliveryDetails(response.data.data));
       toast.success("Request Order details fetched successfully");
     } catch (error) {
       console.error("Order Fetch API ERROR............", error);

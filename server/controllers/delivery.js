@@ -8,6 +8,7 @@ const Order = require("../models/Order");
 const { uploadPdfToCloudinary } = require("../utils/pdfUploader");
 const User = require("../models/User");
 const Profile = require("../models/Profile");
+const RouteTracking = require("../models/routeTracking");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -619,7 +620,12 @@ exports.getManufacturingUnitOrdersWithDeliveries = async (req, res) => {
 
     // Fetch all orders for the given manufacturing unit ID
     const orders = await Order.find({ manufacturerId: manufacturingUnitId }).populate({
-      path: "deliveries",
+      path: "deliveries", // Populate the deliveries field
+      model: "Delivery", // Specify the Delivery schema
+      populate: {
+        path: "routeTrackingid", // Populate the routeTrackingId inside the Delivery schema
+        model: "RouteTracking", // Specify the RouteTracking schema
+      },
     });
 
     // If no orders are found
@@ -630,10 +636,10 @@ exports.getManufacturingUnitOrdersWithDeliveries = async (req, res) => {
       });
     }
 
-    // Return the orders with their populated deliveries
+    // Return the orders with their populated deliveries and routeTracking details
     res.status(200).json({
       success: true,
-      message: "Orders and associated deliveries fetched successfully.",
+      message: "Orders, deliveries, and route tracking details fetched successfully.",
       data: orders,
     });
   } catch (error) {

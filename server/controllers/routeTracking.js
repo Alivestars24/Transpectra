@@ -2,7 +2,7 @@ const RouteTracking = require("../models/routeTracking");
 const Delivery = require("../models/Delivery");
 
 exports.updateRouteTracking = async (req, res) => {
-    const { deliveryId, driverId, fnrNumber, awbNumber, interfaceName, igmNumber, to, from } = req.body;
+    const { deliveryId, driverId, fnrNumber, awbNumber, interfaceName, igmNumber, to, from, status } = req.body;
 
     if (!deliveryId) {
         return res.status(400).json({
@@ -27,7 +27,7 @@ exports.updateRouteTracking = async (req, res) => {
                     message: "Driver details already set and cannot be updated.",
                 });
             }
-            routeTracking.driver = { driverId, to, from };
+            routeTracking.driver = { driverId, to, from, status };
         }
 
         if (fnrNumber) {
@@ -37,7 +37,7 @@ exports.updateRouteTracking = async (req, res) => {
                     message: "Train tracking details already set and cannot be updated.",
                 });
             }
-            routeTracking.train = { fnrNumber, to, from };
+            routeTracking.train = { fnrNumber, to, from, status };
         }
 
         if (awbNumber) {
@@ -47,7 +47,7 @@ exports.updateRouteTracking = async (req, res) => {
                     message: "Airway tracking details already set and cannot be updated.",
                 });
             }
-            routeTracking.air = { awbNumber, to, from };
+            routeTracking.air = { awbNumber, to, from, status };
         }
 
         if (interfaceName && igmNumber) {
@@ -57,7 +57,7 @@ exports.updateRouteTracking = async (req, res) => {
                     message: "Ship tracking details already set and cannot be updated.",
                 });
             }
-            routeTracking.ship = { interfaceName, igmNumber, to, from };
+            routeTracking.ship = { interfaceName, igmNumber, to, from, status };
         }
 
         // Save the updated RouteTracking document

@@ -125,7 +125,7 @@ function OrderDetails() {
         // Add the invoice header
         doc.setFontSize(14);
         doc.text("INVOICE", 105, startY, { align: "center" });
-        startY += 20;
+        startY += 10;
     
         // Invoice Info
         doc.setFontSize(12);
@@ -156,7 +156,7 @@ function OrderDetails() {
         doc.setFontSize(10);
         if (selectedRoute) {
             // Get the selected route
-            const selectedRouteData = deliveryRoutes.find(route => route.routeId === selectedRoute);
+            const selectedRouteData = deliveryRoutes.find(route => route.routeId === selectedRoute.routeId);
         
             if (selectedRouteData) {
                 // Add the Route Summary
@@ -451,7 +451,7 @@ function OrderDetails() {
                  Select a Route to Transport the Order
             </h3>
             <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-2 mb-8">
-    {deliveryRoutes && deliveryRoutes.map(route => (
+        {deliveryRoutes && deliveryRoutes.map(route => (
         <div
             key={route.routeId}
             className={`border relative rounded-lg shadow-lg p-6 cursor-pointer ${

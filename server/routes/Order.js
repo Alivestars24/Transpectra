@@ -15,7 +15,6 @@ const { getManufacturerDetails } = require("../controllers/Order");
  * */ 
 router.post("/create", createOrder);
 
-
 /**
  * 
  * Purpose :  Route to fetch manufacturer details with linked warehouses and orders
@@ -23,6 +22,7 @@ router.post("/create", createOrder);
  * URL : /api/v1/order/manufacturer/:manufacturerId/details
  *  
  * */ 
+
 router.get("/manufacturer/:manufacturerId/details", getManufacturerDetails);
 
 

@@ -29,6 +29,7 @@ const CONFIG = {
         forecast: '/api/v1/forecast',
         routeTracking: '/api/v1/routeTracking',
         //routeOptimi:'api/v1/route',
+        pdf:'/api/v1/pdf',
     },
     KEYS: {
         CLOUDINARY: {
