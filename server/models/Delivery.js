@@ -67,11 +67,19 @@ const DeliverySchema = new mongoose.Schema({
         enum: ['Pending', 'In Progress', 'Completed', 'Cancelled'],
         default: 'Pending'
     },
-    assignedDriver: {
+    assignedDriver: [
+        {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        default: [],
-    },
+        default: [], 
+        }
+     ],
+    routeTrackingid:
+        {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'routeTracking',
+        default: null,
+        },
     estimatedDeliveryTime: { type: Date },
     actualDeliveryDate: { type: Date },
     invoicePdf: { type: String }, // Stores the Cloudinary URL of the uploaded PDF

@@ -27,6 +27,7 @@ const CONFIG = {
         Order: "/api/v1/order",
         ManufacturerFetch: '/api/v1/manufacturer',
         forecast: '/api/v1/forecast',
+        routeTracking: '/api/v1/routeTracking',
         //routeOptimi:'api/v1/route',
     },
     KEYS: {

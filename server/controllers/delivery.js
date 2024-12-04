@@ -241,7 +241,6 @@ exports.FetchDelivery = async (req, res) => {
  */
 // Configure multer for file uploads
 // Ensure uploads directory exists
-
 const uploadDir = "uploads/";
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
@@ -302,13 +301,14 @@ exports.CreateDelivery = async (req, res) => {
               !ManufactureId ||
               !selectedProducts ||
               !estimatedDeliveryTime ||
-              !deliveryRoutes 
+              !deliveryRoutes // Ensure deliveryRoutes is also present
           ) {
               return res.status(400).json({
                   success: false,
                   message: "Missing required fields.",
               });
           }
+
           // Parse and validate selectedProducts
           let parsedProducts;
           try {
@@ -374,34 +374,35 @@ exports.CreateDelivery = async (req, res) => {
               });
           }
 
-          const isRouteValid = parsedRoutes.every((route) => {
-              return (
-                  route.step &&
-                  typeof route.step === "number" &&
-                  route.from &&
-                  typeof route.from === "string" &&
-                  route.to &&
-                  typeof route.to === "string" &&
-                  route.by &&
-                  ["rail", "road", "air", "sea"].includes(route.by) &&
-                  route.distance &&
-                  typeof route.distance === "number" &&
-                  route.expectedTime &&
-                  typeof route.expectedTime === "string" &&
-                  route.cost &&
-                  typeof route.cost === "number"
-              );
-          });
+          // const isRouteValid = parsedRoutes.every((route) => {
+          //     return (
+          //         route.step &&
+          //         typeof route.step === "number" &&
+          //         route.from &&
+          //         typeof route.from === "string" &&
+          //         route.to &&
+          //         typeof route.to === "string" &&
+          //         route.by &&
+          //         ["rail", "road", "air", "sea"].includes(route.by) &&
+          //         route.distance &&
+          //         typeof route.distance === "number" &&
+          //         route.expectedTime &&
+          //         typeof route.expectedTime === "string" &&
+          //         route.cost &&
+          //         typeof route.cost === "number"
+          //     );
+          // });
 
-          if (!isRouteValid) {
-              return res.status(400).json({
-                  success: false,
-                  message:
-                      "Invalid delivery route structure. Ensure 'step' (number), 'from' (string), 'to' (string), 'by' (valid mode), 'distance' (number), 'expectedTime' (string), and 'cost' (number) are provided for each route.",
-              });
-          }
+          // if (!isRouteValid) {
+          //     return res.status(400).json({
+          //         success: false,
+          //         message:
+          //             "Invalid delivery route structure. Ensure 'step' (number), 'from' (string), 'to' (string), 'by' (valid mode), 'distance' (number), 'expectedTime' (string), and 'cost' (number) are provided for each route.",
+          //     });
+          // }
 
           // Fetch manufacturing unit
+          
           const manufacturingUnit = await ManufacturingUnit.findById(ManufactureId);
           if (!manufacturingUnit) {
               return res.status(404).json({
@@ -439,6 +440,7 @@ exports.CreateDelivery = async (req, res) => {
 
           const manufacturerProfile = await Profile.findById(manufacturerUser.additionalDetails._id);
           const warehouseProfile = await Profile.findById(warehouseManager.additionalDetails._id);
+
           if (!manufacturerProfile || !warehouseProfile) {
               return res.status(404).json({
                   success: false,
@@ -496,6 +498,7 @@ exports.CreateDelivery = async (req, res) => {
               createdAt: new Date(),
               status: "Pending",
               assignedDrivers: [],
+              routeTrackingid: null,
           });
 
           const savedDelivery = await newDelivery.save();
@@ -528,6 +531,7 @@ exports.CreateDelivery = async (req, res) => {
       }
   });
 };
+
 /**
  * @url : api/v1/delivery/warehouse/:warehouseId/details
  *
@@ -595,6 +599,43 @@ exports.getWarehouseDetails = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching warehouse details:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error.",
+      error: error.message,
+    });
+  }
+};
+/**
+ * @url : api/v1/delivery/warehouse/:warehouseId/details
+ *
+ * purpose : fetch all the delivery details on the manufacturer side 
+ */
+exports.getManufacturingUnitOrdersWithDeliveries = async (req, res) => {
+  try {
+    const { manufacturingUnitId } = req.params;
+
+    // Fetch all orders for the given manufacturing unit ID
+    const orders = await Order.find({ manufacturerId: manufacturingUnitId }).populate({
+      path: "deliveries",
+    });
+
+    // If no orders are found
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No orders found for this manufacturing unit.",
+      });
+    }
+
+    // Return the orders with their populated deliveries
+    res.status(200).json({
+      success: true,
+      message: "Orders and associated deliveries fetched successfully.",
+      data: orders,
+    });
+  } catch (error) {
+    console.error("Error fetching orders and deliveries:", error);
     res.status(500).json({
       success: false,
       message: "Internal server error.",

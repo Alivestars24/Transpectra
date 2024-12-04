@@ -71,4 +71,11 @@ export const sidebarLinks = [
     type: ACCOUNT_TYPE.YARD_MANAGER,
     icon: "VscGraph",
   },
+  {
+    id: 11,
+    name: "Deliveries",
+    path: "/dashboard/order-deliveries",
+    type: ACCOUNT_TYPE.SUPPLIER,
+    icon: "VscGraph",
+  },
 ]

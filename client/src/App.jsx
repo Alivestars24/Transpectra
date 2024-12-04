@@ -31,6 +31,7 @@ import { fetchWarehouseDetails } from "./services/oparations/warehouseAPI";
 import YardProfile from "./components/core/Dashboard/YardProfile"
 import SingleProductOrderPage from "./components/core/Dashboard/SingleProductOrderPage";
 import { fetchYardDetails } from "./services/oparations/YardAPI";
+import FetchedDeliveries from "./components/core/Dashboard/fetchedDeliveries";
 
 function App() {
   const navigate = useNavigate();
@@ -103,6 +104,14 @@ function App() {
             element={
               <PrivateRoute>
                 <Settings />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="dashboard/order-deliveries"
+            element={
+              <PrivateRoute>
+                <FetchedDeliveries/>
               </PrivateRoute>
             }
           />

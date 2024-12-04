@@ -205,7 +205,7 @@ export function login(email, password, navigate) {
   
         const token = response.data.token;
         const user = response.data.user;
-        const userId = user._id;
+        const userId = user?._id;
         const userData = { ...response.data.user};
         await dispatch(setUser(userData));
         dispatch(setToken(token));
@@ -213,34 +213,16 @@ export function login(email, password, navigate) {
         Cookies.set("storeToken", response.data.storeToken, { expires: 7 });
         console.log("Login is completed but now i want to fetch other related")
         // Fetch profile details based on account type
-        let fetchProfile;
-        let navigatePath = "/dashboard/my-profile";
-
-        switch (user.accountType) {
-        case "Warehouse_Manager":
-            console.log("Dispatching Warehouse Manager fetch...");
-            fetchProfile = fetchWarehouseDetails;
-            break;
-  
-        case "Yard_managers":
-            console.log("Dispatching Yard Manager fetch...");
-            fetchProfile = fetchYardDetails;
-            navigatePath = "/dashboard/my-profile-yard";
-            break;
-  
-        default:
-            console.log("Dispatching Company fetch...");
-            fetchProfile = fetchCompanyDetails;
-            break;
+        if (user.accountType === "Warehouse_Manager") {
+            await dispatch(fetchWarehouseDetails(userId));
+            navigate('/dashboard/my-profile')
+        } else if (user.accountType === "Yard_managers") {
+            await dispatch(fetchYardDetails(userId));
+            navigate('/dashboard/my-profile-yard')
+        } else {
+            await dispatch(fetchCompanyDetails(userId));
+            navigate('/dashboard/my-profile')
         }
-  
-        await dispatch(fetchProfile({ managerId: userId }))
-        .then(() => navigate(navigatePath))
-        .catch((error) => {
-          console.error("Error fetching profile:", error);
-          toast.error("Error fetching profile details.");
-        });
-
   
       } catch (error) {
         console.error("Login Error:", error);
