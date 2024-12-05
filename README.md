@@ -46,6 +46,15 @@ Transpectra's route optimization minimizes transportation costs and delivery tim
 | ![image13](https://github.com/user-attachments/assets/155f1753-c1de-46ce-bb88-40c5406144b6)|<img width="937" alt="image" src="https://github.com/user-attachments/assets/f6416c93-7b74-427a-9fde-2f4666eb0aaa">|
 
 
+## Screenshots of the Mobile Frontend
+
+| ![Image1](https://github.com/user-attachments/assets/91e65493-a361-4be3-8de0-e3bc8c4eb519) | ![Image2](https://github.com/user-attachments/assets/0a03fe43-1e66-4130-9d1b-913903aaf28d) | ![Image3](https://github.com/user-attachments/assets/96a0be71-e780-4ee1-a745-c9f0ff44034c) | ![Image4](https://github.com/user-attachments/assets/3421287f-9953-4c15-914b-fffc6e75b75d) | ![Image5](https://github.com/user-attachments/assets/561b7598-3cf0-4808-bfe6-ec360e56539e) |
+|------------------------------------------------------------|------------------------------------------------------------|------------------------------------------------------------|------------------------------------------------------------|------------------------------------------------------------|
+| ![Image6](https://github.com/user-attachments/assets/2a1362b7-fe96-4d91-814a-299fa120c67c) | ![Image7](https://github.com/user-attachments/assets/1e485235-0d27-4842-8847-3f8721698c4d) | ![Image8](https://github.com/user-attachments/assets/b8a98205-1f29-4ff4-a9df-37e8abe19bd1) | ![Image9](https://github.com/user-attachments/assets/4093ba7c-f675-49c8-9bc6-2a162ce25516) | ![Image10](https://github.com/user-attachments/assets/523dc5d1-4d8b-4cc5-afc8-482ddf125db0) |
+| ![Image11](https://github.com/user-attachments/assets/68ce799a-4f46-4395-a618-be9dbd5d80ff) | ![Image12](https://github.com/user-attachments/assets/09ff8509-d27a-41b5-90fc-b0b1285c1d2b) |                                                          |                                                          |                                                          |
+
+
+
 ---
 
 ## Tech Stack  
