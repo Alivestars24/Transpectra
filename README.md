@@ -43,7 +43,8 @@ Transpectra's route optimization minimizes transportation costs and delivery tim
 | ![image9](https://github.com/user-attachments/assets/d2e06893-8c0b-4fa8-84bd-4f3ef82d7954)| ![image7](https://github.com/user-attachments/assets/3397475b-e737-4195-bd7c-4c1dab05c5b0)|
 | ![image8](https://github.com/user-attachments/assets/6c782ff1-cd93-45ec-84ce-28ec200007cc)|![image10](https://github.com/user-attachments/assets/233198da-0eab-4598-a1a2-f547c875fcfb)|
 | ![image11](https://github.com/user-attachments/assets/7d68c53a-10a8-4ee0-9bd5-39f196b9046d)| ![image12](https://github.com/user-attachments/assets/daee9a96-e140-49f5-9dc5-812c9832d2ee)|
-| ![image13](https://github.com/user-attachments/assets/155f1753-c1de-46ce-bb88-40c5406144b6)|
+| ![image13](https://github.com/user-attachments/assets/155f1753-c1de-46ce-bb88-40c5406144b6)|<img width="937" alt="image" src="https://github.com/user-attachments/assets/f6416c93-7b74-427a-9fde-2f4666eb0aaa">|
+
 
 ---
 
