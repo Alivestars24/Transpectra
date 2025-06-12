@@ -33,6 +33,8 @@ import SingleProductOrderPage from "./components/core/Dashboard/SingleProductOrd
 import { fetchYardDetails } from "./services/oparations/YardAPI";
 import FetchedDeliveries from "./components/core/Dashboard/fetchedDeliveries";
 import RouteDetails from "./components/core/Dashboard/RouteDetails";
+import ResourceInsights from "./pages/ResourceInsights";
+import Chatbot from "./pages/chatbot";
 
 function App() {
   const navigate = useNavigate();
@@ -209,6 +211,22 @@ function App() {
             element={
               <PrivateRoute>
                 <YardProfile/>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="dashboard/resource"
+            element={
+              <PrivateRoute>
+                <ResourceInsights/>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="dashboard/chatbot"
+            element={
+              <PrivateRoute>
+                <Chatbot/>
               </PrivateRoute>
             }
           />

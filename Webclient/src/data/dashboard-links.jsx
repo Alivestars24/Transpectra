@@ -1,4 +1,4 @@
-import { ACCOUNT_TYPE } from "../utils/constants"
+import { ACCOUNT_TYPE } from "../utils/constants";
 
 export const sidebarLinks = [
   {
@@ -78,4 +78,39 @@ export const sidebarLinks = [
     type: ACCOUNT_TYPE.SUPPLIER,
     icon: "VscGraph",
   },
-]
+  {
+    id: 12,
+    name: "Resource Insights",
+    path: "/dashboard/resource",
+    type: ACCOUNT_TYPE.YARD_MANAGER,
+    icon: "VscBook",
+  },
+  {
+    id: 13,
+    name: "Resource Insights",
+    path: "/dashboard/resource",
+    type: ACCOUNT_TYPE.WAREHOUSE_MANAGER,
+    icon: "VscBook",
+  },
+  {
+    id: 14,
+    name: "AI Assistance",
+    path: "/dashboard/chatbot",
+    type: ACCOUNT_TYPE.WAREHOUSE_MANAGER,
+    icon: "VscBook",
+  },
+  {
+    id: 15,
+    name: "AI Assistance",
+    path: "/dashboard/chatbot",
+    type: ACCOUNT_TYPE.SUPPLIER,
+    icon: "VscBook",
+  },
+  {
+    id: 16,
+    name: "AI Assistance",
+    path: "/dashboard/chatbot",
+    type: ACCOUNT_TYPE.YARD_MANAGER,
+    icon: "VscBook",
+  },
+];
