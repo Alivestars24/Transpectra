@@ -135,7 +135,7 @@ export default function ResourceInsights() {
     setError(null);
 
     try {
-      const response = await fetch("http://localhost:8000/resource_optimizer", {
+      const response = await fetch("https://transpectra-ai.onrender.com/resource_optimizer", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

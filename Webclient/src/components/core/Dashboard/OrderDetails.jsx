@@ -639,7 +639,7 @@ function OrderDetails() {
         const fetchRoutes = async () => {
             setLoading(true);
             try {
-                const response = await fetch('http://localhost:8000/route_optimizer', {
+                const response = await fetch('https://transpectra-ai.onrender.com/route_optimizer', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
